@@ -9,6 +9,9 @@
       "firestore.rules",
       "**/*.md",
       "**/.*",
+      "**/.*/**",
+      ".git/**",
+      ".firebase/**",
       "**/node_modules/**"
     ],
     "headers": [
