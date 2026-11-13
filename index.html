@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEON PONG V7 // Cross-Play Apex Arena</title>
+    <title>NEON PONG V8 // Cross-Play Apex Arena</title>
+    <meta name="theme-color" content="#030408">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Neon Pong">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="icon.svg">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🏓%3C/text%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
@@ -14,18 +21,18 @@
             --spin: #bc13fe; --success: #00ff88; --text: #ffffff; --muted: #8b95b8;
             --border: rgba(255, 255, 255, 0.14);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
         input, textarea { -webkit-user-select: text; user-select: text; }
         html, body {
-            width: 100%; height: 100dvh; overflow: hidden; background: var(--bg-dark);
+            width: 100%; height: 100vh; height: 100dvh; overflow: hidden; background: var(--bg-dark); overscroll-behavior: none;
             color: var(--text); font-family: 'Rajdhani', sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background-image: radial-gradient(circle at 15% 40%, rgba(0, 243, 255, 0.1), transparent 45%),
                               radial-gradient(circle at 85% 60%, rgba(255, 0, 85, 0.1), transparent 45%);
         }
         #app-wrapper {
-            width: 100%; max-width: 980px; height: 100dvh; max-height: 760px;
-            padding: 6px 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 5px;
+            width: 100%; max-width: 1360px; height: 100vh; height: 100dvh;
+            padding: max(6px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); display: flex; flex-direction: column; justify-content: space-between; gap: 5px;
         }
         .utility-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
         .btn-group { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
@@ -91,7 +98,7 @@
             cursor: none; touch-action: none; display: flex; align-items: center; justify-content: center;
         }
         #game-container.menu-open { cursor: default; }
-        canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+        canvas { display: block; flex: none; border-radius: 10px; }
         #mobile-deck { display: none; grid-template-columns: 1.35fr 1fr; gap: 8px; height: 108px; width: 100%; padding-top: 2px; }
         #mobile-deck.active { display: grid; }
         .touch-pad {
@@ -194,6 +201,68 @@
         .acct-stats { grid-template-columns: repeat(3, 1fr); max-width: 360px; margin: 2px 0; }
         .acct-lbl { font-size: 0.62rem; text-transform: uppercase; color: var(--muted); }
         #account-btn.signed-in { border-color: var(--success); color: var(--success); }
+
+        /* ===== V8: HUD always shows YOU on the left ===== */
+        #top-bar.swap .player-card.p1 { grid-column: 3; grid-row: 1; flex-direction: row-reverse; text-align: right; justify-content: flex-start; }
+        #top-bar.swap .player-card.p2 { grid-column: 1; grid-row: 1; flex-direction: row-reverse; text-align: left; justify-content: flex-end; }
+        #top-bar.swap .center-telemetry { grid-column: 2; grid-row: 1; }
+        #top-bar.swap .p1 .name-row { justify-content: flex-end; }
+        #top-bar.swap .p2 .name-row { justify-content: flex-start; }
+        #top-bar.swap .p1 .od-fill { float: right; }
+        #top-bar.swap .p2 .od-fill { float: none; }
+
+        /* ===== V8: control deck (trackpad / joystick / buttons / touch-court) ===== */
+        .touch-pad { user-select: none; }
+        .stick-base { position: absolute; width: 104px; height: 104px; margin: -52px 0 0 -52px; border-radius: 50%; border: 2px solid rgba(0,243,255,0.55); background: radial-gradient(circle, rgba(0,243,255,0.14), rgba(0,243,255,0.03)); pointer-events: none; display: none; }
+        .stick-knob { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: var(--p1); box-shadow: 0 0 18px var(--p1); opacity: 0.85; }
+        .dir-btns { position: absolute; inset: 6px; display: none; gap: 8px; }
+        .dir-btn { flex: 1; border-radius: 12px; border: 2px solid rgba(0,243,255,0.6); background: rgba(0,243,255,0.12); color: #fff; font-size: 1.7rem; font-weight: 900; touch-action: none; cursor: pointer; }
+        .dir-btn.held { background: rgba(0,243,255,0.4); }
+        #mobile-deck[data-mode="buttons"] .dir-btns { display: flex; }
+        #mobile-deck[data-mode="buttons"] .pad-hint { display: none; }
+        body.landscape-court .dir-btns { flex-direction: column; }
+        #mobile-deck[data-mode="court"] #mobile-trackpad { display: none; }
+        #mobile-deck[data-mode="court"].active { grid-template-columns: 1fr; }
+        body.lefty #mobile-deck .mobile-actions { order: -1; }
+        .m-btn { touch-action: none; }
+
+        .ctrl-card { width: 100%; max-width: 460px; gap: 8px; }
+        .ctrl-card .settings-row { flex-wrap: wrap; gap: 6px; }
+        .ctrl-card .pill-selector { flex-wrap: wrap; }
+        .ctrl-desc { font-size: 0.74rem; color: var(--muted); text-align: left; min-height: 2.2em; }
+        .howto-list { list-style: none; text-align: left; display: flex; flex-direction: column; gap: 6px; font-size: 0.86rem; }
+        .howto-list b { color: var(--p1); font-family: 'Orbitron', sans-serif; font-size: 0.72rem; letter-spacing: 0.5px; }
+        #howto-overlay, #controls-overlay, #net-overlay { z-index: 60; }
+        .net-msg { color: var(--muted); font-size: 0.9rem; max-width: 420px; margin: 6px 0 12px; }
+
+        /* While a match is on, phones drop the shop pills to give the court more room */
+        @media (max-width: 820px), (max-height: 520px) {
+            body.in-match .profile-pill, body.in-match .bounty-pill { display: none; }
+            body.in-match .utility-bar { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+            body.in-match .utility-bar::-webkit-scrollbar { display: none; }
+        }
+        @media (max-width: 820px) and (orientation: portrait) {
+            #mobile-deck[data-mode="court"].active { height: 86px; }
+            #mobile-deck[data-mode="court"] .mobile-actions { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Landscape phones: controls sit beside the court so it gets the full height */
+        @media (orientation: landscape) and (max-height: 520px) {
+            body.deck-on #app-wrapper { display: grid; grid-template-columns: minmax(104px, 21vw) minmax(0, 1fr) minmax(104px, 19vw); grid-template-rows: auto auto minmax(0, 1fr); column-gap: 6px; row-gap: 3px; }
+            body.deck-on .utility-bar, body.deck-on #top-bar { grid-column: 1 / -1; }
+            body.deck-on #game-container { grid-column: 2; grid-row: 3; }
+            body.deck-on #mobile-deck.active { display: contents; }
+            body.deck-on #mobile-trackpad { grid-column: 1; grid-row: 3; }
+            body.deck-on .mobile-actions { grid-column: 3; grid-row: 3; grid-template-columns: 1fr; grid-template-rows: 1.4fr 1fr; }
+            body.deck-on.lefty #mobile-trackpad { grid-column: 3; }
+            body.deck-on.lefty .mobile-actions { grid-column: 1; }
+            body.deck-on.ctrl-court #app-wrapper { grid-template-columns: minmax(0, 1fr) minmax(96px, 17vw); }
+            body.deck-on.ctrl-court .mobile-actions { grid-column: 2; }
+            body.deck-on.ctrl-court.lefty #app-wrapper { grid-template-columns: minmax(96px, 17vw) minmax(0, 1fr); }
+            body.deck-on.ctrl-court.lefty .mobile-actions { grid-column: 1; }
+            body.deck-on.ctrl-court.lefty #game-container { grid-column: 2; }
+            .touch-pad small { display: none; }
+        }
         @media (max-width: 760px) {
             .racket-grid { grid-template-columns: repeat(2, 1fr); }
             .racket-card .r-desc { display: none; }
@@ -250,8 +319,7 @@
 
         /* Portrait phone: court keeps its 880:500 shape at the top, the thumb pad fills the rest of the screen */
         @media (max-width: 820px) and (orientation: portrait) {
-            #game-container { flex: none; height: auto; aspect-ratio: 880 / 500; }
-            #mobile-deck { flex: 1; height: auto; min-height: 110px; max-height: 280px; margin-bottom: env(safe-area-inset-bottom, 0px); }
+            #mobile-deck { height: clamp(112px, 20dvh, 210px); }
         }
 
         /* Landscape phone: squeeze chrome so the court gets the height */
@@ -282,8 +350,9 @@
             <button class="icon-btn" onclick="sendEmote(1)" title="SAVE">😱<span class="lbl"> SAVE</span></button>
             <button class="icon-btn" onclick="sendEmote(2)" title="CALC">📐<span class="lbl"> CALC</span></button>
             <button class="icon-btn" onclick="sendEmote(3)" title="RIP">💀<span class="lbl"> RIP</span></button>
-            <button class="icon-btn" onclick="toggleMobileDeck()">📱<span class="lbl"> Pad</span></button>
-            <button class="icon-btn" onclick="toggleFullscreen()">⛶</button>
+            <button class="icon-btn" onclick="openControls()" title="Controls">🎮<span class="lbl"> Controls</span></button>
+            <button class="icon-btn" onclick="toggleMobileDeck()" title="Show/hide touch controls">📱<span class="lbl"> Pad</span></button>
+            <button class="icon-btn" onclick="toggleFullscreen()" title="Full screen">⛶</button>
             <button class="icon-btn" onclick="toggleMute()"><span id="sound-icon">🔊</span></button>
             <button class="icon-btn" id="leave-match-btn" style="display:none;border-color:var(--p2);" onclick="returnToMenu()">✖</button>
         </div>
@@ -400,6 +469,10 @@
                 <button class="btn btn-secondary" onclick="startAIGame()">⚡ Play Instant vs Pro AI</button>
                 <button id="create-btn" class="btn" onclick="createOnlineGame()">🔗 Invite Friend (Phone / PC)</button>
             </div>
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="icon-btn" onclick="openHowTo()">❔ How to Play</button>
+                <button class="icon-btn" onclick="openControls()">🎮 Controls</button>
+            </div>
             <div id="status-text" style="margin-top:4px; color:var(--p2); font-weight:700; font-size:0.85rem;"></div>
         </div>
 
@@ -422,6 +495,10 @@
                 </div>
             </div>
             <button class="btn btn-secondary" onclick="confirmJoinGame()">⚡ Join Match & Enable Audio</button>
+            <div class="btn-row" style="margin-top:6px;">
+                <button class="icon-btn" onclick="openHowTo()">❔ How to Play</button>
+                <button class="icon-btn" onclick="openControls()">🎮 Controls</button>
+            </div>
         </div>
 
         <!-- 3. INVITE OVERLAY -->
@@ -493,6 +570,83 @@
             </div>
         </div>
 
+        <!-- 9. CONTROLS OVERLAY -->
+        <div id="controls-overlay" class="overlay hidden">
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--p1);">🎮 CONTROLS</h2>
+            <div class="panel-card ctrl-card">
+                <div class="settings-row">
+                    <label>Touch Control</label>
+                    <div class="pill-selector" id="ctrl-mode">
+                        <button class="pill-btn" data-v="pad">TRACKPAD</button>
+                        <button class="pill-btn" data-v="stick">JOYSTICK</button>
+                        <button class="pill-btn" data-v="buttons">BUTTONS</button>
+                        <button class="pill-btn" data-v="court">TOUCH COURT</button>
+                    </div>
+                </div>
+                <p class="ctrl-desc" id="ctrl-mode-desc"></p>
+                <div class="settings-row">
+                    <label>Sensitivity</label>
+                    <div class="pill-selector" id="ctrl-sens">
+                        <button class="pill-btn" data-v="0.6">LOW</button>
+                        <button class="pill-btn" data-v="1">MED</button>
+                        <button class="pill-btn" data-v="1.5">HIGH</button>
+                        <button class="pill-btn" data-v="2.2">MAX</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Aim Assist</label>
+                    <div class="pill-selector" id="ctrl-assist">
+                        <button class="pill-btn" data-v="0">OFF</button>
+                        <button class="pill-btn" data-v="1">LIGHT</button>
+                        <button class="pill-btn" data-v="2">STRONG</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Vibration</label>
+                    <div class="pill-selector" id="ctrl-haptics">
+                        <button class="pill-btn" data-v="1">ON</button>
+                        <button class="pill-btn" data-v="0">OFF</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Main Hand</label>
+                    <div class="pill-selector" id="ctrl-lefty">
+                        <button class="pill-btn" data-v="0">RIGHT</button>
+                        <button class="pill-btn" data-v="1">LEFT</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Graphics</label>
+                    <div class="pill-selector" id="ctrl-fx">
+                        <button class="pill-btn" data-v="auto">AUTO</button>
+                        <button class="pill-btn" data-v="full">FULL</button>
+                        <button class="pill-btn" data-v="lite">LITE</button>
+                    </div>
+                </div>
+            </div>
+            <p class="auth-hint" style="max-width:440px;">Weak, cracked or laggy touchscreen? Pick <b>BUTTONS</b> or <b>JOYSTICK</b> and turn on <b>Aim Assist</b>: no precise dragging needed. Strong assist is limited to Light in ranked matches.</p>
+            <button class="btn" style="margin-top:6px;" onclick="closeControls()">Done</button>
+        </div>
+
+        <!-- 10. HOW TO PLAY OVERLAY -->
+        <div id="howto-overlay" class="overlay hidden">
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--hyper);">❔ HOW TO PLAY</h2>
+            <div class="panel-card" style="max-width:480px;">
+                <ul class="howto-list" id="howto-list"></ul>
+            </div>
+            <div class="btn-row" style="margin-top:8px;">
+                <button class="btn" onclick="closeHowTo()">Let's Play!</button>
+                <button class="icon-btn" onclick="closeHowTo(); openControls();">🎮 Change Controls</button>
+            </div>
+        </div>
+
+        <!-- 11. NETWORK PROBLEM OVERLAY -->
+        <div id="net-overlay" class="overlay hidden">
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--p2);" id="net-title">Connection lost</h2>
+            <p class="net-msg" id="net-msg"></p>
+            <button class="btn" onclick="returnToMenu()">Main Menu</button>
+        </div>
+
         <!-- 8. ACCOUNT OVERLAY -->
         <div id="account-overlay" class="overlay hidden">
             <h2 style="font-family:'Orbitron',sans-serif; color:var(--p1);">👤 NEON ACCOUNT</h2>
@@ -536,8 +690,15 @@
     <!-- Dedicated Mobile/Tablet Control Deck -->
     <div id="mobile-deck">
         <div class="touch-pad" id="mobile-trackpad">
-            <span>✥ DRAG THUMB HERE TO MOVE BAT</span>
-            <small>1:1 Smooth Trackpad • Zero Screen Blocking</small>
+            <div class="pad-hint" style="display:flex;flex-direction:column;align-items:center;pointer-events:none;">
+                <span id="pad-hint-main">✥ DRAG THUMB HERE TO MOVE BAT</span>
+                <small id="pad-hint-sub">Smooth trackpad • works anywhere in this box</small>
+            </div>
+            <div class="stick-base" id="stick-base"><div class="stick-knob" id="stick-knob"></div></div>
+            <div class="dir-btns" id="dir-btns">
+                <button class="dir-btn" id="dir-neg" data-dir="-1">◀</button>
+                <button class="dir-btn" id="dir-pos" data-dir="1">▶</button>
+            </div>
         </div>
         <div class="mobile-actions">
             <button class="m-btn m-strike" id="btn-mobile-strike">
@@ -770,7 +931,7 @@ function buyOrEquip(id) {
     const item = COSMETICS.find(c => c.id === id);
     if (!item) return;
     if (!profile.unlocked.includes(id)) {
-        if (profile.coins < item.cost) { alert("Complete Bounties & Fever Rings to earn more Neon Coins!"); return; }
+        if (profile.coins < item.cost) { toast("Not enough coins yet. Complete bounties, hit Fever Rings and win matches to earn more 🪙"); return; }
         profile.coins -= item.cost; profile.unlocked.push(id);
     }
     if (item.type === 'trail') profile.trail = item.val;
@@ -1201,14 +1362,17 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
-const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 820);
+// Primary input decides the default layout (a touch-screen laptop with a mouse stays in desktop mode).
+const mq = q => { try { return window.matchMedia(q).matches; } catch { return false; } };
+const isTouchDevice = mq('(pointer: coarse)') || (navigator.maxTouchPoints > 0 && !mq('(pointer: fine)'));
 const myDeviceIcon = isTouchDevice ? '📱' : '💻';
 
-const NET_X = canvas.width / 2;
+const W = 880, H = 500;     // logical court size: identical on every device, so cross-play is fair
+const NET_X = W / 2;
 const BAT_RADIUS = 11;
 const BALL_RADIUS = 9.5;
-const P1_BOUNDS = { minX: 36, maxX: NET_X - 38, minY: 42, maxY: canvas.height - 42 };
-const P2_BOUNDS = { minX: NET_X + 38, maxX: canvas.width - 36, minY: 42, maxY: canvas.height - 42 };
+const P1_BOUNDS = { minX: 36, maxX: NET_X - 38, minY: 42, maxY: H - 42 };
+const P2_BOUNDS = { minX: NET_X + 38, maxX: W - 36, minY: 42, maxY: H - 42 };
 
 // conn = reliable/ordered control channel, connF = unreliable/fast channel (sync + movement)
 let peer = null, conn = null, connF = null, pingTimer = null, leaving = false;
@@ -1217,8 +1381,13 @@ let gameActive = false, animationId = null, lastTime = performance.now(), pendin
 let mySelectedRacket = 'pro';
 let hitStopTimer = 0, slowMoTimer = 0, cameraZoom = 1.0, screenShake = 0, screenFlash = 0, guestSlow = false;
 
-function sendCtl(m) { if (conn && conn.open) conn.send(m); }
-function sendFast(m) { if (connF && connF.open) connF.send(m); }
+function sendCtl(m) { if (conn && conn.open) { try { conn.send(m); } catch {} } }
+function sendFast(m) { if (connF && connF.open) { try { connF.send(m); } catch {} } }
+const NET_VERSION = 8;   // bump whenever the network messages change; mismatched players get a "refresh" message
+let lastRecvAt = 0, lastSyncSent = 0, lastMoveSent = 0, lastMoveX = -1, lastMoveY = -1;
+let remoteAway = false, localAway = false, countdownUntil = 0, countdownKind = 'start', guestFlickSent = false;
+let watchdogTimer = null, joinTimer = null;
+const isOnline = () => !isAIMode && !!(conn && conn.open);
 
 let matchConfig = {
     targetScore: 5, winByTwo: true,
@@ -1241,10 +1410,10 @@ function createBat(x, y, rKey = 'pro') {
 }
 
 const state = {
-    p1: createBat(95, canvas.height / 2, 'pro'),
-    p2: createBat(canvas.width - 95, canvas.height / 2, 'pro'),
+    p1: createBat(95, H / 2, 'pro'),
+    p2: createBat(W - 95, H / 2, 'pro'),
     ball: {
-        x: 130, y: canvas.height / 2, z: 18, vz: 0,
+        x: 130, y: H / 2, z: 18, vz: 0,
         vx: 0, vy: 0, speed: 0, spin: 0, kmh: 0, shotType: 'SERVE READY',
         isHyper: false, ultType: '', netClipped: false
     },
@@ -1262,22 +1431,37 @@ const keys = { ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false
 window.onload = () => {
     try {
         loadProfile();
-        if (isTouchDevice) document.getElementById('mobile-deck').classList.add('active');
+        loadControls();
+        if (isTouchDevice) setDeck(true);
         const saved = store.get('neon_pong_nickname');
         if (saved) { document.getElementById('host-name-input').value = cleanName(saved); document.getElementById('guest-name-input').value = cleanName(saved); }
     } catch (e) {}
     const room = new URLSearchParams(window.location.search).get('room');
     if (room) { pendingRoomId = room; isHost = false; showOverlay('join-overlay'); }
-    drawArena();
+    computeView();
+    watchLayout();
     updateAccountUI();
     initCloud();
+    if (!store.get(HOWTO_KEY)) openHowTo();
 };
 
-function toggleMobileDeck() { sfx.play('ui'); document.getElementById('mobile-deck').classList.toggle('active'); }
+function setDeck(on) {
+    document.getElementById('mobile-deck').classList.toggle('active', on);
+    document.body.classList.toggle('deck-on', on);
+    scheduleView();
+}
+function toggleMobileDeck() { sfx.play('ui'); setDeck(!document.getElementById('mobile-deck').classList.contains('active')); }
 function toggleFullscreen() {
     sfx.play('ui');
-    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
-    else document.exitFullscreen?.();
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (!req) {   // iPhone Safari has no fullscreen API for pages
+        toast('📲 For full screen: tap Share → "Add to Home Screen", then open Neon Pong from your home screen.');
+        return;
+    }
+    if (!(document.fullscreenElement || document.webkitFullscreenElement)) {
+        Promise.resolve(req.call(el, { navigationUI: 'hide' })).catch(() => {});
+    } else (document.exitFullscreen || document.webkitExitFullscreen).call(document);
 }
 function selectRacket(rKey, el) {
     sfx.play('ui'); mySelectedRacket = rKey;
@@ -1407,7 +1591,16 @@ const PEER_CONFIG = {
 
 function initPeer(customId = null, targetId = null) {
     if (peer) peer.destroy();
+    if (typeof Peer === 'undefined') { showNetIssue('Online play unavailable', 'The online-play library could not load. Check your internet connection (or turn off content blockers) and reload.'); return; }
     peer = new Peer(customId, { debug: 1, config: PEER_CONFIG });
+    // Phones drop the signalling socket when the screen sleeps; reconnect so the invite link keeps working.
+    peer.on('disconnected', () => { if (!leaving && peer && !peer.destroyed) { try { peer.reconnect(); } catch {} } });
+    if (targetId) {
+        clearTimeout(joinTimer);
+        joinTimer = setTimeout(() => {
+            if (!(conn && conn.open) && !leaving) showNetIssue("Couldn't connect", "The invite link may have expired, or a network is blocking the connection. Ask your friend for a fresh link. Switching one device from mobile data to Wi-Fi (or the other way round) often helps.");
+        }, 20000);
+    }
     peer.on('open', (id) => {
         if (isHost) {
             const base = window.location.href.split(/[?#]/)[0];
@@ -1428,17 +1621,35 @@ function initPeer(customId = null, targetId = null) {
         else if (!conn) { conn = c; setupConnEvents(c, true); }
         else c.close();
     });
-    peer.on('error', (err) => { if (leaving) return; alert("Network error: " + err.type); returnToMenu(); });
+    peer.on('error', (err) => {
+        if (leaving) return;
+        const t = err && err.type;
+        if (t === 'disconnected' || t === 'socket-closed') { if (peer && !peer.destroyed) { try { peer.reconnect(); } catch {} } if (conn && conn.open) return; }
+        const msgs = {
+            'peer-unavailable': ['Invite expired', 'That game room is closed. Your friend may have left the invite screen or refreshed. Ask them for a new link.'],
+            'browser-incompatible': ['Browser not supported', 'This browser can’t do online play. Please use Chrome, Safari, Edge or Firefox.'],
+            'network': ['Network problem', 'Couldn’t reach the matchmaking server. Check your internet connection and try again.'],
+            'server-error': ['Server busy', 'The matchmaking server didn’t respond. Wait a moment and try again.'],
+            'socket-error': ['Network problem', 'Lost the connection to the matchmaking server. Check your internet and try again.'],
+            'webrtc': ['Connection blocked', 'Your networks couldn’t connect directly. Try switching one device to Wi-Fi or mobile data.']
+        };
+        const [title, msg] = msgs[t] || ['Network error', 'Something went wrong with the online connection (' + esc(t || 'unknown') + '). Please try again.'];
+        showNetIssue(title, msg);
+    });
 }
 
 function handleNetData(d) {
     if (!d || typeof d !== 'object') return;
+    lastRecvAt = performance.now();
+    if (d.type === 'version') { showVersionMismatch(); return; }
+    if (d.type === 'hello' && isHost && d.v !== NET_VERSION) { sendCtl({ type: 'version', v: NET_VERSION }); setTimeout(showVersionMismatch, 150); return; }
+    if (d.type === 'config' && !isHost && d.v !== NET_VERSION) { sendCtl({ type: 'version', v: NET_VERSION }); setTimeout(showVersionMismatch, 150); return; }
     if (d.type === 'hello' && isHost) {
         matchConfig.p2Name = cleanName(d.name, 'Player 2');
         matchConfig.p2Racket = rk(d.racket);
         matchConfig.p2Dev = cleanDev(d.dev);
         setOppRankedRp(d.rrp);
-        sendCtl({ type: 'config', config: matchConfig, series: seriesWins, rrp: myRankedRp() });
+        sendCtl({ type: 'config', v: NET_VERSION, config: matchConfig, series: seriesWins, rrp: myRankedRp() });
         applyNamesUI(); startMatch();
     } else if (d.type === 'config' && !isHost) {
         const c = d.config || {};
@@ -1469,6 +1680,7 @@ function handleNetData(d) {
             Object.assign(state.ball, { z: s.ball.z, vx: s.ball.vx, vy: s.ball.vy, vz: s.ball.vz, spin: s.ball.spin, kmh: s.ball.kmh, shotType: s.ball.shotType, isHyper: s.ball.isHyper, ultType: s.ball.ultType });
         }
         state.rally = s.rally; state.maxRally = s.maxRally; state.topKmh = s.topKmh;
+        if (s.wfs && !state.waitingForServe) guestFlickSent = false;
         state.waitingForServe = s.wfs; state.currentServer = s.srv; state.servesLeft = s.sLeft;
         updateHUD();
     } else if (d.type === 'move' && isHost) {
@@ -1494,8 +1706,14 @@ function handleNetData(d) {
         handleGameOver(d.winner === 2 ? 2 : 1);
     } else if (d.type === 'rematch' && !isHost) {
         matchConfig.initialServer = d.initialServer === 2 ? 2 : 1; resetMatch();
+    } else if (d.type === 'rematch_req' && isHost) {
+        if (!gameActive) requestRematch();
+    } else if (d.type === 'away') {
+        remoteAway = !!d.on;
+        if (!remoteAway) startCountdown('resume');
     } else if (d.type === 'rrp') setOppRankedRp(d.v);
     else if (d.type === 'ping') sendCtl({ type: 'pong', t: d.t });
+    else if (d.type === 'pong' && !isHost) { /* keep-alive only */ }
     else if (d.type === 'pong' && isHost) {
         const rtt = Date.now() - num(d.t);
         document.getElementById('ping-display').innerText = `${rtt} ms`;
@@ -1507,15 +1725,19 @@ function setupConnEvents(c, isControl) {
     c.on('open', () => {
         if (!isControl) return;
         document.getElementById('leave-match-btn').style.display = 'flex';
-        if (!isHost) c.send({ type: 'hello', name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon, rrp: myRankedRp() });
-        else { clearInterval(pingTimer); pingTimer = setInterval(() => sendCtl({ type: 'ping', t: Date.now() }), 2000); }
+        clearTimeout(joinTimer);
+        lastRecvAt = performance.now(); remoteAway = false;
+        if (!isHost) c.send({ type: 'hello', v: NET_VERSION, name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon, rrp: myRankedRp() });
+        clearInterval(pingTimer); pingTimer = setInterval(() => sendCtl({ type: 'ping', t: Date.now() }), 2000);
+        startWatchdog();
     });
     c.on('data', handleNetData);
     if (isControl) c.on('close', () => {
         clearInterval(pingTimer); pingTimer = null;
         if (leaving) return;
-        alert("Opponent disconnected."); returnToMenu();
+        showNetIssue('Opponent disconnected', 'Your opponent closed the game or lost their internet connection.');
     });
+    c.on('error', () => {});
 }
 
 function applyNamesUI() {
@@ -1528,9 +1750,44 @@ function applyNamesUI() {
     document.getElementById('rule-badge').innerText = `FIRST TO ${matchConfig.targetScore}`;
 }
 
+function teardownNet() {
+    leaving = true;
+    clearInterval(pingTimer); pingTimer = null;
+    clearInterval(watchdogTimer); watchdogTimer = null;
+    clearTimeout(joinTimer);
+    if (conn) { try { conn.close(); } catch {} conn = null; }
+    if (connF) { try { connF.close(); } catch {} connF = null; }
+    if (peer) { try { peer.destroy(); } catch {} peer = null; }
+    remoteAway = false;
+}
+function showNetIssue(title, msg) {
+    gameActive = false; clearTimeout(pointTimer);
+    teardownNet();
+    document.getElementById('net-title').innerText = title;
+    document.getElementById('net-msg').innerText = msg;
+    document.getElementById('leave-match-btn').style.display = 'none';
+    document.body.classList.remove('in-match');
+    keepAwake(false);
+    showOverlay('net-overlay');
+}
+function showVersionMismatch() {
+    showNetIssue('Different game versions', 'You and your friend are on different versions of Neon Pong. Both of you reload the page (pull down to refresh on phones), then send a new invite.');
+}
+function startWatchdog() {
+    clearInterval(watchdogTimer);
+    watchdogTimer = setInterval(() => {
+        if (document.hidden || leaving || !(conn && conn.open)) return;
+        const limit = remoteAway ? 90000 : 9000;
+        if (performance.now() - lastRecvAt > limit) showNetIssue('Connection lost', 'No data from your opponent for a while. One of the connections dropped. Start a new invite to play again.');
+    }, 1000);
+}
+
 function returnToMenu() {
     sfx.play('ui'); gameActive = false; paused = false; leaving = true; clearTimeout(pointTimer);
     clearInterval(pingTimer); pingTimer = null;
+    clearInterval(watchdogTimer); watchdogTimer = null; clearTimeout(joinTimer);
+    document.body.classList.remove('in-match');
+    keepAwake(false);
     if (conn) { try { conn.close(); } catch {} conn = null; }
     if (connF) { try { connF.close(); } catch {} connF = null; }
     if (peer) { peer.destroy(); peer = null; }
@@ -1543,11 +1800,15 @@ function returnToMenu() {
 
 function startMatch() {
     showOverlay('none'); clearTimeout(pointTimer);
+    document.body.classList.add('in-match');
+    computeView();
+    keepAwake(true);
+    startCountdown('start');
     state.score1 = 0; state.score2 = 0; state.rally = 0; state.maxRally = 0; state.topKmh = 0;
     state.pointsPlayed = 0; state.deuceStart = -1; guestSlow = false; slowMoTimer = 0; hitStopTimer = 0; paused = false;
     matchCounted = false;
-    state.p1 = createBat(95, canvas.height / 2, matchConfig.p1Racket);
-    state.p2 = createBat(canvas.width - 95, canvas.height / 2, matchConfig.p2Racket);
+    state.p1 = createBat(95, H / 2, matchConfig.p1Racket);
+    state.p2 = createBat(W - 95, H / 2, matchConfig.p2Racket);
     updateScoreBox(0); applyNamesUI();
     gameActive = true; lastTime = performance.now();
     if (animationId) cancelAnimationFrame(animationId);
@@ -1557,6 +1818,11 @@ function startMatch() {
 
 function resetMatch() { sfx.play('ui'); startMatch(); }
 function requestRematch() {
+    // Only the host owns the match; a guest asks the host (before, both sides reset separately and desynced).
+    if (!isAIMode && !isHost) {
+        if (conn && conn.open) { sendCtl({ type: 'rematch_req' }); document.getElementById('match-subtitle').innerText = '⏳ Waiting for the host to start the rematch…'; }
+        return;
+    }
     matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
     if (isAIMode) resetMatch();
     else if (conn && conn.open) { sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer }); resetMatch(); }
@@ -1568,6 +1834,7 @@ function preparePlayerServe() {
     const rot = computeServiceRotation();
     state.currentServer = rot.server; state.servesLeft = rot.servesLeft;
     state.waitingForServe = true; state.serveLockTimer = 15; state.rally = 0;
+    announcePressure();
     state.pointIsFever = false; state.feverRing.active = false; state.decoyBall.active = false;
 
     const srvBat = state.currentServer === 1 ? state.p1 : state.p2;
@@ -1636,7 +1903,7 @@ function launchServe(playerNum, customVx, customVy) {
     const slice = customVy || bat.vy;
     const spd = Math.max(9.8, Math.min(16.0, (8.8 + fwd * 0.42) * rStats.spd));
 
-    const centerBias = ((canvas.height / 2) - b.y) * 0.0014;
+    const centerBias = ((H / 2) - b.y) * 0.0014;
     const angle = Math.max(-0.44, Math.min(0.44, (slice * 0.022) - (bat.angle * 0.35 * dir) + centerBias));
 
     b.speed = spd;
@@ -1658,7 +1925,7 @@ function launchServe(playerNum, customVx, customVy) {
         particles: { x: b.x, y: b.y, color: playerNum === 1 ? '#00f3ff' : '#ff0055', count: 22 },
         ring: { x: b.x, y: b.y, color: playerNum === 1 ? '#00f3ff' : '#ff0055' },
         text: { x: b.x, y: b.y - 25, txt: `${b.kmh} KM/H`, color: '#ffffff' },
-        shake: 5
+        shake: 5, by: playerNum
     });
 }
 
@@ -1674,7 +1941,7 @@ function stepBatKinematics(bat, bounds, isP1, dt) {
 
     const desiredX = Math.max(bounds.minX, Math.min(bounds.maxX, bat.targetX + bat.lungeOffset));
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
-    const yMin = Math.max(bounds.minY, rStats.len / 2 + 24), yMax = Math.min(bounds.maxY, canvas.height - rStats.len / 2 - 24);
+    const yMin = Math.max(bounds.minY, rStats.len / 2 + 24), yMax = Math.min(bounds.maxY, H - rStats.len / 2 - 24);
     const desiredY = Math.max(yMin, Math.min(yMax, bat.targetY));
     const b = state.ball;
     const incoming = (isP1 && b.vx < 0 && b.x < NET_X) || (!isP1 && b.vx > 0 && b.x > NET_X);
@@ -1794,9 +2061,9 @@ function checkBatCapsuleCollision(bat, isP1) {
 
         b.speed = Math.max(6.8, Math.min(26.5, newSpeed));
 
-        const targetY = (canvas.height / 2) + (bladeOffset * 135) + (sliceStroke * 8);
-        const clampedTargetY = Math.max(55, Math.min(canvas.height - 55, targetY));
-        const targetX = isP1 ? (canvas.width - 90) : 90;
+        const targetY = (H / 2) + (bladeOffset * 135) + (sliceStroke * 8);
+        const clampedTargetY = Math.max(55, Math.min(H - 55, targetY));
+        const targetX = isP1 ? (W - 90) : 90;
         const idealAngle = Math.atan2(clampedTargetY - b.y, Math.abs(targetX - b.x));
         const bounceAngle = b.ultType === 'laser' ? (idealAngle * 0.35) : Math.max(-0.52, Math.min(0.52, idealAngle));
 
@@ -1815,7 +2082,7 @@ function checkBatCapsuleCollision(bat, isP1) {
 
         if (state.rally === 3 && !state.feverRing.active && !state.pointIsFever) {
             state.feverRing.active = true;
-            state.feverRing.y = canvas.height / 2;
+            state.feverRing.y = H / 2;
             state.feverRing.mode = Math.random() > 0.42 ? 'fever' : 'mirage';
         }
 
@@ -1827,8 +2094,12 @@ function checkBatCapsuleCollision(bat, isP1) {
             text: { x: b.x, y: b.y - 24, txt: callout || `${b.kmh} KM/H`, color: pColor },
             shake: b.isHyper ? 16 : (freezeFrames > 0 ? 10 : 4),
             hitStop: freezeFrames,
-            flash: b.isHyper ? 0.35 : 0
+            flash: b.isHyper ? 0.35 : 0,
+            by: pn
         });
+        if (RALLY_MILESTONES.includes(state.rally)) {
+            emitFX({ sfx: 'fever', banner: { txt: `🔥 ${state.rally}-HIT RALLY!`, color: '#ff7b00' }, shake: 6 });
+        }
         return true;
     }
     return false;
@@ -1840,12 +2111,12 @@ function updateAIBat(dt) {
     if (state.waitingForServe) {
         if (state.currentServer === 2) {
             state.aiServeTimer -= dt;
-            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.15 * dt;
-            ai.targetY += (((canvas.height / 2) + Math.sin(Date.now() * 0.006) * 110) - ai.targetY) * 0.15 * dt;
+            ai.targetX += ((W - 95) - ai.targetX) * 0.15 * dt;
+            ai.targetY += (((H / 2) + Math.sin(Date.now() * 0.006) * 110) - ai.targetY) * 0.15 * dt;
             if (state.aiServeTimer <= 0) launchServe(2, -11, (Math.random() - 0.5) * 7);
         } else {
-            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.12 * dt;
-            ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.12 * dt;
+            ai.targetX += ((W - 95) - ai.targetX) * 0.12 * dt;
+            ai.targetY += ((H / 2) - ai.targetY) * 0.12 * dt;
         }
         return;
     }
@@ -1857,10 +2128,10 @@ function updateAIBat(dt) {
         if (b.x > NET_X + 70 && b.x < ai.x - 10 && Math.abs(b.y - ai.y) < 55 && ai.lungeOffset === 0) {
             triggerWhipStrike(2);
         }
-        ai.targetX += ((b.speed < 13 ? NET_X + 140 : canvas.width - 95) - ai.targetX) * 0.12 * dt;
+        ai.targetX += ((b.speed < 13 ? NET_X + 140 : W - 95) - ai.targetX) * 0.12 * dt;
     } else {
-        ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.1 * dt;
-        ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.1 * dt;
+        ai.targetX += ((W - 95) - ai.targetX) * 0.1 * dt;
+        ai.targetY += ((H / 2) - ai.targetY) * 0.1 * dt;
     }
 }
 
@@ -1875,22 +2146,22 @@ function updatePhysics(rawDt) {
     let dt = rawDt;
     if (slowMoTimer > 0) { slowMoTimer -= rawDt; dt = rawDt * 0.44; }
 
-    const spd = 11.5 * rawDt;
     const myBat = isHost ? state.p1 : state.p2;
     const myBounds = isHost ? P1_BOUNDS : P2_BOUNDS;
-    if (keys.ArrowUp || keys.w || keys.W) myBat.targetY -= spd;
-    if (keys.ArrowDown || keys.s || keys.S) myBat.targetY += spd;
-    if (keys.ArrowLeft || keys.a || keys.A) myBat.targetX -= spd;
-    if (keys.ArrowRight || keys.d || keys.D) myBat.targetX += spd;
-    myBat.targetX = Math.max(myBounds.minX, Math.min(myBounds.maxX, myBat.targetX));
-    myBat.targetY = Math.max(myBounds.minY, Math.min(myBounds.maxY, myBat.targetY));
+    applyLocalInput(myBat, myBounds, isHost, rawDt);
 
     if (!isHost) {
         stepBatKinematics(state.p2, P2_BOUNDS, false, rawDt);
-        sendFast({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
+        const tNow = performance.now();
+        const moved = Math.abs(state.p2.targetX - lastMoveX) > 0.2 || Math.abs(state.p2.targetY - lastMoveY) > 0.2;
+        // ~60 msgs/s max (120 Hz phones used to send 120), plus a slow keep-alive when standing still.
+        if ((moved && tNow - lastMoveSent >= 12) || tNow - lastMoveSent >= 120) {
+            sendFast({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
+            lastMoveSent = tNow; lastMoveX = state.p2.targetX; lastMoveY = state.p2.targetY;
+        }
         if (state.waitingForServe && state.currentServer === 2) {
             state.ball.x = state.p2.x - 28; state.ball.y = state.p2.y;
-            if (-state.p2.vx > 6.5) sendCtl({ type: 'whip' });
+            if (-state.p2.vx > 6.5 && !guestFlickSent) { guestFlickSent = true; sendCtl({ type: 'whip' }); }
         } else if (!state.waitingForServe && (state.ball.vx !== 0 || state.ball.vy !== 0)) {
             const gdt = guestSlow ? rawDt * 0.44 : rawDt;
             state.ball.x += state.ball.vx * gdt; state.ball.y += state.ball.vy * gdt; state.ball.vy += state.ball.spin * gdt;
@@ -1903,14 +2174,14 @@ function updatePhysics(rawDt) {
 
     if (state.feverRing.active) {
         state.feverRing.y += state.feverRing.vy * dt;
-        if (state.feverRing.y < 85 || state.feverRing.y > canvas.height - 85) state.feverRing.vy *= -1;
+        if (state.feverRing.y < 85 || state.feverRing.y > H - 85) state.feverRing.vy *= -1;
     }
 
     if (state.decoyBall.active) {
         state.decoyBall.x += state.decoyBall.vx * dt;
         state.decoyBall.y += state.decoyBall.vy * dt;
-        if (state.decoyBall.y < 20 || state.decoyBall.y > canvas.height - 20) state.decoyBall.vy *= -1;
-        if (state.decoyBall.x < 0 || state.decoyBall.x > canvas.width) state.decoyBall.active = false;
+        if (state.decoyBall.y < 20 || state.decoyBall.y > H - 20) state.decoyBall.vy *= -1;
+        if (state.decoyBall.x < 0 || state.decoyBall.x > W) state.decoyBall.active = false;
     }
 
     if (state.waitingForServe) {
@@ -1993,8 +2264,8 @@ function updatePhysics(rawDt) {
         b.vz -= (0.18 * dt) / SUBSTEPS;
         if (b.z <= 0 && b.vz < 0) {
             b.z = 0; b.vz = -b.vz * 0.75;
-            if (b.vz > 0.5 && b.x > 25 && b.x < canvas.width - 25) {
-                if (b.y < 36 || b.y > canvas.height - 36) {
+            if (b.vz > 0.5 && b.x > 25 && b.x < W - 25) {
+                if (b.y < 36 || b.y > H - 36) {
                     b.vx *= 1.14; b.speed *= 1.14; b.kmh = Math.round(b.speed * 9.6);
                     emitFX({ sfx: 'table', bounce: { x: b.x, y: b.y }, text: { x: b.x, y: b.y - 18, txt: '⚡ EDGE CLIP!', color: '#00ff88' } });
                 } else {
@@ -2006,9 +2277,9 @@ function updatePhysics(rawDt) {
         if (b.y - BALL_RADIUS < 14) {
             b.y = 14 + BALL_RADIUS; b.vy = -b.vy; b.spin *= 0.6;
             emitFX({ sfx: 'wall', particles: { x: b.x, y: 14, color: '#fff', count: 8 } });
-        } else if (b.y + BALL_RADIUS > canvas.height - 14) {
-            b.y = canvas.height - 14 - BALL_RADIUS; b.vy = -b.vy; b.spin *= 0.6;
-            emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#fff', count: 8 } });
+        } else if (b.y + BALL_RADIUS > H - 14) {
+            b.y = H - 14 - BALL_RADIUS; b.vy = -b.vy; b.spin *= 0.6;
+            emitFX({ sfx: 'wall', particles: { x: b.x, y: H - 14, color: '#fff', count: 8 } });
         }
 
         // No early break: the rest of the frame's substeps still move the ball after a hit (hitCooldown prevents re-hits).
@@ -2021,7 +2292,7 @@ function updatePhysics(rawDt) {
 
     const pts = state.pointIsFever ? 2 : 1;
     if (b.x < -15) { state.score2 += pts; state.p2.streak++; state.p1.streak = 0; onPointScored(2, 16, b.y, '#ff0055', pts); }
-    else if (b.x > canvas.width + 15) { state.score1 += pts; state.p1.streak++; state.p2.streak = 0; onPointScored(1, canvas.width - 16, b.y, '#00f3ff', pts); }
+    else if (b.x > W + 15) { state.score1 += pts; state.p1.streak++; state.p2.streak = 0; onPointScored(1, W - 16, b.y, '#00f3ff', pts); }
 
     syncToClient();
 }
@@ -2036,7 +2307,7 @@ function onPointScored(scorer, x, y, color, pts = 1) {
 
     emitFX({
         sfx: 'score', particles: { x, y, color, count: 48 }, ring: { x, y, color },
-        text: { x: NET_X, y: canvas.height / 2, txt: (pts > 1 ? `🎰 ${sName} +2 FEVER!` : `${sName} SCORES!`) + streakTxt, color },
+        text: { x: NET_X, y: H / 2, txt: (pts > 1 ? `🎰 ${sName} +2 FEVER!` : `${sName} SCORES!`) + streakTxt, color },
         shake: 14, scoreUpdate: { s1: state.score1, s2: state.score2, scorer }
     });
 
@@ -2087,6 +2358,10 @@ function handleGameOver(winner) {
 
 function triggerLocalFX(d) {
     sfx.play(d.sfx, d.extra);
+    const me = isHost ? 1 : 2;
+    if (d.by === me) buzz(d.hitStop ? 32 : 14);
+    if (d.banner && typeof d.banner.txt === 'string') showBanner(d.banner.txt.slice(0, 40), String(d.banner.color || '#fff').slice(0, 9));
+    if (d.scoreUpdate) buzz(d.scoreUpdate.scorer === me ? [18, 40, 18] : 70);
     if (d.particles) {
         const count = Math.max(0, Math.min(80, num(d.particles.count)));
         for (let i = 0; i < count; i++) {
@@ -2119,6 +2394,9 @@ function updateScoreBox(scorer) {
 }
 
 function syncToClient() {
+    const t = performance.now();
+    if (t - lastSyncSent < 12) return;   // cap at ~60 Hz even on 90/120 Hz screens
+    lastSyncSent = t;
     if (connF && connF.open) {
         connF.send({
             type: 'sync',
@@ -2173,36 +2451,41 @@ function drawBatRacket(bat, color) {
         ctx.textAlign = 'center';
         ctx.fillStyle = bat.emoteCol;
         ctx.shadowBlur = 12; ctx.shadowColor = '#000';
-        ctx.fillText(bat.emoteTxt, bat.x, bat.y - len / 2 - 18);
+        textAt(bat.emoteTxt, bat.x, bat.y, view.portrait ? -34 : -(len / 2 + 18));
         ctx.restore();
     }
 }
 
 function drawArena() {
     ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = profile.themeBg || '#050811';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(view.k, 0, 0, view.k, 0, 0);
 
     if (cameraZoom !== 1.0 || screenShake > 0) {
         const sx = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
         const sy = screenShake > 0 ? (Math.random() - 0.5) * screenShake : 0;
-        ctx.translate(canvas.width / 2 + sx, canvas.height / 2 + sy);
+        ctx.translate(view.dispW / 2 + sx, view.dispH / 2 + sy);
         ctx.scale(cameraZoom, cameraZoom);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        ctx.translate(-view.dispW / 2, -view.dispH / 2);
         screenShake *= 0.84; if (screenShake < 0.4) screenShake = 0;
     }
+    ctx.transform(view.a, view.b, view.c, view.d, view.e, view.f);
 
     ctx.fillStyle = profile.themeBg || '#050811';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, W, H);
 
     const rallyGlow = Math.min(0.12, state.rally * 0.008);
     ctx.fillStyle = `rgba(0, 243, 255, ${0.025 + rallyGlow})`;
-    ctx.fillRect(14, 14, NET_X - 48, canvas.height - 28);
+    ctx.fillRect(14, 14, NET_X - 48, H - 28);
     ctx.fillStyle = `rgba(255, 0, 85, ${0.025 + rallyGlow})`;
-    ctx.fillRect(NET_X + 34, 14, NET_X - 48, canvas.height - 28);
+    ctx.fillRect(NET_X + 34, 14, NET_X - 48, H - 28);
 
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 3;
-    ctx.strokeRect(14, 14, canvas.width - 28, canvas.height - 28);
+    ctx.strokeRect(14, 14, W - 28, H - 28);
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(14, canvas.height / 2); ctx.lineTo(canvas.width - 14, canvas.height / 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(14, H / 2); ctx.lineTo(W - 14, H / 2); ctx.stroke();
 
     for (let i = bounceMarks.length - 1; i >= 0; i--) {
         const bm = bounceMarks[i]; bm.radius += 0.65; bm.alpha -= 0.025;
@@ -2212,7 +2495,7 @@ function drawArena() {
     }
 
     ctx.strokeStyle = profile.themeNet || '#3b4a7a'; ctx.lineWidth = 4; ctx.setLineDash([12, 10]);
-    ctx.beginPath(); ctx.moveTo(NET_X, 8); ctx.lineTo(NET_X, canvas.height - 8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(NET_X, 8); ctx.lineTo(NET_X, H - 8); ctx.stroke();
     ctx.setLineDash([]);
 
     if (state.feverRing.active) {
@@ -2223,7 +2506,7 @@ function drawArena() {
         ctx.shadowBlur = 20; ctx.shadowColor = rCol;
         ctx.beginPath(); ctx.arc(state.feverRing.x, state.feverRing.y, state.feverRing.radius, 0, Math.PI * 2); ctx.stroke();
         ctx.font = '700 10px "Orbitron"'; ctx.fillStyle = rCol; ctx.textAlign = 'center';
-        ctx.fillText(isMirage ? '🟣 MIRAGE' : '🎰 2X FEVER', state.feverRing.x, state.feverRing.y + 4);
+        textAt(isMirage ? '🟣 MIRAGE' : '🎰 2X FEVER', state.feverRing.x, state.feverRing.y, 4);
         ctx.restore();
     }
 
@@ -2240,7 +2523,11 @@ function drawArena() {
         ctx.font = `900 ${isTouchDevice ? 15 : 18}px "Orbitron", sans-serif`; ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#000'; ctx.shadowBlur = 8;
         const myTurn = (isHost && isP1S) || (!isHost && !isP1S);
-        ctx.fillText(myTurn ? (isTouchDevice ? `🏓 YOUR SERVE (${state.servesLeft}) — TAP STRIKE` : `🏓 YOUR SERVE (${state.servesLeft} LEFT) — TAP STRIKE, CLICK, OR FLICK!`) : `⏳ WAITING FOR SERVE...`, NET_X, 34);
+        const hint = !myTurn ? '⏳ WAITING FOR SERVE...'
+            : isTouchDevice ? `🏓 YOUR SERVE (${state.servesLeft}) — FLICK OR TAP STRIKE`
+            : view.portrait ? `🏓 YOUR SERVE (${state.servesLeft}) — CLICK OR FLICK`
+            : `🏓 YOUR SERVE (${state.servesLeft} LEFT) — CLICK, SPACE, OR FLICK!`;
+        screenText(hint, view.dispW / 2, 30);
         ctx.shadowBlur = 0;
     }
 
@@ -2306,7 +2593,7 @@ function drawArena() {
     ctx.globalAlpha = 1;
 
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
-        const ft = floatingTexts[i]; ft.y -= 1.2; ft.alpha -= 0.024;
+        const ft = floatingTexts[i]; ft.dy = (ft.dy || 0) - 1.2; ft.alpha -= 0.024;
         if (ft.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
         ctx.save();
         ctx.globalAlpha = Math.min(1, ft.alpha);
@@ -2314,52 +2601,352 @@ function drawArena() {
         ctx.textAlign = 'center';
         ctx.fillStyle = ft.color;
         ctx.shadowBlur = 10; ctx.shadowColor = '#000';
-        ctx.fillText(ft.txt, ft.x, ft.y);
+        textAt(ft.txt, ft.x, ft.y, ft.dy);
         ctx.restore();
     }
 
     if (screenFlash > 0) {
         ctx.fillStyle = `rgba(255, 255, 255, ${screenFlash})`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, W, H);
         screenFlash = Math.max(0, screenFlash - 0.04);
     }
 
+    drawCenterMessages();
     ctx.restore();
 }
+
+// =====================================================================
+//  📐 VIEW: the court is simulated in a fixed 880x500 space on every device (fair cross-play) and drawn
+//  rotated so YOU are always on the left (landscape) or at the bottom (portrait), at full screen sharpness.
+// =====================================================================
+const view = { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0, dispW: W, dispH: H, scale: 1, k: 1, portrait: false, lowFx: false };
+let dprCap = 2, viewQueued = false, autoLowFx = false;
+
+function computeView() {
+    const host = document.getElementById('game-container');
+    const r = host.getBoundingClientRect();
+    const cw = Math.max(60, r.width - 6), ch = Math.max(60, r.height - 6);
+    const portrait = ch > cw * 1.08;
+    const meP1 = isHost;
+    const m = !portrait ? (meP1 ? [1, 0, 0, 1, 0, 0] : [-1, 0, 0, -1, W, H])
+                        : (meP1 ? [0, -1, 1, 0, 0, W] : [0, 1, -1, 0, H, 0]);
+    [view.a, view.b, view.c, view.d, view.e, view.f] = m;
+    view.portrait = portrait;
+    view.dispW = portrait ? H : W; view.dispH = portrait ? W : H;
+    view.scale = Math.min(cw / view.dispW, ch / view.dispH);
+    const dpr = Math.max(1, Math.min(dprCap, window.devicePixelRatio || 1));
+    const cssW = Math.max(1, Math.floor(view.dispW * view.scale)), cssH = Math.max(1, Math.floor(view.dispH * view.scale));
+    canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    const bw = Math.round(cssW * dpr), bh = Math.round(cssH * dpr);
+    if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
+    view.k = bw / view.dispW;
+    document.body.classList.toggle('court-portrait', portrait);
+    document.body.classList.toggle('landscape-court', !portrait);
+    document.getElementById('top-bar').classList.toggle('swap', !meP1);
+    document.getElementById('dir-neg').textContent = portrait ? '◀' : '▲';
+    document.getElementById('dir-pos').textContent = portrait ? '▶' : '▼';
+    if (dirHeld) updateButtonVel();
+    if (!gameActive) drawArena();
+}
+function scheduleView() {
+    if (viewQueued) return;
+    viewQueued = true;
+    requestAnimationFrame(() => { viewQueued = false; computeView(); });
+}
+function watchLayout() {
+    if (window.ResizeObserver) new ResizeObserver(scheduleView).observe(document.getElementById('game-container'));
+    window.addEventListener('resize', scheduleView);
+    window.addEventListener('orientationchange', () => { scheduleView(); setTimeout(scheduleView, 300); });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleView);
+}
+const toDisplay = (x, y) => ({ x: view.a * x + view.c * y + view.e, y: view.b * x + view.d * y + view.f });
+const toLogical = (X, Y) => ({ x: view.a * (X - view.e) + view.b * (Y - view.f), y: view.c * (X - view.e) + view.d * (Y - view.f) });
+const deltaToLogical = (dX, dY) => ({ x: view.a * dX + view.b * dY, y: view.c * dX + view.d * dY });
+
+// Text is always drawn upright, whatever way the court is rotated, and squeezed to fit narrow screens.
+function fitText(txt, maxW) {
+    const w = ctx.measureText(txt).width;
+    if (w > maxW) { ctx.font = ctx.font.replace(/(\d+(?:\.\d+)?)px/, (m, n) => (parseFloat(n) * maxW / w).toFixed(1) + 'px'); return maxW; }
+    return w;
+}
+function screenText(txt, X, Y) {
+    ctx.save();
+    ctx.setTransform(view.k, 0, 0, view.k, 0, 0);
+    const w = fitText(txt, view.dispW - 16);
+    ctx.fillText(txt, Math.max(w / 2 + 8, Math.min(view.dispW - w / 2 - 8, X)), Y);
+    ctx.restore();
+}
+function textAt(txt, x, y, dy = 0) {
+    const p = toDisplay(x, y);
+    screenText(txt, p.x, Math.max(18, Math.min(view.dispH - 10, p.y + dy)));
+}
+
+// ---- Big centre messages: countdown, pause, banners (match point, rally milestones) ----
+const RALLY_MILESTONES = [5, 10, 15, 20, 30, 50];
+let banner = null;
+function showBanner(txt, color) { banner = { txt, color, t0: performance.now() }; }
+function startCountdown(kind) {
+    countdownKind = kind;
+    countdownUntil = performance.now() + (kind === 'resume' ? 3000 : 1300);
+}
+function bigText(txt, X, Y, size, color, alpha = 1) {
+    ctx.globalAlpha = alpha;
+    ctx.font = `900 ${size}px "Orbitron", sans-serif`;
+    ctx.fillStyle = color; ctx.shadowColor = '#000'; ctx.shadowBlur = 14;
+    screenText(txt, X, Y);
+    ctx.globalAlpha = 1;
+}
+function drawCenterMessages() {
+    const now = performance.now();
+    ctx.save();
+    ctx.setTransform(view.k, 0, 0, view.k, 0, 0);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const cx = view.dispW / 2, cy = view.dispH / 2;
+    if (gameActive && !isAIMode && (remoteAway || localAway)) {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(0, 0, view.dispW, view.dispH);
+        bigText('⏸ PAUSED', cx, cy - 18, 34, '#ffffff');
+        bigText(remoteAway ? 'Opponent switched apps. Waiting…' : 'Paused', cx, cy + 22, 14, '#8b95b8');
+    } else if (gameActive && now < countdownUntil) {
+        const left = countdownUntil - now;
+        const txt = countdownKind === 'resume' ? String(Math.ceil(left / 1000)) : (left > 520 ? 'READY' : 'GO!');
+        const pop = 1 + ((left % 1000) / 1000) * 0.25;
+        bigText(txt, cx, cy, Math.round((countdownKind === 'resume' ? 64 : 46) * pop), '#ffe600');
+    }
+    if (banner) {
+        const age = now - banner.t0;
+        if (age > 1700) banner = null;
+        else {
+            const a = age < 1250 ? 1 : 1 - (age - 1250) / 450;
+            const size = Math.round(30 * (age < 160 ? 0.7 + age / 530 : 1));
+            bigText(banner.txt, cx, view.dispH * 0.28, size, banner.color, Math.max(0, a));
+        }
+    }
+    ctx.restore();
+}
+// Host-only: called before every serve.
+function announcePressure() {
+    const t = matchConfig.targetScore, s1 = state.score1, s2 = state.score2;
+    if (s1 + s2 === 0) return;
+    const wb2 = matchConfig.winByTwo;
+    const canWin = (a, b) => a + 1 >= t && (!wb2 || a + 1 - b >= 2);
+    let txt = '';
+    if (wb2 && s1 === s2 && s1 >= t - 1) txt = '⚖️ DEUCE!';
+    else if (canWin(s1, s2) && canWin(s2, s1)) txt = '💀 SUDDEN DEATH!';
+    else if (canWin(s1, s2) || canWin(s2, s1)) txt = '🔥 MATCH POINT!';
+    if (txt) emitFX({ sfx: 'fever', banner: { txt, color: '#ffe600' } });
+}
+
+// =====================================================================
+//  🎮 CONTROLS: trackpad / joystick / buttons / touch-court, sensitivity, aim assist, haptics
+// =====================================================================
+const CTRL_KEY = 'neon_pong_controls';
+const HOWTO_KEY = 'neon_pong_howto_seen';
+const ctrl = { mode: 'pad', sens: 1, assist: isTouchDevice ? 1 : 0, haptics: true, lefty: false, fx: 'auto' };
+const CTRL_DESC = {
+    pad: 'Drag anywhere in the pad box. The bat moves with your thumb, like a laptop trackpad. Best on good screens.',
+    stick: 'A joystick appears wherever you touch. Push it and hold. Great on weak or laggy screens: no precise dragging.',
+    buttons: 'Big hold-to-move buttons. Only needs press and release, so it works even on cracked or poorly calibrated screens.',
+    court: 'Drag your finger right on your half of the court; tapping the court swings. Biggest court view.'
+};
+const CTRL_GROUPS = {
+    'ctrl-mode': ['mode', v => v], 'ctrl-sens': ['sens', v => parseFloat(v)], 'ctrl-assist': ['assist', v => parseInt(v, 10)],
+    'ctrl-haptics': ['haptics', v => v === '1'], 'ctrl-lefty': ['lefty', v => v === '1'], 'ctrl-fx': ['fx', v => v]
+};
+function loadControls() {
+    try {
+        const s = JSON.parse(store.get(CTRL_KEY));
+        if (s && typeof s === 'object') {
+            if (CTRL_DESC[s.mode]) ctrl.mode = s.mode;
+            if ([0.6, 1, 1.5, 2.2].includes(s.sens)) ctrl.sens = s.sens;
+            if ([0, 1, 2].includes(s.assist)) ctrl.assist = s.assist;
+            ctrl.haptics = s.haptics !== false;
+            ctrl.lefty = !!s.lefty;
+            if (['auto', 'full', 'lite'].includes(s.fx)) ctrl.fx = s.fx;
+        }
+    } catch {}
+    applyControls();
+}
+function applyControls() {
+    document.getElementById('mobile-deck').dataset.mode = ctrl.mode;
+    document.body.classList.toggle('lefty', ctrl.lefty);
+    document.body.classList.toggle('ctrl-court', ctrl.mode === 'court');
+    const hints = { pad: ['✥ DRAG THUMB HERE TO MOVE BAT', 'Smooth trackpad • works anywhere in this box'], stick: ['🕹 TOUCH & HOLD = JOYSTICK', 'Push the way you want to move'] };
+    const h = hints[ctrl.mode] || hints.pad;
+    document.getElementById('pad-hint-main').innerText = h[0];
+    document.getElementById('pad-hint-sub').innerText = h[1];
+    moveVel.x = 0; moveVel.y = 0; dirHeld = 0; padPtr = null; stickBase.style.display = 'none';
+    document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('held'));
+    if (ctrl.fx === 'lite') setLowFx(true);
+    else if (ctrl.fx === 'full' || !autoLowFx) setLowFx(false);
+    syncControlPills();
+    scheduleView();
+}
+function syncControlPills() {
+    for (const [id, [key, parse]] of Object.entries(CTRL_GROUPS)) {
+        document.querySelectorAll(`#${id} .pill-btn`).forEach(b => b.classList.toggle('active', parse(b.dataset.v) === ctrl[key]));
+    }
+    document.getElementById('ctrl-mode-desc').innerText = CTRL_DESC[ctrl.mode];
+}
+document.querySelectorAll('.ctrl-card .pill-selector').forEach(g => g.addEventListener('click', (e) => {
+    const b = e.target.closest('.pill-btn');
+    if (!b || !CTRL_GROUPS[g.id]) return;
+    const [key, parse] = CTRL_GROUPS[g.id];
+    ctrl[key] = parse(b.dataset.v);
+    sfx.play('ui');
+    if (key === 'haptics' && ctrl.haptics) buzz(30);
+    if (key === 'mode') setDeck(true);
+    if (key === 'fx') autoLowFx = false;
+    store.set(CTRL_KEY, JSON.stringify(ctrl));
+    applyControls();
+}));
+function openControls() {
+    sfx.play('ui'); pauseIfAI();
+    syncControlPills();
+    document.getElementById('controls-overlay').classList.remove('hidden');
+}
+function closeControls() { sfx.play('ui'); document.getElementById('controls-overlay').classList.add('hidden'); resumeFromPause(); }
+
+function openHowTo() {
+    pauseIfAI();
+    const touchMove = {
+        pad: 'Drag your thumb in the <b>TRACKPAD</b> box.',
+        stick: 'Touch the pad box and push the <b>JOYSTICK</b> that appears.',
+        buttons: 'Hold the big <b>◀ ▶</b> buttons.',
+        court: 'Drag your finger on <b>your half of the court</b>.'
+    }[ctrl.mode];
+    const items = [
+        ['MOVE', isTouchDevice ? touchMove : 'Move the <b>mouse</b>, or use <b>WASD</b> / <b>arrow keys</b>.'],
+        ['HIT', 'The ball bounces off your bat by itself. Move <b>toward the net</b> while hitting to SMASH, <b>sideways</b> for SPIN, <b>backward</b> for a DROP SHOT.'],
+        ['STRIKE', (isTouchDevice ? 'Tap <b>STRIKE</b> (or tap the court)' : '<b>Click</b> or press <b>Space</b>') + ' to lunge. Time it on a fast ball for a <b>PERFECT PARRY</b>.'],
+        ['SERVE', 'Flick toward the net, or press STRIKE.'],
+        ['CHRONO', (isTouchDevice ? 'Tap <b>CHRONO</b>' : '<b>Right-click</b> or <b>Shift</b>') + ' at 50% Overdrive to slow time and dash to the ball. At 100%, your next swing fires your racket\'s <b>ULTIMATE</b>.'],
+        ['RINGS', 'Hit the floating ring for <b>2× points</b> or a decoy <b>mirage</b> ball.'],
+        ['VIEW', 'You\'re always on the <b>left</b>, or at the <b>bottom</b> when your screen is upright. Online, both players see it from their own side.']
+    ];
+    document.getElementById('howto-list').innerHTML = items.map(([k, v]) => `<li><b>${k}</b> ${v}</li>`).join('');
+    document.getElementById('howto-overlay').classList.remove('hidden');
+}
+function closeHowTo() {
+    sfx.play('ui'); store.set(HOWTO_KEY, '1');
+    document.getElementById('howto-overlay').classList.add('hidden');
+    resumeFromPause();
+}
+
+// Keyboard, joystick and buttons all speak "screen directions"; this turns them into court directions.
+function applyLocalInput(bat, bnd, isP1, dt) {
+    const kx = ((keys.ArrowRight || keys.d || keys.D) ? 1 : 0) - ((keys.ArrowLeft || keys.a || keys.A) ? 1 : 0);
+    const ky = ((keys.ArrowDown || keys.s || keys.S) ? 1 : 0) - ((keys.ArrowUp || keys.w || keys.W) ? 1 : 0);
+    const vx = kx * 11.5 + moveVel.x, vy = ky * 11.5 + moveVel.y;
+    if (vx || vy) { const d = deltaToLogical(vx, vy); bat.targetX += d.x * dt; bat.targetY += d.y * dt; }
+    applyAssist(bat, isP1, dt);
+    bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, bat.targetX));
+    bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, bat.targetY));
+}
+// Aim assist gently slides your bat toward where the ball will arrive. Capped at Light in ranked games.
+function applyAssist(bat, isP1, dt) {
+    const lvl = isRankedMatch() ? Math.min(ctrl.assist, 1) : ctrl.assist;
+    if (!lvl || state.waitingForServe) return;
+    const b = state.ball;
+    if (b.x < 0 || (b.vx === 0 && b.vy === 0)) return;
+    if (isP1 ? b.vx >= 0 : b.vx <= 0) return;
+    const tReach = Math.max(1, Math.abs(bat.x - b.x) / Math.max(4, Math.abs(b.vx)));
+    let pred = b.y + (b.vy + b.spin * 10) * tReach * 0.85;
+    const lo = 28, hi = H - 28;
+    for (let i = 0; i < 3 && (pred < lo || pred > hi); i++) pred = pred < lo ? 2 * lo - pred : 2 * hi - pred;
+    bat.targetY += (pred - bat.targetY) * (lvl === 2 ? 0.17 : 0.07) * dt;
+}
+
+// ---- Feel + device care: vibration, keep screen on, toasts, auto graphics quality ----
+function buzz(p) {
+    if (!ctrl.haptics || !navigator.vibrate) return;
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;   // browsers block it before the first tap
+    try { navigator.vibrate(p); } catch {}
+}
+let wakeLock = null;
+async function keepAwake(on) {
+    try {
+        if (on && !wakeLock && navigator.wakeLock && document.visibilityState === 'visible') {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } else if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+    } catch { wakeLock = null; }
+}
+function toast(msg) {
+    let el = document.getElementById('toast');
+    if (!el) {
+        el = document.createElement('div'); el.id = 'toast';
+        el.style.cssText = 'position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:rgba(10,14,26,0.97);border:1px solid var(--p1);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:0.9rem;max-width:92vw;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.6)';
+        document.body.appendChild(el);
+    }
+    el.textContent = msg; el.style.display = 'block';
+    clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, 4500);
+}
+function setLowFx(on) {
+    if (view.lowFx === on && dprCap === (on ? 1 : 2)) return;
+    view.lowFx = on; dprCap = on ? 1 : 2;
+    scheduleView();
+}
+// Glow (shadowBlur) is the most expensive thing on weak phones: LITE mode switches it off.
+try {
+    const sb = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+    if (sb && sb.set) Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return sb.get.call(this); }, set(v) { sb.set.call(this, view.lowFx ? 0 : v); } });
+} catch {}
+const perf = { n: 0, acc: 0 };
+function perfSample(ms) {
+    if (ctrl.fx !== 'auto' || view.lowFx || !(ms > 0) || ms > 250) return;
+    perf.n++; perf.acc += ms;
+    if (perf.n >= 150) {
+        const avg = perf.acc / perf.n; perf.n = 0; perf.acc = 0;
+        if (avg > 24) { autoLowFx = true; setLowFx(true); }   // under ~40 fps: drop to LITE graphics automatically
+    }
+}
+
+// Switching apps / locking the phone: pause instead of losing the point, then count back in.
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        Object.keys(keys).forEach(k => keys[k] = false);
+        moveVel.x = 0; moveVel.y = 0; dirHeld = 0; padPtr = null; courtPtr = null;
+        stickBase.style.display = 'none';
+        if (gameActive && isOnline()) { localAway = true; sendCtl({ type: 'away', on: true }); }
+    } else {
+        lastRecvAt = performance.now();
+        lastTime = performance.now();
+        if (sfx.ctx && sfx.ctx.state !== 'running') sfx.ctx.resume().catch(() => {});
+        if (gameActive) keepAwake(true);
+        if (localAway) { localAway = false; sendCtl({ type: 'away', on: false }); startCountdown('resume'); }
+        else if (gameActive && isAIMode && !paused) startCountdown('resume');
+    }
+});
+// iOS suspends audio after calls / app switches; any touch wakes it back up.
+document.addEventListener('pointerdown', () => { if (sfx.ctx && sfx.ctx.state !== 'running') sfx.ctx.resume().catch(() => {}); }, { capture: true, passive: true });
 
 function gameLoop(now) {
     if (!gameActive) return;
     if (paused) { lastTime = now; animationId = requestAnimationFrame(gameLoop); return; }
+    perfSample(now - lastTime);
     const dt = Math.max(0.25, Math.min(2.2, (now - lastTime) / 16.667));
     lastTime = now;
-    updatePhysics(dt);
+    // Frozen during the start/resume countdown and while either online player has the app in the background.
+    const frozen = now < countdownUntil || (!isAIMode && (remoteAway || localAway));
+    if (!frozen) updatePhysics(dt);
     drawArena();
     animationId = requestAnimationFrame(gameLoop);
 }
 
-// Maps a screen point to canvas space, accounting for object-fit: contain letterboxing.
+// Maps a screen point through the current view (rotated / flipped court) back to court space.
 function handlePointerMove(clientX, clientY, isDirectTouch = false) {
     if (!gameActive || paused) return;
     const r = canvas.getBoundingClientRect();
-    const sc = Math.min(r.width / canvas.width, r.height / canvas.height);
-    const w = canvas.width * sc, h = canvas.height * sc;
-    const ox = r.left + (r.width - w) / 2, oy = r.top + (r.height - h) / 2;
-    const normX = Math.max(0, Math.min(1, (clientX - ox) / w));
-    const normY = Math.max(0, Math.min(1, (clientY - oy) / h));
-    const canvasY = (normY * canvas.height) - (isDirectTouch ? 36 : 0);
-
-    if (isHost) {
-        const mappedX = P1_BOUNDS.minX + Math.min(1, normX * 1.45) * (P1_BOUNDS.maxX - P1_BOUNDS.minX);
-        state.p1.targetX = Math.max(P1_BOUNDS.minX, Math.min(P1_BOUNDS.maxX, mappedX));
-        state.p1.targetY = Math.max(P1_BOUNDS.minY, Math.min(P1_BOUNDS.maxY, canvasY));
-    } else {
-        const mappedX = P2_BOUNDS.minX + Math.max(0, (normX - 0.31) * 1.45) * (P2_BOUNDS.maxX - P2_BOUNDS.minX);
-        state.p2.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, mappedX));
-        state.p2.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, canvasY));
-    }
+    if (!r.width || !r.height) return;
+    const X = (clientX - r.left) / r.width * view.dispW;
+    const Y = (clientY - r.top) / r.height * view.dispH - (isDirectTouch ? 42 : 0);   // keep the bat above the finger
+    const p = toLogical(X, Y);
+    const bat = isHost ? state.p1 : state.p2, bnd = isHost ? P1_BOUNDS : P2_BOUNDS;
+    bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, p.x));
+    bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, p.y));
 }
 
-window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY, false));
+window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') handlePointerMove(e.clientX, e.clientY, false); });
 
 function onActionStrike() {
     if (!gameActive || paused) return;
@@ -2378,61 +2965,100 @@ function onChronoAction() {
     else sendCtl({ type: 'chrono' });
 }
 
-canvas.addEventListener('mousedown', (e) => {
-    if (e.button === 0) onActionStrike();
-    else if (e.button === 2) onChronoAction();
+let courtPtr = null;
+canvas.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') {
+        if (e.button === 0) onActionStrike();
+        else if (e.button === 2) onChronoAction();
+        return;
+    }
+    e.preventDefault();
+    sfx.init();
+    if (courtPtr === null) { courtPtr = e.pointerId; try { canvas.setPointerCapture(e.pointerId); } catch {} handlePointerMove(e.clientX, e.clientY, true); }
+    onActionStrike();   // any touch on the court = swing; extra fingers can tap to swing again
 });
+canvas.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' && e.pointerId === courtPtr) { e.preventDefault(); handlePointerMove(e.clientX, e.clientY, true); }
+});
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => canvas.addEventListener(ev, (e) => { if (e.pointerId === courtPtr) courtPtr = null; }));
+canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });   // stop double-tap zoom / scroll
 
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY, true);
-    onActionStrike();
-}, { passive: false });
-
-canvas.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY, true);
-}, { passive: false });
-
-// Trackpad: tracks its own finger by identifier so other fingers (Strike button) can't hijack it.
+// Move zone: one finger, tracked by pointerId so a second finger on STRIKE can't hijack it.
+// Works with fingers, styluses and mice; filters the jitter and "teleporting" touches of weak screens.
 const trackpad = document.getElementById('mobile-trackpad');
-let padTouch = { id: null, lastX: 0, lastY: 0 };
+const stickBase = document.getElementById('stick-base'), stickKnob = document.getElementById('stick-knob');
+let padPtr = null;                       // { id, x, y, ox, oy }
+const moveVel = { x: 0, y: 0 };          // display-space velocity from joystick / buttons
+const STICK_R = 46;
 
-trackpad.addEventListener('touchstart', (e) => {
+trackpad.addEventListener('pointerdown', (e) => {
+    if (ctrl.mode === 'buttons' || ctrl.mode === 'court') return;
+    e.preventDefault(); sfx.init();
+    if (padPtr) return;
+    try { trackpad.setPointerCapture(e.pointerId); } catch {}
+    padPtr = { id: e.pointerId, x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY };
+    if (ctrl.mode === 'stick') {
+        const r = trackpad.getBoundingClientRect();
+        stickBase.style.left = (e.clientX - r.left) + 'px'; stickBase.style.top = (e.clientY - r.top) + 'px';
+        stickKnob.style.transform = 'translate(0px, 0px)';
+        stickBase.style.display = 'block';
+    }
+});
+trackpad.addEventListener('pointermove', (e) => {
+    if (!padPtr || e.pointerId !== padPtr.id) return;
     e.preventDefault();
-    if (padTouch.id !== null) return;
-    const t = e.changedTouches[0];
-    padTouch = { id: t.identifier, lastX: t.clientX, lastY: t.clientY };
-}, { passive: false });
-
-trackpad.addEventListener('touchmove', (e) => {
-    e.preventDefault();
-    if (padTouch.id === null || !gameActive || paused) return;
-    let t = null;
-    for (const c of e.changedTouches) if (c.identifier === padTouch.id) { t = c; break; }
-    if (!t) return;
-    const dx = (t.clientX - padTouch.lastX) * 2.3;
-    const dy = (t.clientY - padTouch.lastY) * 2.5;
-    padTouch.lastX = t.clientX;
-    padTouch.lastY = t.clientY;
-
-    const myBat = isHost ? state.p1 : state.p2;
-    const myBounds = isHost ? P1_BOUNDS : P2_BOUNDS;
-    myBat.targetX = Math.max(myBounds.minX, Math.min(myBounds.maxX, myBat.targetX + dx));
-    myBat.targetY = Math.max(myBounds.minY, Math.min(myBounds.maxY, myBat.targetY + dy));
-}, { passive: false });
-
-function endPadTouch(e) {
-    for (const c of e.changedTouches) if (c.identifier === padTouch.id) { padTouch.id = null; break; }
+    if (ctrl.mode === 'stick') {
+        let dx = e.clientX - padPtr.ox, dy = e.clientY - padPtr.oy;
+        const d = Math.hypot(dx, dy);
+        if (d > STICK_R) { dx *= STICK_R / d; dy *= STICK_R / d; }
+        stickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+        const dead = 6;   // ignore tiny wobble from a resting thumb / noisy screen
+        const mag = Math.max(0, Math.min(STICK_R, d) - dead) / (STICK_R - dead);
+        const ang = Math.atan2(dy, dx);
+        const spd = 13 * ctrl.sens * mag;
+        moveVel.x = Math.cos(ang) * spd; moveVel.y = Math.sin(ang) * spd;
+        return;
+    }
+    if (!gameActive || paused) { padPtr.x = e.clientX; padPtr.y = e.clientY; return; }
+    const dx = e.clientX - padPtr.x, dy = e.clientY - padPtr.y;
+    if (Math.hypot(dx, dy) > 150) { padPtr.x = e.clientX; padPtr.y = e.clientY; return; }   // ghost jump: re-anchor, don't move
+    if (Math.abs(dx) < 0.6 && Math.abs(dy) < 0.6) return;                                   // jitter: wait for real movement
+    padPtr.x = e.clientX; padPtr.y = e.clientY;
+    const g = 2.3 * ctrl.sens * Math.max(0.6, Math.min(1.6, 0.7 / Math.max(0.3, view.scale)));
+    const d = deltaToLogical(dx * g, dy * g);
+    const myBat = isHost ? state.p1 : state.p2, b = isHost ? P1_BOUNDS : P2_BOUNDS;
+    myBat.targetX = Math.max(b.minX, Math.min(b.maxX, myBat.targetX + d.x));
+    myBat.targetY = Math.max(b.minY, Math.min(b.maxY, myBat.targetY + d.y));
+});
+function endPad(e) {
+    if (!padPtr || (e && e.pointerId !== padPtr.id)) return;
+    padPtr = null;
+    if (ctrl.mode === 'stick') { moveVel.x = 0; moveVel.y = 0; stickBase.style.display = 'none'; }
 }
-trackpad.addEventListener('touchend', endPadTouch);
-trackpad.addEventListener('touchcancel', endPadTouch);
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => trackpad.addEventListener(ev, endPad));
 
-document.getElementById('btn-mobile-strike').addEventListener('touchstart', (e) => { e.preventDefault(); onActionStrike(); }, { passive: false });
-document.getElementById('btn-mobile-strike').addEventListener('click', onActionStrike);
+// Hold buttons: press/release only, which even badly-calibrated screens register reliably.
+let dirHeld = 0;
+document.querySelectorAll('.dir-btn').forEach(btn => {
+    const dir = parseInt(btn.dataset.dir, 10);
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); sfx.init(); try { btn.setPointerCapture(e.pointerId); } catch {} dirHeld = dir; btn.classList.add('held'); updateButtonVel(); });
+    const up = () => { if (dirHeld === dir) dirHeld = 0; btn.classList.remove('held'); updateButtonVel(); };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => btn.addEventListener(ev, up));
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+});
+function updateButtonVel() {
+    const spd = 11 * ctrl.sens * dirHeld;
+    // "Sideways" for you: across the screen when the court is vertical, up/down when it's horizontal.
+    if (view.portrait) { moveVel.x = spd; moveVel.y = 0; } else { moveVel.x = 0; moveVel.y = spd; }
+}
 
-document.getElementById('btn-mobile-chrono').addEventListener('touchstart', (e) => { e.preventDefault(); onChronoAction(); }, { passive: false });
-document.getElementById('btn-mobile-chrono').addEventListener('click', onChronoAction);
+function bindAction(id, fn) {
+    const el = document.getElementById(id);
+    el.addEventListener('pointerdown', (e) => { e.preventDefault(); sfx.init(); fn(); });
+    el.addEventListener('contextmenu', e => e.preventDefault());
+}
+bindAction('btn-mobile-strike', onActionStrike);
+bindAction('btn-mobile-chrono', onChronoAction);
 
 window.addEventListener('keydown', (e) => {
     if (e.target && e.target.matches && e.target.matches('input, textarea')) return;
@@ -2445,7 +3071,7 @@ window.addEventListener('keyup', (e) => { if (Object.prototype.hasOwnProperty.ca
 window.addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); });
 
 function showOverlay(id) {
-    ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay'].forEach(o => document.getElementById(o).classList.add('hidden'));
+    ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay', 'net-overlay'].forEach(o => document.getElementById(o).classList.add('hidden'));
     const c = document.getElementById('game-container');
     if (id !== 'none') { document.getElementById(id).classList.remove('hidden'); c.classList.add('menu-open'); }
     else c.classList.remove('menu-open');

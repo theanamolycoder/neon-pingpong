@@ -1,0 +1,14 @@
+{
+  "name": "Neon Pong",
+  "short_name": "Neon Pong",
+  "description": "Neon cross-play ping pong: phone, tablet and PC.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#030408",
+  "theme_color": "#030408",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
