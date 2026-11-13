@@ -3,23 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PONG // Pro Multiplayer</title>
-    <!-- Google Fonts for Arcade UI -->
+    <title>NEON PONG V3 // 2D Pro Physics Arena</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- PeerJS for WebRTC Multiplayer -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
-            --bg-dark: #07080d;
-            --bg-panel: rgba(16, 19, 32, 0.88);
+            --bg-dark: #06070c;
+            --bg-panel: rgba(13, 16, 28, 0.90);
             --p1-color: #00f3ff;
             --p2-color: #ff0055;
-            --accent: #bc13fe;
+            --smash-color: #ff7b00;
+            --spin-color: #bc13fe;
             --gold: #ffcc00;
             --success: #00ff88;
             --text: #ffffff;
-            --text-muted: #8b93b0;
-            --border: rgba(255, 255, 255, 0.1);
+            --text-muted: #8b95b8;
+            --border: rgba(255, 255, 255, 0.12);
         }
 
         * {
@@ -41,134 +40,27 @@
             min-height: 100vh;
             overflow: hidden;
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.08), transparent 40%),
-                radial-gradient(circle at 85% 50%, rgba(255, 0, 85, 0.08), transparent 40%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+                radial-gradient(circle at 12% 50%, rgba(0, 243, 255, 0.09), transparent 42%),
+                radial-gradient(circle at 88% 50%, rgba(255, 0, 85, 0.09), transparent 42%),
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
         }
 
         #app-wrapper {
             width: 100%;
-            max-width: 860px;
-            padding: 10px;
+            max-width: 920px;
+            padding: 8px 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
-        /* --- TOP SCOREBOARD & HUD --- */
-        #top-bar {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            background: var(--bg-panel);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        .player-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .player-card.p2 {
-            justify-content: flex-end;
-            text-align: right;
-        }
-
-        .score-box {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 900;
-            min-width: 60px;
-            text-align: center;
-            padding: 4px 12px;
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.4);
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .score-box.bump {
-            transform: scale(1.35);
-        }
-
-        .p1 .score-box {
-            color: var(--p1-color);
-            border: 1px solid rgba(0, 243, 255, 0.4);
-            text-shadow: 0 0 15px var(--p1-color);
-        }
-
-        .p2 .score-box {
-            color: var(--p2-color);
-            border: 1px solid rgba(255, 0, 85, 0.4);
-            text-shadow: 0 0 15px var(--p2-color);
-        }
-
-        .player-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .player-name {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .series-wins {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .center-stats {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 20px;
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
-        }
-
-        .match-rule-badge {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--gold);
-            background: rgba(255, 204, 0, 0.1);
-            padding: 2px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 204, 0, 0.3);
-            margin-bottom: 4px;
-        }
-
-        .rally-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
-            color: var(--text);
-            letter-spacing: 1px;
-        }
-
-        .sub-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* --- UTILITY CONTROLS BAR --- */
+        /* --- TOP UTILITY BAR --- */
         .utility-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 4px;
         }
 
         .icon-btn {
@@ -192,16 +84,138 @@
             border-color: var(--p1-color);
         }
 
+        /* --- PRO BROADCAST SCOREBOARD & TELEMETRY HUD --- */
+        #top-bar {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 10px 20px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .player-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .player-card.p2 {
+            justify-content: flex-end;
+            text-align: right;
+        }
+
+        .score-box {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 900;
+            min-width: 58px;
+            text-align: center;
+            padding: 4px 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .score-box.bump {
+            transform: scale(1.35);
+        }
+
+        .p1 .score-box {
+            color: var(--p1-color);
+            border: 1px solid rgba(0, 243, 255, 0.45);
+            text-shadow: 0 0 14px var(--p1-color);
+        }
+
+        .p2 .score-box {
+            color: var(--p2-color);
+            border: 1px solid rgba(255, 0, 85, 0.45);
+            text-shadow: 0 0 14px var(--p2-color);
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .series-wins {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Center Telemetry Box */
+        .center-telemetry {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 24px;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            min-width: 250px;
+        }
+
+        .telemetry-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .speed-readout {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.35);
+        }
+
+        .shot-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sub-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
         /* --- GAME CANVAS CONTAINER --- */
         #game-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 10;
-            background: #05060a;
-            border: 2px solid #1f243d;
-            border-radius: 14px;
+            aspect-ratio: 850 / 520;
+            background: #070a14;
+            border: 2px solid #232a46;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(0, 243, 255, 0.12), 0 0 40px rgba(255, 0, 85, 0.08);
+            box-shadow: 0 0 45px rgba(0, 243, 255, 0.12), 0 0 45px rgba(255, 0, 85, 0.08);
+            cursor: none; /* Hide default cursor during gameplay for immersive bat feel */
+        }
+
+        #game-container.menu-open {
+            cursor: default;
         }
 
         canvas {
@@ -210,20 +224,20 @@
             display: block;
         }
 
-        /* --- OVERLAYS & MENUS --- */
+        /* --- OVERLAYS --- */
         .overlay {
             position: absolute;
             inset: 0;
             background: var(--bg-panel);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(9px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 25px;
+            padding: 22px;
             text-align: center;
             z-index: 20;
-            animation: fadeIn 0.25s ease;
+            animation: fadeIn 0.22s ease;
         }
 
         @keyframes fadeIn {
@@ -231,56 +245,82 @@
             to { opacity: 1; transform: scale(1); }
         }
 
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         h1.game-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.2rem;
+            font-size: 3rem;
             font-weight: 900;
-            letter-spacing: 5px;
+            letter-spacing: 4px;
             text-transform: uppercase;
             background: linear-gradient(90deg, var(--p1-color), #ffffff, var(--p2-color));
-            background-clip: text;
             -webkit-background-clip: text;
-            color: transparent;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.3));
         }
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
-        /* --- FORM INPUTS & SETTINGS --- */
+        .physics-tips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 560px;
+            margin-bottom: 16px;
+        }
+
+        .tip-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .tip-card b {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.72rem;
+            margin-bottom: 2px;
+        }
+
+        .tip-card span {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.2;
+            display: block;
+        }
+
         .panel-card {
             background: rgba(0, 0, 0, 0.45);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 18px 22px;
+            padding: 15px 20px;
             width: 100%;
-            max-width: 420px;
-            margin-bottom: 18px;
+            max-width: 440px;
+            margin-bottom: 16px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
             text-align: left;
-            gap: 5px;
+            gap: 4px;
         }
 
         .input-group label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
@@ -288,15 +328,14 @@
         }
 
         .text-input {
-            background: #0d101b;
-            border: 1px solid #2b3252;
+            background: #0b0e18;
+            border: 1px solid #283050;
             color: var(--text);
-            padding: 10px 14px;
+            padding: 9px 14px;
             border-radius: 8px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             outline: none;
-            transition: 0.2s;
         }
 
         .text-input:focus {
@@ -308,25 +347,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
         }
 
         .pill-selector {
             display: flex;
-            background: #0d101b;
+            background: #0b0e18;
             border-radius: 8px;
             padding: 3px;
-            border: 1px solid #2b3252;
+            border: 1px solid #283050;
         }
 
         .pill-btn {
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-radius: 6px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             cursor: pointer;
             transition: 0.2s;
         }
@@ -337,7 +375,6 @@
             font-weight: 700;
         }
 
-        /* --- BUTTONS --- */
         .btn-row {
             display: flex;
             gap: 12px;
@@ -346,16 +383,16 @@
         }
 
         .btn {
-            background: linear-gradient(135deg, rgba(0, 243, 255, 0.15), rgba(0, 243, 255, 0.05));
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.18), rgba(0, 243, 255, 0.05));
             color: var(--text);
             border: 2px solid var(--p1-color);
-            padding: 12px 28px;
+            padding: 11px 24px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
+            font-size: 0.92rem;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.22s ease;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
@@ -370,7 +407,7 @@
 
         .btn-secondary {
             border-color: var(--p2-color);
-            background: linear-gradient(135deg, rgba(255, 0, 85, 0.15), rgba(255, 0, 85, 0.05));
+            background: linear-gradient(135deg, rgba(255, 0, 85, 0.18), rgba(255, 0, 85, 0.05));
             box-shadow: 0 0 15px rgba(255, 0, 85, 0.2);
         }
 
@@ -380,17 +417,15 @@
             box-shadow: 0 0 25px var(--p2-color);
         }
 
-        /* --- INVITE BOX --- */
         .invite-box {
             display: flex;
             width: 100%;
             max-width: 480px;
-            margin: 15px 0;
-            background: #0d101b;
+            margin: 14px 0;
+            background: #0b0e18;
             border: 1px solid var(--p1-color);
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
         }
 
         .invite-box input {
@@ -408,27 +443,21 @@
             background: var(--p1-color);
             color: #000;
             border: none;
-            padding: 0 22px;
+            padding: 0 20px;
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
         }
 
-        .invite-box button:hover {
-            background: #fff;
-        }
-
-        /* --- LEADERBOARD TABLE --- */
         .leaderboard-container {
             width: 100%;
             max-width: 620px;
-            max-height: 260px;
+            max-height: 250px;
             overflow-y: auto;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
             border-radius: 12px;
-            margin: 15px 0;
+            margin: 14px 0;
         }
 
         table.lb-table {
@@ -440,34 +469,29 @@
         table.lb-table th {
             background: #121626;
             color: var(--text-muted);
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
             padding: 10px 14px;
             position: sticky;
             top: 0;
         }
 
         table.lb-table td {
-            padding: 10px 14px;
+            padding: 9px 14px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 600;
-        }
-
-        table.lb-table tr:hover td {
-            background: rgba(255, 255, 255, 0.03);
         }
 
         .rank-badge {
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            line-height: 24px;
+            width: 22px;
+            height: 22px;
+            line-height: 22px;
             text-align: center;
             border-radius: 50%;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             background: rgba(255, 255, 255, 0.1);
         }
 
@@ -475,26 +499,13 @@
         .rank-2 { background: #c0c0c0; color: #000; font-weight: 900; }
         .rank-3 { background: #cd7f32; color: #000; font-weight: 900; }
 
-        .loader {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: var(--p1-color);
-            border-radius: 50%;
-            width: 38px;
-            height: 38px;
-            animation: spin 1s linear infinite;
-            margin: 15px auto;
-        }
-
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        /*Summary Stats Grid on Game Over*/
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
             width: 100%;
-            max-width: 460px;
-            margin: 15px 0 22px;
+            max-width: 540px;
+            margin: 14px 0 20px;
         }
 
         .stat-box {
@@ -506,87 +517,126 @@
 
         .stat-box .val {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             color: var(--gold);
             font-weight: 700;
         }
 
         .stat-box .lbl {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             color: var(--text-muted);
         }
 
-        @media (max-width: 650px) {
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--p1-color);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            animation: spin 1s linear infinite;
+            margin: 14px auto;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 700px) {
             h1.game-title { font-size: 2rem; }
-            .score-box { font-size: 1.6rem; min-width: 44px; padding: 2px 8px; }
-            .player-name { font-size: 0.9rem; }
-            .center-stats { padding: 0 8px; }
-            #top-bar { padding: 8px 12px; }
+            .physics-tips { grid-template-columns: 1fr; display: none; }
+            .center-telemetry { min-width: auto; padding: 0 10px; }
+            .score-box { font-size: 1.6rem; min-width: 42px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
 
 <div id="app-wrapper">
-    <!-- Utility Controls (Sound + Leaderboard) -->
+    <!-- Top Utility Bar -->
     <div class="utility-bar">
-        <button class="icon-btn" onclick="openLeaderboard()">
-            <span>🏆</span> Leaderboard & Stats
-        </button>
-        <div style="display: flex; gap: 8px;">
+        <div style="display:flex; gap:8px;">
+            <button class="icon-btn" onclick="openLeaderboard()">
+                <span>🏆</span> Hall of Fame
+            </button>
+            <button class="icon-btn" id="leave-match-btn" class="hidden" style="display:none;" onclick="returnToMenu()">
+                <span>⬅</span> Main Menu
+            </button>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 6px;">
+                2D Controls: <b>Mouse / Touch</b> or <b>WASD / Arrows</b>
+            </span>
             <button class="icon-btn" id="sound-toggle-btn" onclick="toggleMute()">
                 <span id="sound-icon">🔊</span> <span id="sound-text">SFX: ON</span>
             </button>
         </div>
     </div>
 
-    <!-- Top Scoreboard HUD -->
+    <!-- Broadcast Scoreboard & Shot Speedometer HUD -->
     <div id="top-bar">
         <div class="player-card p1">
             <div class="score-box" id="score-p1">0</div>
             <div class="player-info">
                 <span class="player-name" id="name-p1">PLAYER 1</span>
-                <span class="series-wins" id="series-p1">Series Wins: 0</span>
+                <span class="series-wins" id="series-p1">Series: 0</span>
             </div>
         </div>
 
-        <div class="center-stats">
-            <div class="match-rule-badge" id="rule-badge">FIRST TO 5 • WIN BY 2</div>
-            <div class="rally-display">RALLY: <span id="rally-count" style="color: var(--p1-color);">0</span></div>
+        <div class="center-telemetry">
+            <div class="telemetry-row">
+                <span class="speed-readout" id="speed-kmh">0 KM/H</span>
+                <span class="shot-badge" id="shot-type-badge">READY</span>
+            </div>
             <div class="sub-meta">
-                <span>MAX RALLY: <b id="max-rally-count">0</b></span>
+                <span>RALLY: <b id="rally-count" style="color:var(--p1-color)">0</b></span>
                 <span>•</span>
-                <span>PING: <b id="ping-display">-- ms</b></span>
+                <span id="rule-badge">FIRST TO 5 (WIN BY 2)</span>
+                <span>•</span>
+                <span id="ping-display">LOCAL</span>
             </div>
         </div>
 
         <div class="player-card p2">
             <div class="player-info">
                 <span class="player-name" id="name-p2">PLAYER 2</span>
-                <span class="series-wins" id="series-p2">Series Wins: 0</span>
+                <span class="series-wins" id="series-p2">Series: 0</span>
             </div>
             <div class="score-box" id="score-p2">0</div>
         </div>
     </div>
 
-    <!-- Main Game Container -->
-    <div id="game-container">
-        <canvas id="pongCanvas" width="800" height="500"></canvas>
+    <!-- Main Arena Container -->
+    <div id="game-container" class="menu-open">
+        <canvas id="pongCanvas" width="850" height="520"></canvas>
 
-        <!-- 1. MAIN MENU OVERLAY (Host Setup) -->
+        <!-- 1. MAIN MENU OVERLAY -->
         <div id="menu-overlay" class="overlay">
-            <h1 class="game-title">Neon Pong</h1>
-            <p class="subtitle">Real-Time P2P Arcade Arena</p>
+            <h1 class="game-title">Neon Pong V3</h1>
+            <p class="subtitle">2D Free-Motion Bat & Real Stroke Physics</p>
+
+            <div class="physics-tips">
+                <div class="tip-card">
+                    <b style="color: var(--smash-color);">💥 POWER SMASH</b>
+                    <span>Swing your bat <b>forward</b> into the ball for a 150+ KM/H rocket!</span>
+                </div>
+                <div class="tip-card">
+                    <b style="color: var(--spin-color);">🌀 CURVE SPIN</b>
+                    <span>Slice your bat <b>up or down</b> on impact to curve the ball in mid-air!</span>
+                </div>
+                <div class="tip-card">
+                    <b style="color: var(--p1-color);">🪶 DROP SHOT</b>
+                    <span>Pull your bat <b>backward</b> on impact to absorb speed & drop it short!</span>
+                </div>
+            </div>
 
             <div class="panel-card">
                 <div class="input-group">
-                    <label>Your Arcade Nickname</label>
-                    <input type="text" id="host-name-input" class="text-input" maxlength="12" placeholder="Enter nickname..." value="Player 1">
+                    <label>Your Player Nickname</label>
+                    <input type="text" id="host-name-input" class="text-input" maxlength="12" value="Player 1">
                 </div>
 
                 <div class="settings-row">
-                    <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">TARGET SCORE</label>
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">TARGET SCORE</label>
                     <div class="pill-selector" id="score-selector">
                         <button class="pill-btn active" onclick="setTargetScore(5, this)">5</button>
                         <button class="pill-btn" onclick="setTargetScore(7, this)">7</button>
@@ -595,7 +645,7 @@
                 </div>
 
                 <div class="settings-row">
-                    <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700;">DEUCE RULE (WIN BY 2)</label>
+                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">DEUCE (WIN BY 2)</label>
                     <div class="pill-selector">
                         <button class="pill-btn active" id="wb2-on" onclick="setWinByTwo(true)">ON</button>
                         <button class="pill-btn" id="wb2-off" onclick="setWinByTwo(false)">OFF</button>
@@ -604,56 +654,59 @@
             </div>
 
             <div class="btn-row">
-                <button id="create-btn" class="btn" onclick="createGame()">Create Match Link</button>
+                <button id="create-btn" class="btn" onclick="createOnlineGame()">🔗 Invite Friend (2P Online)</button>
+                <button class="btn btn-secondary" onclick="startAIGame()">🤖 Practice vs Pro AI</button>
             </div>
-            <div id="status-text" style="margin-top: 12px; color: var(--p2-color); font-weight: 700;"></div>
+            <div id="status-text" style="margin-top: 10px; color: var(--p2-color); font-weight: 700;"></div>
         </div>
 
-        <!-- 2. JOIN MATCH OVERLAY (For Player 2 via Invite Link) -->
+        <!-- 2. JOIN MATCH OVERLAY (Player 2 Invite Screen) -->
         <div id="join-overlay" class="overlay hidden">
-            <h1 class="game-title" style="font-size: 2.4rem;">Challenger Invited</h1>
-            <p class="subtitle">Enter your name to join the arena</p>
+            <h1 class="game-title" style="font-size: 2.3rem;">Challenger Invited</h1>
+            <p class="subtitle">2D Pro Physics Table Tennis Arena</p>
 
             <div class="panel-card">
                 <div class="input-group">
                     <label>Your Arcade Nickname</label>
-                    <input type="text" id="guest-name-input" class="text-input" maxlength="12" placeholder="Enter nickname..." value="Player 2">
+                    <input type="text" id="guest-name-input" class="text-input" maxlength="12" value="Player 2">
                 </div>
             </div>
 
-            <button class="btn btn-secondary" id="join-btn" onclick="confirmJoinGame()">Join Match & Enable Audio</button>
+            <button class="btn btn-secondary" onclick="confirmJoinGame()">⚡ Enter Arena & Enable Audio</button>
         </div>
 
-        <!-- 3. WAITING ROOM OVERLAY -->
+        <!-- 3. WAITING FOR FRIEND OVERLAY -->
         <div id="invite-overlay" class="overlay hidden">
-            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin-bottom: 5px;">Waiting for Challenger...</h2>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.7rem;">Waiting for Challenger...</h2>
             <div class="loader"></div>
-            <p style="color: var(--text-muted);">Share this invite link with your friend:</p>
+            <p style="color: var(--text-muted);">Send this invite link to your friend:</p>
             <div class="invite-box">
                 <input type="text" id="invite-link-input" readonly>
                 <button onclick="copyLink()" id="copy-btn">COPY LINK</button>
             </div>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px;">
-                Controls: <b>Mouse</b>, <b>Touch</b>, or <b>W/S / Up/Down</b> Keys
-            </p>
+            <button class="icon-btn" style="margin-top: 10px;" onclick="returnToMenu()">Cancel & Return</button>
         </div>
 
         <!-- 4. CONNECTING OVERLAY -->
         <div id="connecting-overlay" class="overlay hidden">
             <h2 style="font-family: 'Orbitron', sans-serif;">Connecting to Host...</h2>
             <div class="loader"></div>
-            <p style="color: var(--text-muted);">Establishing peer-to-peer arena link...</p>
+            <p style="color: var(--text-muted);">Syncing 2D physics arena...</p>
         </div>
 
         <!-- 5. GAME OVER OVERLAY -->
         <div id="gameover-overlay" class="overlay hidden">
-            <h1 id="winner-text" class="game-title" style="font-size: 2.8rem;">PLAYER 1 WINS!</h1>
-            <p id="match-subtitle" class="subtitle" style="margin-bottom: 10px;">DOMINANT VICTORY</p>
+            <h1 id="winner-text" class="game-title" style="font-size: 2.6rem;">PLAYER 1 WINS!</h1>
+            <p id="match-subtitle" class="subtitle" style="margin-bottom: 6px;">CHAMPIONSHIP VICTORY</p>
 
             <div class="stats-grid">
                 <div class="stat-box">
                     <div class="val" id="end-score-val">5 - 3</div>
                     <div class="lbl">Final Score</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val" id="end-speed-val">148 KM/H</div>
+                    <div class="lbl">Fastest Smash</div>
                 </div>
                 <div class="stat-box">
                     <div class="val" id="end-rally-val">14</div>
@@ -666,16 +719,16 @@
             </div>
 
             <div class="btn-row">
-                <button class="btn" onclick="requestRematch()">⚡ Rematch</button>
+                <button class="btn" onclick="requestRematch()">⚡ Play Rematch</button>
                 <button class="btn btn-secondary" onclick="openLeaderboard()">🏆 Leaderboard</button>
-                <button class="icon-btn" onclick="location.href = location.pathname">Exit</button>
+                <button class="icon-btn" onclick="returnToMenu()">Main Menu</button>
             </div>
         </div>
 
-        <!-- 6. LEADERBOARD MODAL OVERLAY -->
+        <!-- 6. LEADERBOARD OVERLAY -->
         <div id="leaderboard-overlay" class="overlay hidden">
-            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--gold);">🏆 HALL OF FAME</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Persistent Player Records & Career Stats</p>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.7rem; color: var(--gold);">🏆 HALL OF FAME</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem;">Career Records, Top Speeds & Rally Stats</p>
 
             <div class="leaderboard-container">
                 <table class="lb-table">
@@ -685,13 +738,11 @@
                             <th>Player</th>
                             <th>W - L</th>
                             <th>Win %</th>
-                            <th>Points</th>
+                            <th>Top Smash</th>
                             <th>Best Rally</th>
                         </tr>
                     </thead>
-                    <tbody id="leaderboard-body">
-                        <!-- Populated by JS -->
-                    </tbody>
+                    <tbody id="leaderboard-body"></tbody>
                 </table>
             </div>
 
@@ -705,7 +756,7 @@
 
 <script>
 /** =========================================================================
- *  1. ADVANCED WEB AUDIO SYNTHESIZER (No external MP3 files needed)
+ *  1. ACOUSTIC + ARCADE SYNTH SOUND ENGINE
  *  ========================================================================= */
 class SoundEngine {
     constructor() {
@@ -718,20 +769,12 @@ class SoundEngine {
         if (!this.ctx) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             this.ctx = new AudioCtx();
-            this.createNoiseBuffer();
+            const bufferSize = this.ctx.sampleRate * 0.4;
+            this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const output = this.noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
         }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    }
-
-    createNoiseBuffer() {
-        const bufferSize = this.ctx.sampleRate * 0.5;
-        this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-        const output = this.noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
-        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
     }
 
     play(type, extra = 0) {
@@ -741,137 +784,84 @@ class SoundEngine {
             const now = this.ctx.currentTime;
 
             if (type === 'ui') {
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.04);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.04);
+                this.tone(750, 1150, 0.04, 'sine', 0.08);
             } 
             else if (type === 'paddle') {
-                // Pitch scales up with rally count!
-                const baseFreq = Math.min(320 + (extra * 18), 900);
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(baseFreq, now);
-                osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.8, now + 0.09);
-
-                gain.gain.setValueAtTime(0.22, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.09);
-
-                // Crisp impact noise burst
-                this.playNoise(0.04, 0.08, 1800);
+                // Crisp ping-pong ball 'tock' + rally pitch climb
+                const base = Math.min(360 + extra * 14, 850);
+                this.tone(base, base * 1.6, 0.075, 'triangle', 0.22);
+                this.noise(0.035, 0.1, 2200);
+            } 
+            else if (type === 'smash') {
+                // Heavy explosive kinetic smash!
+                this.tone(180, 620, 0.14, 'sawtooth', 0.3);
+                this.tone(95, 40, 0.18, 'sine', 0.35);
+                this.noise(0.12, 0.25, 3200);
+            } 
+            else if (type === 'spin') {
+                // Slicing FM whoosh + ping
+                this.tone(420, 960, 0.11, 'sine', 0.2);
+                this.noise(0.08, 0.12, 1400);
+            } 
+            else if (type === 'dropshot') {
+                // Soft hollow wooden absorb sound
+                this.tone(260, 180, 0.06, 'sine', 0.15);
             } 
             else if (type === 'wall') {
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(190, now);
-                osc.frequency.exponentialRampToValueAtTime(90, now + 0.07);
-                gain.gain.setValueAtTime(0.18, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.07);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.07);
+                this.tone(210, 110, 0.06, 'sine', 0.16);
             } 
             else if (type === 'countdown') {
-                // extra = 1 for normal beep, 2 for GO!
                 const freq = extra === 2 ? 880 : 440;
-                const dur = extra === 2 ? 0.25 : 0.12;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(freq, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + dur);
+                this.tone(freq, freq, extra === 2 ? 0.22 : 0.1, 'square', 0.09);
             } 
             else if (type === 'score') {
-                // Retro synth explosion
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(280, now);
-                osc.frequency.exponentialRampToValueAtTime(55, now + 0.35);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.35);
-                this.playNoise(0.25, 0.15, 600);
+                this.tone(300, 55, 0.32, 'sawtooth', 0.2);
+                this.noise(0.22, 0.14, 650);
             } 
             else if (type === 'win') {
-                // Victory Arpeggio Fanfare (C - E - G - C)
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.11);
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.11);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.11 + 0.35);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.11);
-                    osc.stop(now + idx * 0.11 + 0.35);
+                [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+                    setTimeout(() => this.tone(f, f, 0.28, 'triangle', 0.18), i * 100);
                 });
             } 
             else if (type === 'lose') {
-                // Sad descending triad
-                const notes = [392.00, 349.23, 311.13, 261.63];
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.14);
-                    gain.gain.setValueAtTime(0.12, now + idx * 0.14);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.3);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.14);
-                    osc.stop(now + idx * 0.14 + 0.3);
+                [392, 349.23, 311.13, 261.63].forEach((f, i) => {
+                    setTimeout(() => this.tone(f, f * 0.96, 0.25, 'sawtooth', 0.11), i * 125);
                 });
             }
-        } catch (e) {
-            console.warn("Audio error:", e);
-        }
+        } catch (e) {}
     }
 
-    playNoise(duration, volume, filterFreq) {
+    tone(fStart, fEnd, dur, type, vol) {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(fStart, now);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), now + dur);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + dur);
+    }
+
+    noise(dur, vol, filterFreq) {
         if (!this.noiseBuffer) return;
         const now = this.ctx.currentTime;
-        const source = this.ctx.createBufferSource();
-        source.buffer = this.noiseBuffer;
-
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuffer;
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(filterFreq, now);
-
         const gain = this.ctx.createGain();
-        gain.gain.setValueAtTime(volume, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-        source.connect(filter);
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        src.connect(filter);
         filter.connect(gain);
         gain.connect(this.ctx.destination);
-        source.start(now);
-        source.stop(now + duration);
+        src.start(now);
+        src.stop(now + dur);
     }
 }
 
@@ -885,63 +875,54 @@ function toggleMute() {
 }
 
 /** =========================================================================
- *  2. PERSISTENT LEADERBOARD MANAGER (localStorage)
+ *  2. HALL OF FAME LEADERBOARD (localStorage)
  *  ========================================================================= */
-const LB_STORAGE_KEY = 'neon_pong_hall_of_fame_v2';
+const LB_KEY = 'neon_pong_v3_leaderboard';
 
-function getLeaderboardData() {
-    try {
-        return JSON.parse(localStorage.getItem(LB_STORAGE_KEY)) || {};
-    } catch {
-        return {};
-    }
+function getLeaderboard() {
+    try { return JSON.parse(localStorage.getItem(LB_KEY)) || {}; }
+    catch { return {}; }
 }
 
-function recordMatchResult(p1Name, p2Name, score1, score2, maxRally) {
-    const db = getLeaderboardData();
-    const p1Won = score1 > score2;
+function recordMatchStats(p1Name, p2Name, s1, s2, maxRally, topKmh) {
+    const db = getLeaderboard();
+    const p1Won = s1 > s2;
 
-    const updatePlayer = (name, won, pts, rally) => {
-        const cleanName = (name || 'Player').trim();
-        if (!db[cleanName]) {
-            db[cleanName] = { name: cleanName, wins: 0, losses: 0, points: 0, bestRally: 0 };
-        }
-        if (won) db[cleanName].wins += 1;
-        else db[cleanName].losses += 1;
-        db[cleanName].points += pts;
-        if (rally > db[cleanName].bestRally) db[cleanName].bestRally = rally;
+    const update = (name, won, rally, kmh) => {
+        const clean = (name || 'Player').trim();
+        if (clean === 'PRO AI BOT') return; // Optional: keep leaderboard for humans or include bot
+        if (!db[clean]) db[clean] = { name: clean, wins: 0, losses: 0, topKmh: 0, bestRally: 0 };
+        if (won) db[clean].wins++; else db[clean].losses++;
+        if (rally > db[clean].bestRally) db[clean].bestRally = rally;
+        if (kmh > db[clean].topKmh) db[clean].topKmh = kmh;
     };
 
-    updatePlayer(p1Name, p1Won, score1, maxRally);
-    updatePlayer(p2Name, !p1Won, score2, maxRally);
-
-    localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(db));
+    update(p1Name, p1Won, maxRally, topKmh);
+    update(p2Name, !p1Won, maxRally, topKmh);
+    localStorage.setItem(LB_KEY, JSON.stringify(db));
 }
 
 function renderLeaderboard() {
-    const db = getLeaderboardData();
-    const players = Object.values(db).sort((a, b) => {
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        return b.points - a.points;
-    });
-
+    const db = getLeaderboard();
+    const list = Object.values(db).sort((a, b) => b.wins - a.wins || b.topKmh - a.topKmh);
     const tbody = document.getElementById('leaderboard-body');
-    if (players.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--text-muted); padding: 25px;">No matches recorded yet. Play a match to enter the Hall of Fame!</td></tr>`;
+
+    if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 24px; color: var(--text-muted);">No matches recorded yet. Step into the arena!</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = players.map((p, idx) => {
+    tbody.innerHTML = list.map((p, i) => {
         const total = p.wins + p.losses;
-        const winRate = total > 0 ? Math.round((p.wins / total) * 100) : 0;
-        const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : ''));
+        const rate = total ? Math.round((p.wins / total) * 100) : 0;
+        const rClass = i === 0 ? 'rank-1' : (i === 1 ? 'rank-2' : (i === 2 ? 'rank-3' : ''));
         return `
             <tr>
-                <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
-                <td style="font-family:'Orbitron',sans-serif; color: var(--p1-color);">${escapeHtml(p.name)}</td>
+                <td><span class="rank-badge ${rClass}">${i + 1}</span></td>
+                <td style="font-family:'Orbitron',sans-serif; color:var(--p1-color);">${escapeHtml(p.name)}</td>
                 <td><span style="color:var(--success)">${p.wins}W</span> - <span style="color:var(--p2-color)">${p.losses}L</span></td>
-                <td>${winRate}%</td>
-                <td>${p.points}</td>
+                <td>${rate}%</td>
+                <td style="color:var(--smash-color)">⚡ ${p.topKmh || 0} KM/H</td>
                 <td style="color:var(--gold)">🔥 ${p.bestRally}</td>
             </tr>
         `;
@@ -961,36 +942,39 @@ function closeLeaderboard() {
 
 function clearLeaderboard() {
     sfx.play('ui');
-    if (confirm("Reset all Hall of Fame leaderboard stats?")) {
-        localStorage.removeItem(LB_STORAGE_KEY);
+    if (confirm("Clear all Hall of Fame stats?")) {
+        localStorage.removeItem(LB_KEY);
         renderLeaderboard();
     }
 }
 
-function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 }
 
 /** =========================================================================
- *  3. GAME STATE, PHYSICS & VISUAL EFFECTS ENGINE
+ *  3. 2D BAT & BALL PHYSICS CONFIGURATION
  *  ========================================================================= */
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
 
-const PADDLE_WIDTH = 14;
-const PADDLE_HEIGHT = 92;
-const BALL_RADIUS = 8;
-const INITIAL_BALL_SPEED = 6.5;
-const MAX_BALL_SPEED = 15;
+const NET_X = canvas.width / 2;       // 425
+const BAT_LENGTH = 86;                // Blade length
+const BAT_RADIUS = 9;                 // Blade thickness radius
+const BALL_RADIUS = 8.5;
+
+// Movement zones for 2D Bat freedom (Up, Down, Left, Right)
+const P1_BOUNDS = { minX: 38, maxX: NET_X - 42, minY: 48, maxY: canvas.height - 48 };
+const P2_BOUNDS = { minX: NET_X + 42, maxX: canvas.width - 38, minY: 48, maxY: canvas.height - 48 };
 
 let peer = null;
 let conn = null;
-let isHost = false;
+let isHost = true;
+let isAIMode = false;
 let gameActive = false;
 let animationId = null;
 let pendingRoomId = null;
 
-// Match Settings
 let matchConfig = {
     targetScore: 5,
     winByTwo: true,
@@ -998,60 +982,79 @@ let matchConfig = {
     p2Name: 'Player 2'
 };
 
-// Session Series Score
 let seriesWins = { p1: 0, p2: 0 };
 
-// Real-time Game State
+// 2D Bat State with Velocity, Target Tracking, and Wrist Tilt Angle
+function createBat(x, y) {
+    return {
+        x: x, y: y,
+        targetX: x, targetY: y,
+        prevX: x, prevY: y,
+        vx: 0, vy: 0,
+        angle: 0,
+        hitCooldown: 0,
+        trail: []
+    };
+}
+
 const state = {
-    p1Y: canvas.height / 2 - PADDLE_HEIGHT / 2,
-    p2Y: canvas.height / 2 - PADDLE_HEIGHT / 2,
+    p1: createBat(95, canvas.height / 2),
+    p2: createBat(canvas.width - 95, canvas.height / 2),
     ball: {
-        x: canvas.width / 2,
+        x: NET_X,
         y: canvas.height / 2,
         vx: 0,
         vy: 0,
-        speed: INITIAL_BALL_SPEED
+        speed: 0,
+        spin: 0,       // Magnus curve spin
+        kmh: 0,
+        shotType: 'READY'
     },
     score1: 0,
     score2: 0,
     rally: 0,
     maxRally: 0,
+    topKmh: 0,
     countdownText: '',
     bannerText: '',
     bannerTimer: 0
 };
 
-// Visual Effects Arrays
+// Visual FX Arrays
 let particles = [];
 let ballTrail = [];
+let shockwaves = [];
 let screenShake = 0;
 
-const keys = { ArrowUp: false, ArrowDown: false, w: false, s: false, W: false, S: false };
+// 2D Keyboard state (WASD + Arrows)
+const keys = {
+    ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+    w: false, s: false, a: false, d: false,
+    W: false, S: false, A: false, D: false
+};
 
-// Load saved nickname
 window.onload = () => {
-    const savedName = localStorage.getItem('neon_pong_nickname');
-    if (savedName) {
-        document.getElementById('host-name-input').value = savedName;
-        document.getElementById('guest-name-input').value = savedName;
+    const saved = localStorage.getItem('neon_pong_nickname');
+    if (saved) {
+        document.getElementById('host-name-input').value = saved;
+        document.getElementById('guest-name-input').value = saved;
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomId = urlParams.get('room');
-
-    if (roomId) {
-        pendingRoomId = roomId;
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) {
+        pendingRoomId = room;
         isHost = false;
         showOverlay('join-overlay');
     }
-    drawScene();
+    drawArena();
 };
 
-function setTargetScore(val, btnEl) {
+function setTargetScore(val, btn) {
     sfx.play('ui');
     matchConfig.targetScore = val;
     document.querySelectorAll('#score-selector .pill-btn').forEach(b => b.classList.remove('active'));
-    btnEl.classList.add('active');
+    btn.classList.add('active');
     updateRuleBadge();
 }
 
@@ -1064,70 +1067,88 @@ function setWinByTwo(val) {
 }
 
 function updateRuleBadge() {
-    const wb2Text = matchConfig.winByTwo ? 'WIN BY 2' : 'SUDDEN DEATH';
-    document.getElementById('rule-badge').innerText = `FIRST TO ${matchConfig.targetScore} • ${wb2Text}`;
+    const mode = matchConfig.winByTwo ? 'WIN BY 2' : 'SUDDEN DEATH';
+    document.getElementById('rule-badge').innerText = `FIRST TO ${matchConfig.targetScore} (${mode})`;
 }
 
 /** =========================================================================
- *  4. PEER-TO-PEER NETWORKING (PeerJS)
+ *  4. ONLINE MULTIPLAYER (PeerJS) & AI MODE SETUP
  *  ========================================================================= */
-function createGame() {
+function startAIGame() {
     sfx.init();
     sfx.play('ui');
     isHost = true;
-    const nameInput = document.getElementById('host-name-input').value.trim() || 'Player 1';
-    matchConfig.p1Name = nameInput;
-    localStorage.setItem('neon_pong_nickname', nameInput);
+    isAIMode = true;
+    const name = document.getElementById('host-name-input').value.trim() || 'Player 1';
+    matchConfig.p1Name = name;
+    matchConfig.p2Name = 'PRO AI BOT';
+    localStorage.setItem('neon_pong_nickname', name);
 
-    document.getElementById('name-p1').innerText = matchConfig.p1Name;
+    seriesWins = { p1: 0, p2: 0 };
+    document.getElementById('ping-display').innerText = 'AI ARENA';
+    document.getElementById('leave-match-btn').style.display = 'flex';
+    applyConfigUI();
+    startMatch();
+}
+
+function createOnlineGame() {
+    sfx.init();
+    sfx.play('ui');
+    isHost = true;
+    isAIMode = false;
+    const name = document.getElementById('host-name-input').value.trim() || 'Player 1';
+    matchConfig.p1Name = name;
+    localStorage.setItem('neon_pong_nickname', name);
+
     document.getElementById('create-btn').disabled = true;
-    document.getElementById('status-text').innerText = "Initializing Arena Room...";
+    document.getElementById('status-text').innerText = "Creating P2P Arena Link...";
     initPeer();
 }
 
 function confirmJoinGame() {
     sfx.init();
     sfx.play('ui');
-    const nameInput = document.getElementById('guest-name-input').value.trim() || 'Player 2';
-    matchConfig.p2Name = nameInput;
-    localStorage.setItem('neon_pong_nickname', nameInput);
+    isAIMode = false;
+    const name = document.getElementById('guest-name-input').value.trim() || 'Player 2';
+    matchConfig.p2Name = name;
+    localStorage.setItem('neon_pong_nickname', name);
 
     showOverlay('connecting-overlay');
     initPeer(null, pendingRoomId);
 }
 
 function initPeer(customId = null, targetHostId = null) {
+    if (peer) peer.destroy();
     peer = new Peer(customId, { debug: 1 });
 
     peer.on('open', (id) => {
         if (isHost) {
-            const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${id}`;
-            document.getElementById('invite-link-input').value = inviteUrl;
+            const url = `${window.location.origin}${window.location.pathname}?room=${id}`;
+            document.getElementById('invite-link-input').value = url;
             showOverlay('invite-overlay');
         } else if (targetHostId) {
             conn = peer.connect(targetHostId, { reliable: false });
-            setupConnectionEvents();
+            setupConnEvents();
         }
     });
 
-    peer.on('connection', (connection) => {
+    peer.on('connection', (c) => {
         if (isHost && !conn) {
-            conn = connection;
-            setupConnectionEvents();
+            conn = c;
+            setupConnEvents();
         }
     });
 
     peer.on('error', (err) => {
-        console.error(err);
-        alert("Network error (" + err.type + "). Returning to lobby.");
-        window.location.href = window.location.pathname;
+        alert("Connection error: " + err.type);
+        returnToMenu();
     });
 }
 
-function setupConnectionEvents() {
+function setupConnEvents() {
     conn.on('open', () => {
+        document.getElementById('leave-match-btn').style.display = 'flex';
         if (!isHost) {
-            // Guest sends their name to Host
             conn.send({ type: 'hello', name: matchConfig.p2Name });
         }
     });
@@ -1135,12 +1156,7 @@ function setupConnectionEvents() {
     conn.on('data', (data) => {
         if (data.type === 'hello' && isHost) {
             matchConfig.p2Name = data.name || 'Player 2';
-            // Host sends full match configuration back to Guest
-            conn.send({
-                type: 'config',
-                config: matchConfig,
-                series: seriesWins
-            });
+            conn.send({ type: 'config', config: matchConfig, series: seriesWins });
             applyConfigUI();
             startMatch();
         } 
@@ -1151,23 +1167,29 @@ function setupConnectionEvents() {
             startMatch();
         } 
         else if (data.type === 'sync' && !isHost) {
-            state.p1Y = data.s.p1Y;
+            // Sync Host's 2D bat, ball, and telemetry to Player 2
+            state.p1.x = data.s.p1.x;
+            state.p1.y = data.s.p1.y;
+            state.p1.vx = data.s.p1.vx;
+            state.p1.vy = data.s.p1.vy;
+            state.p1.angle = data.s.p1.angle;
             state.ball = data.s.ball;
             state.rally = data.s.rally;
             state.maxRally = data.s.maxRally;
+            state.topKmh = data.s.topKmh;
             state.countdownText = data.s.cd;
             state.bannerText = data.s.bn;
-            updateRallyHUD();
+            updateTelemetryHUD();
         } 
         else if (data.type === 'move' && isHost) {
-            state.p2Y = data.y;
+            // Host receives Player 2's 2D bat coordinates
+            state.p2.targetX = data.x;
+            state.p2.targetY = data.y;
         } 
         else if (data.type === 'fx') {
-            // Visual & Audio events triggered by Host
             sfx.play(data.sfx, data.extra);
-            if (data.particles) {
-                spawnParticles(data.particles.x, data.particles.y, data.particles.color, data.particles.count);
-            }
+            if (data.particles) spawnParticles(data.particles.x, data.particles.y, data.particles.color, data.particles.count);
+            if (data.ring) spawnShockwave(data.ring.x, data.ring.y, data.ring.color);
             if (data.shake) screenShake = data.shake;
             if (data.scoreUpdate) {
                 state.score1 = data.scoreUpdate.s1;
@@ -1196,11 +1218,10 @@ function setupConnectionEvents() {
     });
 
     conn.on('close', () => {
-        alert("Opponent disconnected from the match.");
-        window.location.href = window.location.pathname;
+        alert("Opponent disconnected.");
+        returnToMenu();
     });
 
-    // Ping measurement loop
     if (isHost) {
         setInterval(() => {
             if (conn && conn.open) conn.send({ type: 'ping', t: Date.now() });
@@ -1208,16 +1229,32 @@ function setupConnectionEvents() {
     }
 }
 
+function returnToMenu() {
+    sfx.play('ui');
+    gameActive = false;
+    clearInterval(countdownInterval);
+    if (conn) { conn.close(); conn = null; }
+    if (peer) { peer.destroy(); peer = null; }
+    if (window.location.search) {
+        window.location.href = window.location.pathname;
+        return;
+    }
+    document.getElementById('create-btn').disabled = false;
+    document.getElementById('status-text').innerText = '';
+    document.getElementById('leave-match-btn').style.display = 'none';
+    showOverlay('menu-overlay');
+}
+
 function applyConfigUI() {
     document.getElementById('name-p1').innerText = matchConfig.p1Name;
     document.getElementById('name-p2').innerText = matchConfig.p2Name;
-    document.getElementById('series-p1').innerText = `Series Wins: ${seriesWins.p1}`;
-    document.getElementById('series-p2').innerText = `Series Wins: ${seriesWins.p2}`;
+    document.getElementById('series-p1').innerText = `Series: ${seriesWins.p1}`;
+    document.getElementById('series-p2').innerText = `Series: ${seriesWins.p2}`;
     updateRuleBadge();
 }
 
 /** =========================================================================
- *  5. MATCH FLOW, SCORING & SERVE COUNTDOWN
+ *  5. MATCH FLOW & SERVE SEQUENCE
  *  ========================================================================= */
 function startMatch() {
     showOverlay('none');
@@ -1225,27 +1262,27 @@ function startMatch() {
     state.score2 = 0;
     state.rally = 0;
     state.maxRally = 0;
+    state.topKmh = 0;
+    state.p1 = createBat(95, canvas.height / 2);
+    state.p2 = createBat(canvas.width - 95, canvas.height / 2);
     updateScoreHUD(0);
-    updateRallyHUD();
+    updateTelemetryHUD();
 
     gameActive = true;
     if (animationId) cancelAnimationFrame(animationId);
-
-    if (isHost) {
-        startServeSequence(0);
-    }
+    if (isHost) startServeSequence(0);
     gameLoop();
 }
 
 function resetMatch() {
     sfx.play('ui');
-    state.p1Y = canvas.height / 2 - PADDLE_HEIGHT / 2;
-    state.p2Y = canvas.height / 2 - PADDLE_HEIGHT / 2;
     startMatch();
 }
 
 function requestRematch() {
-    if (conn && conn.open) {
+    if (isAIMode) {
+        resetMatch();
+    } else if (conn && conn.open) {
         conn.send({ type: 'rematch' });
         resetMatch();
     }
@@ -1256,17 +1293,20 @@ function startServeSequence(lastScorer = 0) {
     if (!isHost) return;
     clearInterval(countdownInterval);
 
-    state.ball.x = canvas.width / 2;
+    state.ball.x = NET_X;
     state.ball.y = canvas.height / 2;
     state.ball.vx = 0;
     state.ball.vy = 0;
+    state.ball.speed = 0;
+    state.ball.spin = 0;
+    state.ball.kmh = 0;
+    state.ball.shotType = 'SERVE';
     state.rally = 0;
-    updateRallyHUD();
+    updateTelemetryHUD();
 
-    // Check Deuce or Match Point callouts
-    const statusText = getScoreSituationText();
-    if (statusText) {
-        state.bannerText = statusText;
+    const sitText = getSituationBanner();
+    if (sitText) {
+        state.bannerText = sitText;
         state.bannerTimer = 110;
     }
 
@@ -1282,59 +1322,400 @@ function startServeSequence(lastScorer = 0) {
         } else if (count === 0) {
             state.countdownText = 'GO!';
             emitFX({ sfx: 'countdown', extra: 2 });
-            launchBall(lastScorer);
+            launchServe(lastScorer);
         } else {
             state.countdownText = '';
             clearInterval(countdownInterval);
         }
-    }, 650);
+    }, 620);
 }
 
-function launchBall(scorer) {
-    state.ball.speed = INITIAL_BALL_SPEED;
+function launchServe(scorer) {
+    const serveSpeed = 7.2;
     const dirX = scorer === 1 ? 1 : (scorer === 2 ? -1 : (Math.random() > 0.5 ? 1 : -1));
-    const angle = (Math.random() * Math.PI / 3) - Math.PI / 6;
-    state.ball.vx = dirX * state.ball.speed * Math.cos(angle);
-    state.ball.vy = state.ball.speed * Math.sin(angle);
+    const angle = (Math.random() * 0.6) - 0.3;
+    state.ball.speed = serveSpeed;
+    state.ball.vx = dirX * serveSpeed * Math.cos(angle);
+    state.ball.vy = serveSpeed * Math.sin(angle);
+    state.ball.kmh = Math.round(serveSpeed * 8.5);
+    state.ball.shotType = 'SERVE';
+    updateTelemetryHUD();
 }
 
-function getScoreSituationText() {
-    const s1 = state.score1;
-    const s2 = state.score2;
-    const target = matchConfig.targetScore;
-
-    if (matchConfig.winByTwo && s1 >= target - 1 && s2 >= target - 1) {
+function getSituationBanner() {
+    const s1 = state.score1, s2 = state.score2, t = matchConfig.targetScore;
+    if (matchConfig.winByTwo && s1 >= t - 1 && s2 >= t - 1) {
         if (s1 === s2) return "⚡ DEUCE ⚡";
-        if (s1 > s2) return `🔥 ADVANTAGE ${matchConfig.p1Name.toUpperCase()}`;
-        return `🔥 ADVANTAGE ${matchConfig.p2Name.toUpperCase()}`;
+        return s1 > s2 ? `🔥 ADVANTAGE ${matchConfig.p1Name.toUpperCase()}` : `🔥 ADVANTAGE ${matchConfig.p2Name.toUpperCase()}`;
     }
-
-    const p1MatchPt = (s1 >= target - 1) && (!matchConfig.winByTwo || s1 - s2 >= 1);
-    const p2MatchPt = (s2 >= target - 1) && (!matchConfig.winByTwo || s2 - s1 >= 1);
-
-    if (p1MatchPt || p2MatchPt) return "🚨 MATCH POINT 🚨";
+    const m1 = (s1 >= t - 1) && (!matchConfig.winByTwo || s1 - s2 >= 1);
+    const m2 = (s2 >= t - 1) && (!matchConfig.winByTwo || s2 - s1 >= 1);
+    if (m1 || m2) return "🚨 MATCH POINT 🚨";
     return "";
 }
 
-function hasPlayerWon(myScore, oppScore) {
-    if (myScore < matchConfig.targetScore) return false;
-    if (matchConfig.winByTwo) {
-        return (myScore - oppScore) >= 2;
+/** =========================================================================
+ *  6. REAL 2D BAT MOTION & SUB-STEPPED CAPSULE PHYSICS ENGINE
+ *  ========================================================================= */
+function updateKeyboardInput() {
+    const moveSpeed = 10;
+    const myBat = isHost ? state.p1 : state.p2;
+    const bounds = isHost ? P1_BOUNDS : P2_BOUNDS;
+
+    if (keys.ArrowUp || keys.w || keys.W) myBat.targetY -= moveSpeed;
+    if (keys.ArrowDown || keys.s || keys.S) myBat.targetY += moveSpeed;
+    if (keys.ArrowLeft || keys.a || keys.A) myBat.targetX -= moveSpeed;
+    if (keys.ArrowRight || keys.d || keys.D) myBat.targetX += moveSpeed;
+
+    myBat.targetX = Math.max(bounds.minX, Math.min(bounds.maxX, myBat.targetX));
+    myBat.targetY = Math.max(bounds.minY, Math.min(bounds.maxY, myBat.targetY));
+}
+
+function updateAIBat() {
+    if (!isAIMode) return;
+    const ai = state.p2;
+    const b = state.ball;
+
+    if (b.vx > 0) {
+        // Ball coming toward AI: Track Y and dynamically step in/out to smash or defend!
+        const timeToReach = Math.max(1, (ai.x - b.x) / Math.max(2, b.vx));
+        const predictedY = b.y + b.vy * timeToReach * 0.85;
+        ai.targetY += (predictedY - ai.targetY) * 0.16;
+
+        // If ball is close enough, AI lunges forward for an aggressive stroke!
+        if (b.x > NET_X + 95 && b.x < ai.x - 10) {
+            ai.targetX += ((NET_X + 140) - ai.targetX) * 0.14;
+        } else {
+            // Hold mid-court defensive position
+            ai.targetX += ((canvas.width - 115) - ai.targetX) * 0.1;
+        }
+    } else {
+        // Recover to home stance near baseline
+        ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.08;
+        ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.08;
     }
-    return true;
+
+    ai.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, ai.targetX));
+    ai.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, ai.targetY));
+}
+
+function stepBatKinematics(bat, bounds, isPlayer1) {
+    bat.prevX = bat.x;
+    bat.prevY = bat.y;
+
+    // Responsive spring-damper tracking for smooth yet snappy velocity transfer
+    const dx = bat.targetX - bat.x;
+    const dy = bat.targetY - bat.y;
+    const maxStep = 26; // Prevents infinite teleport velocity
+
+    const stepX = Math.max(-maxStep, Math.min(maxStep, dx * 0.55));
+    const stepY = Math.max(-maxStep, Math.min(maxStep, dy * 0.55));
+
+    bat.x = Math.max(bounds.minX, Math.min(bounds.maxX, bat.x + stepX));
+    bat.y = Math.max(bounds.minY, Math.min(bounds.maxY, bat.y + stepY));
+
+    bat.vx = bat.x - bat.prevX;
+    bat.vy = bat.y - bat.prevY;
+
+    // Dynamic wrist tilt based on swing velocity
+    const forwardVx = isPlayer1 ? bat.vx : -bat.vx;
+    const targetAngle = Math.max(-0.36, Math.min(0.36, (bat.vy * 0.015) - (forwardVx * 0.01) * (isPlayer1 ? 1 : -1)));
+    bat.angle += (targetAngle - bat.angle) * 0.35;
+
+    if (bat.hitCooldown > 0) bat.hitCooldown--;
+
+    // Save motion trail when swinging fast
+    const swingSpeed = Math.hypot(bat.vx, bat.vy);
+    if (swingSpeed > 4) {
+        bat.trail.push({ x: bat.x, y: bat.y, angle: bat.angle });
+        if (bat.trail.length > 5) bat.trail.shift();
+    } else if (bat.trail.length > 0) {
+        bat.trail.shift();
+    }
+}
+
+function checkBatCapsuleCollision(bat, isPlayer1) {
+    if (bat.hitCooldown > 0) return false;
+
+    const b = state.ball;
+    const halfL = BAT_LENGTH / 2;
+    const sinA = Math.sin(bat.angle);
+    const cosA = Math.cos(bat.angle);
+
+    // Capsule segment endpoints A and B
+    const ax = bat.x - sinA * halfL;
+    const ay = bat.y - cosA * halfL;
+    const bx = bat.x + sinA * halfL;
+    const by = bat.y + cosA * halfL;
+
+    const abx = bx - ax;
+    const aby = by - ay;
+    const apx = b.x - ax;
+    const apy = b.y - ay;
+
+    const abLenSq = abx * abx + aby * aby;
+    const t = Math.max(0, Math.min(1, (apx * abx + apy * aby) / abLenSq));
+
+    // Closest point on the bat spine to the ball center
+    const closestX = ax + t * abx;
+    const closestY = ay + t * aby;
+
+    const distX = b.x - closestX;
+    const distY = b.y - closestY;
+    const distSq = distX * distX + distY * distY;
+    const minDist = BALL_RADIUS + BAT_RADIUS;
+
+    if (distSq <= minDist * minDist) {
+        const dist = Math.sqrt(distSq) || 0.001;
+        const nx = distX / dist;
+        const ny = distY / dist;
+
+        // Push ball cleanly outside the bat capsule
+        const dirSign = isPlayer1 ? 1 : -1;
+        b.x = closestX + (Math.abs(nx) > 0.2 ? nx : dirSign) * (minDist + 2);
+        b.y = closestY + ny * (minDist + 2);
+
+        // --- REAL STROKE & MOMENTUM TRANSFER PHYSICS ---
+        // 1. Forward swing speed (+ when swinging toward net, - when pulling back)
+        const forwardStroke = isPlayer1 ? bat.vx : -bat.vx;
+        // 2. Vertical slice/brush speed
+        const sliceStroke = bat.vy;
+        // 3. Position on the blade (-1 = top edge, 0 = sweetspot, +1 = bottom edge)
+        const bladeHitOffset = (t - 0.5) * 2;
+        // 4. Court position bonus (volleying near the net gives crisper angles)
+        const netProximity = isPlayer1 
+            ? (bat.x - P1_BOUNDS.minX) / (P1_BOUNDS.maxX - P1_BOUNDS.minX)
+            : (P2_BOUNDS.maxX - bat.x) / (P2_BOUNDS.maxX - P2_BOUNDS.minX);
+
+        // Calculate new ball speed from incoming speed + bat stroke velocity
+        let newSpeed = Math.max(7.2, b.speed * 0.84) + (forwardStroke * 0.68);
+        let shotLabel = 'COUNTER DRIVE';
+        let soundToPlay = 'paddle';
+        let particleColor = isPlayer1 ? '#00f3ff' : '#ff0055';
+        let createRing = false;
+
+        if (forwardStroke > 5.2) {
+            // POWER SMASH!
+            newSpeed = Math.max(newSpeed, 13.5 + forwardStroke * 0.45);
+            shotLabel = '💥 POWER SMASH';
+            soundToPlay = 'smash';
+            particleColor = '#ff7b00';
+            createRing = true;
+        } else if (forwardStroke < -2.2) {
+            // DROP SHOT (Pulling bat back softens the impact)
+            newSpeed = Math.max(5.6, b.speed * 0.58);
+            shotLabel = '🪶 DROP SHOT';
+            soundToPlay = 'dropshot';
+            particleColor = '#00ff88';
+        } else if (Math.abs(sliceStroke) > 5.0) {
+            // CURVE SPIN!
+            newSpeed = Math.max(9.0, newSpeed);
+            shotLabel = '🌀 CURVE SPIN';
+            soundToPlay = 'spin';
+            particleColor = '#bc13fe';
+        }
+
+        // Clamp speed to realistic playable bounds
+        b.speed = Math.max(5.6, Math.min(19.2, newSpeed));
+
+        // Calculate Launch Angle (Blade offset + Wrist tilt + Brush slice)
+        const maxAngle = 0.62 + (netProximity * 0.16); // Closer to net = wider cross-court angles!
+        let bounceAngle = (bladeHitOffset * 0.48) + (sliceStroke * 0.024) + (bat.angle * 0.45 * dirSign);
+        bounceAngle = Math.max(-maxAngle, Math.min(maxAngle, bounceAngle));
+
+        b.vx = dirSign * b.speed * Math.cos(bounceAngle);
+        b.vy = b.speed * Math.sin(bounceAngle);
+
+        // Impart Aerodynamic Magnus Spin from vertical bat slice
+        b.spin = Math.max(-0.28, Math.min(0.28, sliceStroke * 0.022));
+
+        // Update Telemetry (Convert pixel speed to realistic KM/H)
+        b.kmh = Math.round(b.speed * 8.6);
+        b.shotType = shotLabel;
+        if (b.kmh > state.topKmh) state.topKmh = b.kmh;
+
+        bat.hitCooldown = 12; // Prevent double-hit on follow-through
+        state.rally++;
+        if (state.rally > state.maxRally) state.maxRally = state.rally;
+        updateTelemetryHUD();
+
+        if (state.rally === 10) {
+            state.bannerText = "🔥 10 HIT RALLY! 🔥";
+            state.bannerTimer = 70;
+        }
+
+        emitFX({
+            sfx: soundToPlay,
+            extra: state.rally,
+            particles: { x: b.x, y: b.y, color: particleColor, count: createRing ? 32 : 18 },
+            ring: createRing ? { x: b.x, y: b.y, color: particleColor } : null,
+            shake: createRing ? 11 : Math.min(6, 2 + Math.floor(b.speed / 4))
+        });
+
+        return true;
+    }
+    return false;
+}
+
+function updatePhysics() {
+    updateKeyboardInput();
+
+    if (!isHost) {
+        // Guest steps local bat for instant 0-latency visual feedback and sends target to Host
+        stepBatKinematics(state.p2, P2_BOUNDS, false);
+        if (conn && conn.open) {
+            conn.send({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
+        }
+        return;
+    }
+
+    // Host updates AI (if active)
+    if (isAIMode) updateAIBat();
+
+    if (state.bannerTimer > 0) state.bannerTimer--;
+
+    const b = state.ball;
+    if (b.vx === 0 && b.vy === 0) {
+        stepBatKinematics(state.p1, P1_BOUNDS, true);
+        stepBatKinematics(state.p2, P2_BOUNDS, false);
+        syncToClient();
+        return;
+    }
+
+    // --- 6X SUB-STEPPED PHYSICS LOOP (Prevents fast bat swings from tunneling!) ---
+    const SUBSTEPS = 6;
+    const prevP1X = state.p1.x, prevP1Y = state.p1.y;
+    const prevP2X = state.p2.x, prevP2Y = state.p2.y;
+
+    stepBatKinematics(state.p1, P1_BOUNDS, true);
+    stepBatKinematics(state.p2, P2_BOUNDS, false);
+
+    const endP1X = state.p1.x, endP1Y = state.p1.y;
+    const endP2X = state.p2.x, endP2Y = state.p2.y;
+
+    for (let step = 1; step <= SUBSTEPS; step++) {
+        const frac = step / SUBSTEPS;
+
+        // Interpolate bat positions along the swing path
+        state.p1.x = prevP1X + (endP1X - prevP1X) * frac;
+        state.p1.y = prevP1Y + (endP1Y - prevP1Y) * frac;
+        state.p2.x = prevP2X + (endP2X - prevP2X) * frac;
+        state.p2.y = prevP2Y + (endP2Y - prevP2Y) * frac;
+
+        // Move ball by 1/SUBSTEPS
+        b.x += b.vx / SUBSTEPS;
+        b.y += b.vy / SUBSTEPS;
+
+        // Apply Magnus Effect Curve Spin in mid-air
+        b.vy += b.spin / SUBSTEPS;
+
+        // Top & Bottom Table Bounce
+        if (b.y - BALL_RADIUS < 12) {
+            b.y = 12 + BALL_RADIUS;
+            b.vy = -b.vy;
+            b.spin *= 0.6;
+            emitFX({ sfx: 'wall', particles: { x: b.x, y: 14, color: '#ffffff', count: 8 } });
+        } else if (b.y + BALL_RADIUS > canvas.height - 12) {
+            b.y = canvas.height - 12 - BALL_RADIUS;
+            b.vy = -b.vy;
+            b.spin *= 0.6;
+            emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#ffffff', count: 8 } });
+        }
+
+        // Check Capsule Collisions with Both 2D Bats
+        checkBatCapsuleCollision(state.p1, true);
+        checkBatCapsuleCollision(state.p2, false);
+    }
+
+    // Air resistance decay on spin
+    b.spin *= 0.993;
+
+    // Check Point Scored
+    if (b.x < -12) {
+        state.score2++;
+        onPointScored(2, 14, b.y, '#ff0055');
+    } else if (b.x > canvas.width + 12) {
+        state.score1++;
+        onPointScored(1, canvas.width - 14, b.y, '#00f3ff');
+    }
+
+    syncToClient();
+}
+
+function onPointScored(scorer, x, y, color) {
+    emitFX({
+        sfx: 'score',
+        particles: { x, y, color, count: 45 },
+        ring: { x, y, color },
+        shake: 15,
+        scoreUpdate: { s1: state.score1, s2: state.score2, scorer }
+    });
+
+    if (hasWon(state.score1, state.score2)) {
+        finishMatch(1);
+    } else if (hasWon(state.score2, state.score1)) {
+        finishMatch(2);
+    } else {
+        startServeSequence(scorer);
+    }
+}
+
+function hasWon(my, opp) {
+    if (my < matchConfig.targetScore) return false;
+    return matchConfig.winByTwo ? (my - opp) >= 2 : true;
+}
+
+function finishMatch(winner) {
+    clearInterval(countdownInterval);
+    if (winner === 1) seriesWins.p1++; else seriesWins.p2++;
+    if (conn && conn.open) {
+        conn.send({ type: 'gameover', winner, series: seriesWins });
+    }
+    handleGameOver(winner);
+}
+
+function handleGameOver(winner) {
+    gameActive = false;
+    applyConfigUI();
+    recordMatchStats(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally, state.topKmh);
+
+    const iWon = (isHost && winner === 1) || (!isHost && winner === 2);
+    sfx.play(iWon ? 'win' : 'lose');
+
+    const wName = winner === 1 ? matchConfig.p1Name : matchConfig.p2Name;
+    document.getElementById('winner-text').innerText = `${wName.toUpperCase()} WINS!`;
+    document.getElementById('match-subtitle').innerText = iWon ? "🏆 ARENA CHAMPION!" : "💀 DEFEATED IN THE ARENA";
+    document.getElementById('end-score-val').innerText = `${state.score1} - ${state.score2}`;
+    document.getElementById('end-speed-val').innerText = `${state.topKmh} KM/H`;
+    document.getElementById('end-rally-val').innerText = state.maxRally;
+    document.getElementById('end-series-val').innerText = `${seriesWins.p1} - ${seriesWins.p2}`;
+
+    showOverlay('gameover-overlay');
 }
 
 function emitFX(payload) {
     sfx.play(payload.sfx, payload.extra);
-    if (payload.particles) {
-        spawnParticles(payload.particles.x, payload.particles.y, payload.particles.color, payload.particles.count);
-    }
+    if (payload.particles) spawnParticles(payload.particles.x, payload.particles.y, payload.particles.color, payload.particles.count);
+    if (payload.ring) spawnShockwave(payload.ring.x, payload.ring.y, payload.ring.color);
     if (payload.shake) screenShake = payload.shake;
-    if (payload.scoreUpdate) {
-        updateScoreHUD(payload.scoreUpdate.scorer);
-    }
+    if (payload.scoreUpdate) updateScoreHUD(payload.scoreUpdate.scorer);
+    if (conn && conn.open) conn.send({ type: 'fx', ...payload });
+}
+
+function syncToClient() {
     if (conn && conn.open) {
-        conn.send({ type: 'fx', ...payload });
+        conn.send({
+            type: 'sync',
+            s: {
+                p1: { x: state.p1.x, y: state.p1.y, vx: state.p1.vx, vy: state.p1.vy, angle: state.p1.angle },
+                ball: state.ball,
+                rally: state.rally,
+                maxRally: state.maxRally,
+                topKmh: state.topKmh,
+                cd: state.countdownText,
+                bn: state.bannerTimer > 0 ? state.bannerText : ''
+            }
+        });
     }
 }
 
@@ -1343,326 +1724,251 @@ function updateScoreHUD(scorer) {
     const el2 = document.getElementById('score-p2');
     el1.innerText = state.score1;
     el2.innerText = state.score2;
-
-    if (scorer === 1) {
-        el1.classList.remove('bump');
-        void el1.offsetWidth;
-        el1.classList.add('bump');
-    } else if (scorer === 2) {
-        el2.classList.remove('bump');
-        void el2.offsetWidth;
-        el2.classList.add('bump');
-    }
+    if (scorer === 1) { el1.classList.remove('bump'); void el1.offsetWidth; el1.classList.add('bump'); }
+    if (scorer === 2) { el2.classList.remove('bump'); void el2.offsetWidth; el2.classList.add('bump'); }
 }
 
-function updateRallyHUD() {
+function updateTelemetryHUD() {
     document.getElementById('rally-count').innerText = state.rally;
-    document.getElementById('max-rally-count').innerText = state.maxRally;
-}
+    document.getElementById('speed-kmh').innerText = `${state.ball.kmh || 0} KM/H`;
+    const badge = document.getElementById('shot-type-badge');
+    badge.innerText = state.ball.shotType || 'READY';
 
-/** =========================================================================
- *  6. PHYSICS & COLLISION ENGINE
- *  ========================================================================= */
-function updatePhysics() {
-    // Move local paddle via keyboard
-    const paddleSpeed = 8.5;
-    let myY = isHost ? state.p1Y : state.p2Y;
-
-    if (keys.ArrowUp || keys.w || keys.W) myY -= paddleSpeed;
-    if (keys.ArrowDown || keys.s || keys.S) myY += paddleSpeed;
-    myY = Math.max(0, Math.min(canvas.height - PADDLE_HEIGHT, myY));
-
-    if (isHost) {
-        state.p1Y = myY;
+    if (state.ball.shotType.includes('SMASH')) {
+        badge.style.borderColor = '#ff7b00';
+        badge.style.color = '#ff7b00';
+    } else if (state.ball.shotType.includes('SPIN')) {
+        badge.style.borderColor = '#bc13fe';
+        badge.style.color = '#e082ff';
+    } else if (state.ball.shotType.includes('DROP')) {
+        badge.style.borderColor = '#00ff88';
+        badge.style.color = '#00ff88';
     } else {
-        state.p2Y = myY;
-        if (conn && conn.open) conn.send({ type: 'move', y: state.p2Y });
-    }
-
-    // Update Banner Timer
-    if (state.bannerTimer > 0) state.bannerTimer--;
-
-    // Host calculates ball movement and collisions
-    if (!isHost) return;
-
-    const b = state.ball;
-    if (b.vx === 0 && b.vy === 0) {
-        syncToClient();
-        return;
-    }
-
-    b.x += b.vx;
-    b.y += b.vy;
-
-    // Top & Bottom Wall Bounce
-    if (b.y - BALL_RADIUS < 0) {
-        b.y = BALL_RADIUS;
-        b.vy = -b.vy;
-        emitFX({
-            sfx: 'wall',
-            particles: { x: b.x, y: 4, color: '#ffffff', count: 10 }
-        });
-    } else if (b.y + BALL_RADIUS > canvas.height) {
-        b.y = canvas.height - BALL_RADIUS;
-        b.vy = -b.vy;
-        emitFX({
-            sfx: 'wall',
-            particles: { x: b.x, y: canvas.height - 4, color: '#ffffff', count: 10 }
-        });
-    }
-
-    // Left Paddle (Player 1)
-    if (b.vx < 0 && b.x - BALL_RADIUS <= 24 + PADDLE_WIDTH && b.x - BALL_RADIUS >= 16 &&
-        b.y + BALL_RADIUS >= state.p1Y && b.y - BALL_RADIUS <= state.p1Y + PADDLE_HEIGHT) {
-        handlePaddleBounce(state.p1Y, 1, '#00f3ff');
-    }
-
-    // Right Paddle (Player 2)
-    if (b.vx > 0 && b.x + BALL_RADIUS >= canvas.width - 24 - PADDLE_WIDTH && b.x + BALL_RADIUS <= canvas.width - 16 &&
-        b.y + BALL_RADIUS >= state.p2Y && b.y - BALL_RADIUS <= state.p2Y + PADDLE_HEIGHT) {
-        handlePaddleBounce(state.p2Y, -1, '#ff0055');
-    }
-
-    // Scoring Detection
-    if (b.x < -10) {
-        state.score2++;
-        onPointScored(2, 10, b.y, '#ff0055');
-    } else if (b.x > canvas.width + 10) {
-        state.score1++;
-        onPointScored(1, canvas.width - 10, b.y, '#00f3ff');
-    }
-
-    syncToClient();
-}
-
-function handlePaddleBounce(paddleY, direction, color) {
-    const b = state.ball;
-    let collidePoint = (b.y - (paddleY + PADDLE_HEIGHT / 2)) / (PADDLE_HEIGHT / 2);
-    collidePoint = Math.max(-1, Math.min(1, collidePoint));
-
-    const angleRad = (Math.PI / 4) * collidePoint;
-    b.speed = Math.min(MAX_BALL_SPEED, b.speed + 0.45);
-
-    b.vx = direction * b.speed * Math.cos(angleRad);
-    b.vy = b.speed * Math.sin(angleRad);
-    b.x = direction === 1 ? 24 + PADDLE_WIDTH + BALL_RADIUS : canvas.width - 24 - PADDLE_WIDTH - BALL_RADIUS;
-
-    state.rally++;
-    if (state.rally > state.maxRally) state.maxRally = state.rally;
-    updateRallyHUD();
-
-    if (state.rally === 10) {
-        state.bannerText = "🔥 10 HIT RALLY! 🔥";
-        state.bannerTimer = 75;
-    } else if (state.rally === 20) {
-        state.bannerText = "⚡ UNSTOPPABLE 20 RALLY! ⚡";
-        state.bannerTimer = 85;
-    }
-
-    emitFX({
-        sfx: 'paddle',
-        extra: state.rally,
-        particles: { x: b.x, y: b.y, color: color, count: 18 },
-        shake: Math.min(8, 2 + Math.floor(state.rally / 4))
-    });
-}
-
-function onPointScored(scorer, x, y, color) {
-    emitFX({
-        sfx: 'score',
-        particles: { x: x, y: y, color: color, count: 40 },
-        shake: 14,
-        scoreUpdate: { s1: state.score1, s2: state.score2, scorer: scorer }
-    });
-
-    if (hasPlayerWon(state.score1, state.score2)) {
-        finishMatch(1);
-    } else if (hasPlayerWon(state.score2, state.score1)) {
-        finishMatch(2);
-    } else {
-        startServeSequence(scorer);
-    }
-}
-
-function finishMatch(winner) {
-    clearInterval(countdownInterval);
-    if (winner === 1) seriesWins.p1++;
-    else seriesWins.p2++;
-
-    if (conn && conn.open) {
-        conn.send({ type: 'gameover', winner: winner, series: seriesWins });
-    }
-    handleGameOver(winner);
-}
-
-function handleGameOver(winner) {
-    gameActive = false;
-    applyConfigUI();
-
-    // Save to Persistent Hall of Fame Leaderboard
-    recordMatchResult(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally);
-
-    const iWon = (isHost && winner === 1) || (!isHost && winner === 2);
-    sfx.play(iWon ? 'win' : 'lose');
-
-    const winnerName = winner === 1 ? matchConfig.p1Name : matchConfig.p2Name;
-    const titleEl = document.getElementById('winner-text');
-    titleEl.innerText = `${winnerName.toUpperCase()} WINS!`;
-
-    document.getElementById('match-subtitle').innerText = iWon ? "🏆 VICTORY IS YOURS!" : "💀 DEFEATED IN THE ARENA";
-    document.getElementById('end-score-val').innerText = `${state.score1} - ${state.score2}`;
-    document.getElementById('end-rally-val').innerText = state.maxRally;
-    document.getElementById('end-series-val').innerText = `${seriesWins.p1} - ${seriesWins.p2}`;
-
-    showOverlay('gameover-overlay');
-}
-
-function syncToClient() {
-    if (conn && conn.open) {
-        conn.send({
-            type: 'sync',
-            s: {
-                p1Y: state.p1Y,
-                ball: state.ball,
-                rally: state.rally,
-                maxRally: state.maxRally,
-                cd: state.countdownText,
-                bn: state.bannerTimer > 0 ? state.bannerText : ''
-            }
-        });
+        badge.style.borderColor = 'rgba(255,255,255,0.2)';
+        badge.style.color = '#ffffff';
     }
 }
 
 /** =========================================================================
- *  7. PARTICLE ENGINE & CANVAS RENDERER
+ *  7. PRO TABLE TENNIS ARENA & RACKET RENDERER
  *  ========================================================================= */
-function spawnParticles(x, y, color, count = 15) {
+function spawnParticles(x, y, color, count = 16) {
     for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 5 + 1.5;
+        const a = Math.random() * Math.PI * 2;
+        const sp = Math.random() * 6 + 1.5;
         particles.push({
-            x: x,
-            y: y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
+            x, y,
+            vx: Math.cos(a) * sp,
+            vy: Math.sin(a) * sp,
             size: Math.random() * 4 + 2,
             alpha: 1,
-            color: color
+            color
         });
     }
 }
 
-function drawScene() {
+function spawnShockwave(x, y, color) {
+    shockwaves.push({ x, y, radius: 10, maxRadius: 75, alpha: 0.9, color });
+}
+
+function drawBatRacket(bat, color, isPlayer1) {
     ctx.save();
 
-    // Screen Shake Effect
-    if (screenShake > 0) {
-        const dx = (Math.random() - 0.5) * screenShake;
-        const dy = (Math.random() - 0.5) * screenShake;
-        ctx.translate(dx, dy);
-        screenShake *= 0.85;
-        if (screenShake < 0.5) screenShake = 0;
+    // Draw Motion Blur Afterimages when swinging fast
+    for (let i = 0; i < bat.trail.length; i++) {
+        const t = bat.trail[i];
+        const ratio = (i + 1) / (bat.trail.length + 1);
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(-t.angle);
+        ctx.globalAlpha = ratio * 0.25;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = BAT_RADIUS * 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, -BAT_LENGTH / 2);
+        ctx.lineTo(0, BAT_LENGTH / 2);
+        ctx.stroke();
+        ctx.restore();
     }
 
-    // Court Background
-    ctx.fillStyle = '#05060a';
+    // Draw Main Cyber Table-Tennis Bat
+    ctx.translate(bat.x, bat.y);
+    ctx.rotate(-bat.angle);
+
+    // Ergonomic Handle Grip at bottom/back of blade
+    ctx.fillStyle = '#252b48';
+    ctx.beginPath();
+    ctx.roundRect(-5, BAT_LENGTH / 2 - 4, 10, 16, 4);
+    ctx.fill();
+
+    // Glowing Rubber Blade Face
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = BAT_RADIUS * 2;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, -BAT_LENGTH / 2);
+    ctx.lineTo(0, BAT_LENGTH / 2);
+    ctx.stroke();
+
+    // Inner Carbon Core Stripe
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, -BAT_LENGTH / 2 + 6);
+    ctx.lineTo(0, BAT_LENGTH / 2 - 6);
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+function drawArena() {
+    ctx.save();
+
+    // Screen Shake
+    if (screenShake > 0) {
+        ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+        screenShake *= 0.85;
+        if (screenShake < 0.4) screenShake = 0;
+    }
+
+    // 1. Pro Table Tennis Court Surface
+    ctx.fillStyle = '#070a14';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Subtle Center Circle & Net
+    // Subtle Half-Court Tints showing 2D Free-Movement Zones
+    ctx.fillStyle = 'rgba(0, 243, 255, 0.025)';
+    ctx.fillRect(14, 12, NET_X - 50, canvas.height - 24);
+
+    ctx.fillStyle = 'rgba(255, 0, 85, 0.025)';
+    ctx.fillRect(NET_X + 36, 12, NET_X - 50, canvas.height - 24);
+
+    // Outer Table Boundary Lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(14, 12, canvas.width - 28, canvas.height - 24);
+
+    // Center Doubles Line
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, 70, 0, Math.PI * 2);
+    ctx.moveTo(14, canvas.height / 2);
+    ctx.lineTo(canvas.width - 14, canvas.height / 2);
     ctx.stroke();
 
-    ctx.strokeStyle = '#1f243d';
-    ctx.lineWidth = 4;
-    ctx.setLineDash([14, 14]);
+    // Kitchen / Net Reach Boundary Lines (Shows how far forward bats can step in)
+    ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
+    ctx.setLineDash([6, 8]);
     ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.moveTo(P1_BOUNDS.maxX, 12);
+    ctx.lineTo(P1_BOUNDS.maxX, canvas.height - 12);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255, 0, 85, 0.15)';
+    ctx.beginPath();
+    ctx.moveTo(P2_BOUNDS.minX, 12);
+    ctx.lineTo(P2_BOUNDS.minX, canvas.height - 12);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Ball Trail
-    if (state.ball.vx !== 0 || state.ball.vy !== 0) {
-        ballTrail.push({ x: state.ball.x, y: state.ball.y });
-        if (ballTrail.length > 10) ballTrail.shift();
+    // Center Laser Net
+    ctx.strokeStyle = '#333d66';
+    ctx.lineWidth = 4;
+    ctx.setLineDash([12, 10]);
+    ctx.beginPath();
+    ctx.moveTo(NET_X, 8);
+    ctx.lineTo(NET_X, canvas.height - 8);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. Shockwave Rings on Smashes/Scores
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.radius += 4.2;
+        sw.alpha -= 0.04;
+        if (sw.alpha <= 0) { shockwaves.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = sw.alpha;
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // 3. Ball Motion Trail (Changes color based on Smash or Spin!)
+    const b = state.ball;
+    if (b.vx !== 0 || b.vy !== 0) {
+        ballTrail.push({ x: b.x, y: b.y });
+        if (ballTrail.length > 14) ballTrail.shift();
     } else {
         ballTrail = [];
     }
 
+    let trailColor = '0, 243, 255';
+    if (b.shotType && b.shotType.includes('SMASH')) trailColor = '255, 123, 0';
+    else if (b.shotType && b.shotType.includes('SPIN')) trailColor = '188, 19, 254';
+
     for (let i = 0; i < ballTrail.length; i++) {
         const pt = ballTrail[i];
         const ratio = (i + 1) / ballTrail.length;
-        ctx.fillStyle = `rgba(0, 243, 255, ${ratio * 0.35})`;
+        ctx.fillStyle = `rgba(${trailColor}, ${ratio * 0.42})`;
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, BALL_RADIUS * ratio, 0, Math.PI * 2);
         ctx.fill();
     }
 
-    // Left Paddle (Player 1)
-    ctx.fillStyle = '#00f3ff';
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = '#00f3ff';
-    ctx.beginPath();
-    ctx.roundRect(24, state.p1Y, PADDLE_WIDTH, PADDLE_HEIGHT, 6);
-    ctx.fill();
+    // 4. Draw Both 2D Bats
+    drawBatRacket(state.p1, '#00f3ff', true);
+    drawBatRacket(state.p2, '#ff0055', false);
 
-    // Right Paddle (Player 2)
-    ctx.fillStyle = '#ff0055';
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = '#ff0055';
-    ctx.beginPath();
-    ctx.roundRect(canvas.width - 24 - PADDLE_WIDTH, state.p2Y, PADDLE_WIDTH, PADDLE_HEIGHT, 6);
-    ctx.fill();
-
-    // Ball
+    // 5. Draw Ball
     ctx.fillStyle = '#ffffff';
-    ctx.shadowBlur = 16;
-    ctx.shadowColor = '#ffffff';
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = b.shotType && b.shotType.includes('SMASH') ? '#ff7b00' : '#ffffff';
     ctx.beginPath();
-    ctx.arc(state.ball.x, state.ball.y, BALL_RADIUS, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Update & Draw Sparks/Particles
+    // 6. Sparks / Particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha -= 0.03;
-        if (p.alpha <= 0) {
-            particles.splice(i, 1);
-            continue;
-        }
+        p.alpha -= 0.032;
+        if (p.alpha <= 0) { particles.splice(i, 1); continue; }
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color;
         ctx.fillRect(p.x, p.y, p.size, p.size);
     }
     ctx.globalAlpha = 1;
 
-    // Draw Dynamic Banner Announcements (DEUCE, MATCH POINT, RALLY)
-    const activeBanner = isHost ? (state.bannerTimer > 0 ? state.bannerText : '') : state.bannerText;
-    if (activeBanner) {
-        ctx.font = '900 26px "Orbitron", sans-serif';
+    // 7. Dynamic Callout Banner
+    const banner = isHost ? (state.bannerTimer > 0 ? state.bannerText : '') : state.bannerText;
+    if (banner) {
+        ctx.font = '900 24px "Orbitron", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ffcc00';
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 14;
         ctx.shadowColor = '#ffcc00';
-        ctx.fillText(activeBanner, canvas.width / 2, 55);
+        ctx.fillText(banner, NET_X, 50);
         ctx.shadowBlur = 0;
     }
 
-    // Draw 3-2-1 Countdown
+    // 8. Serve Countdown
     if (state.countdownText) {
-        ctx.font = '900 72px "Orbitron", sans-serif';
+        ctx.font = '900 70px "Orbitron", sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillStyle = '#ffffff';
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 24;
         ctx.shadowColor = '#00f3ff';
-        ctx.fillText(state.countdownText, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(state.countdownText, NET_X, canvas.height / 2);
         ctx.shadowBlur = 0;
         ctx.textBaseline = 'alphabetic';
     }
@@ -1673,28 +1979,38 @@ function drawScene() {
 function gameLoop() {
     if (!gameActive) return;
     updatePhysics();
-    drawScene();
+    drawArena();
     animationId = requestAnimationFrame(gameLoop);
 }
 
 /** =========================================================================
- *  8. INPUT HANDLERS & UI HELPERS
+ *  8. 2D POINTER (MOUSE & TOUCH) INPUT HANDLERS
  *  ========================================================================= */
-function movePaddleByPointer(clientY) {
+function handlePointer2D(clientX, clientY) {
     if (!gameActive) return;
     const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const mouseY = (clientY - rect.top) * scaleY;
-    const newY = Math.max(0, Math.min(canvas.height - PADDLE_HEIGHT, mouseY - PADDLE_HEIGHT / 2));
 
-    if (isHost) state.p1Y = newY;
-    else state.p2Y = newY;
+    const canvasX = (clientX - rect.left) * scaleX;
+    const canvasY = (clientY - rect.top) * scaleY;
+
+    if (isHost) {
+        state.p1.targetX = Math.max(P1_BOUNDS.minX, Math.min(P1_BOUNDS.maxX, canvasX));
+        state.p1.targetY = Math.max(P1_BOUNDS.minY, Math.min(P1_BOUNDS.maxY, canvasY));
+    } else {
+        state.p2.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, canvasX));
+        state.p2.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, canvasY));
+    }
 }
 
-canvas.addEventListener('mousemove', (e) => movePaddleByPointer(e.clientY));
+window.addEventListener('mousemove', (e) => handlePointer2D(e.clientX, e.clientY));
+
 canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
-    movePaddleByPointer(e.touches[0].clientY);
+    if (e.touches.length > 0) {
+        handlePointer2D(e.touches[0].clientX, e.touches[0].clientY);
+    }
 }, { passive: false });
 
 window.addEventListener('keydown', (e) => {
@@ -1705,10 +2021,14 @@ window.addEventListener('keyup', (e) => {
 });
 
 function showOverlay(id) {
-    const overlays = ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay'];
-    overlays.forEach(o => document.getElementById(o).classList.add('hidden'));
+    const list = ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay'];
+    list.forEach(o => document.getElementById(o).classList.add('hidden'));
+    const container = document.getElementById('game-container');
     if (id !== 'none') {
         document.getElementById(id).classList.remove('hidden');
+        container.classList.add('menu-open');
+    } else {
+        container.classList.remove('menu-open');
     }
 }
 
@@ -1722,7 +2042,6 @@ function copyLink() {
     } else {
         document.execCommand('copy');
     }
-
     const btn = document.getElementById('copy-btn');
     btn.innerText = "COPIED!";
     btn.style.background = "#00ff88";
