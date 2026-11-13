@@ -1609,8 +1609,6 @@ function drawArena() {
         ctx.strokeStyle = `rgba(255,255,255,${bm.alpha})`; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(bm.x, bm.y, bm.radius, 0, Math.PI * 2); ctx.stroke();
     }
-
-    ctx.strokeStyle = profile.themeNet || '#3b4a
     ctx.strokeStyle = profile.themeNet || '#3b4a7a'; ctx.lineWidth = 4; ctx.setLineDash([12, 10]);
     ctx.beginPath(); ctx.moveTo(NET_X, 8); ctx.lineTo(NET_X, canvas.height - 8); ctx.stroke();
     ctx.setLineDash([]);
