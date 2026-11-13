@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PONG V3 // 2D Pro Physics Arena</title>
+    <title>NEON PONG V3.5 // Pro Table Tennis Rules</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -139,6 +139,17 @@
         .player-info {
             display: flex;
             flex-direction: column;
+            gap: 2px;
+        }
+
+        .name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .p2 .name-row {
+            justify-content: flex-end;
         }
 
         .player-name {
@@ -146,6 +157,19 @@
             font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 1px;
+        }
+
+        .serve-pill {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: rgba(255, 204, 0, 0.15);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.25);
         }
 
         .series-wins {
@@ -211,7 +235,7 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 0 45px rgba(0, 243, 255, 0.12), 0 0 45px rgba(255, 0, 85, 0.08);
-            cursor: none; /* Hide default cursor during gameplay for immersive bat feel */
+            cursor: none;
         }
 
         #game-container.menu-open {
@@ -249,7 +273,7 @@
 
         h1.game-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 900;
             letter-spacing: 4px;
             text-transform: uppercase;
@@ -262,19 +286,19 @@
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 0.98rem;
+            font-size: 0.95rem;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .physics-tips {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
             width: 100%;
-            max-width: 560px;
-            margin-bottom: 16px;
+            max-width: 680px;
+            margin-bottom: 14px;
         }
 
         .tip-card {
@@ -288,12 +312,12 @@
         .tip-card b {
             display: block;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.72rem;
-            margin-bottom: 2px;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
         }
 
         .tip-card span {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             color: var(--text-muted);
             line-height: 1.2;
             display: block;
@@ -303,13 +327,13 @@
             background: rgba(0, 0, 0, 0.45);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 15px 20px;
+            padding: 14px 20px;
             width: 100%;
             max-width: 440px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 11px;
         }
 
         .input-group {
@@ -540,9 +564,9 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        @media (max-width: 700px) {
+        @media (max-width: 720px) {
             h1.game-title { font-size: 2rem; }
-            .physics-tips { grid-template-columns: 1fr; display: none; }
+            .physics-tips { display: none; }
             .center-telemetry { min-width: auto; padding: 0 10px; }
             .score-box { font-size: 1.6rem; min-width: 42px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -558,13 +582,13 @@
             <button class="icon-btn" onclick="openLeaderboard()">
                 <span>🏆</span> Hall of Fame
             </button>
-            <button class="icon-btn" id="leave-match-btn" class="hidden" style="display:none;" onclick="returnToMenu()">
+            <button class="icon-btn" id="leave-match-btn" style="display:none;" onclick="returnToMenu()">
                 <span>⬅</span> Main Menu
             </button>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
             <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 6px;">
-                2D Controls: <b>Mouse / Touch</b> or <b>WASD / Arrows</b>
+                Serve: <b>Swing Bat Through Ball</b> or <b>Click / Space</b>
             </span>
             <button class="icon-btn" id="sound-toggle-btn" onclick="toggleMute()">
                 <span id="sound-icon">🔊</span> <span id="sound-text">SFX: ON</span>
@@ -577,15 +601,18 @@
         <div class="player-card p1">
             <div class="score-box" id="score-p1">0</div>
             <div class="player-info">
-                <span class="player-name" id="name-p1">PLAYER 1</span>
-                <span class="series-wins" id="series-p1">Series: 0</span>
+                <div class="name-row">
+                    <span class="player-name" id="name-p1">PLAYER 1</span>
+                    <span class="serve-pill" id="serve-pill-p1">🏓 2 SERVES</span>
+                </div>
+                <span class="series-wins" id="series-p1">Series Wins: 0</span>
             </div>
         </div>
 
         <div class="center-telemetry">
             <div class="telemetry-row">
                 <span class="speed-readout" id="speed-kmh">0 KM/H</span>
-                <span class="shot-badge" id="shot-type-badge">READY</span>
+                <span class="shot-badge" id="shot-type-badge">SERVE READY</span>
             </div>
             <div class="sub-meta">
                 <span>RALLY: <b id="rally-count" style="color:var(--p1-color)">0</b></span>
@@ -598,8 +625,11 @@
 
         <div class="player-card p2">
             <div class="player-info">
-                <span class="player-name" id="name-p2">PLAYER 2</span>
-                <span class="series-wins" id="series-p2">Series: 0</span>
+                <div class="name-row">
+                    <span class="serve-pill hidden" id="serve-pill-p2">🏓 2 SERVES</span>
+                    <span class="player-name" id="name-p2">PLAYER 2</span>
+                </div>
+                <span class="series-wins" id="series-p2">Series Wins: 0</span>
             </div>
             <div class="score-box" id="score-p2">0</div>
         </div>
@@ -611,10 +641,14 @@
 
         <!-- 1. MAIN MENU OVERLAY -->
         <div id="menu-overlay" class="overlay">
-            <h1 class="game-title">Neon Pong V3</h1>
-            <p class="subtitle">2D Free-Motion Bat & Real Stroke Physics</p>
+            <h1 class="game-title">Neon Pong V3.5</h1>
+            <p class="subtitle">2D Free-Motion Bat & Official Ping Pong Serve Rules</p>
 
             <div class="physics-tips">
+                <div class="tip-card">
+                    <b style="color: var(--gold);">🏓 MANUAL SERVE</b>
+                    <span>Line up behind the ball & <b>swing forward</b> (or Click/Space) to serve!</span>
+                </div>
                 <div class="tip-card">
                     <b style="color: var(--smash-color);">💥 POWER SMASH</b>
                     <span>Swing your bat <b>forward</b> into the ball for a 150+ KM/H rocket!</span>
@@ -781,38 +815,36 @@ class SoundEngine {
         if (this.muted) return;
         try {
             this.init();
-            const now = this.ctx.currentTime;
-
             if (type === 'ui') {
                 this.tone(750, 1150, 0.04, 'sine', 0.08);
             } 
+            else if (type === 'serve') {
+                // Crisp table tennis serve strike
+                this.tone(420, 720, 0.09, 'triangle', 0.25);
+                this.noise(0.04, 0.12, 2400);
+            }
             else if (type === 'paddle') {
-                // Crisp ping-pong ball 'tock' + rally pitch climb
                 const base = Math.min(360 + extra * 14, 850);
                 this.tone(base, base * 1.6, 0.075, 'triangle', 0.22);
                 this.noise(0.035, 0.1, 2200);
             } 
             else if (type === 'smash') {
-                // Heavy explosive kinetic smash!
                 this.tone(180, 620, 0.14, 'sawtooth', 0.3);
                 this.tone(95, 40, 0.18, 'sine', 0.35);
                 this.noise(0.12, 0.25, 3200);
             } 
             else if (type === 'spin') {
-                // Slicing FM whoosh + ping
                 this.tone(420, 960, 0.11, 'sine', 0.2);
                 this.noise(0.08, 0.12, 1400);
             } 
             else if (type === 'dropshot') {
-                // Soft hollow wooden absorb sound
                 this.tone(260, 180, 0.06, 'sine', 0.15);
             } 
             else if (type === 'wall') {
                 this.tone(210, 110, 0.06, 'sine', 0.16);
             } 
-            else if (type === 'countdown') {
-                const freq = extra === 2 ? 880 : 440;
-                this.tone(freq, freq, extra === 2 ? 0.22 : 0.1, 'square', 0.09);
+            else if (type === 'ready') {
+                this.tone(520, 660, 0.08, 'sine', 0.07);
             } 
             else if (type === 'score') {
                 this.tone(300, 55, 0.32, 'sawtooth', 0.2);
@@ -890,7 +922,7 @@ function recordMatchStats(p1Name, p2Name, s1, s2, maxRally, topKmh) {
 
     const update = (name, won, rally, kmh) => {
         const clean = (name || 'Player').trim();
-        if (clean === 'PRO AI BOT') return; // Optional: keep leaderboard for humans or include bot
+        if (clean === 'PRO AI BOT') return;
         if (!db[clean]) db[clean] = { name: clean, wins: 0, losses: 0, topKmh: 0, bestRally: 0 };
         if (won) db[clean].wins++; else db[clean].losses++;
         if (rally > db[clean].bestRally) db[clean].bestRally = rally;
@@ -953,19 +985,23 @@ function escapeHtml(s) {
 }
 
 /** =========================================================================
- *  3. 2D BAT & BALL PHYSICS CONFIGURATION
+ *  3. 2D BAT, BALL & OFFICIAL PING PONG SERVE CONFIGURATION
  *  ========================================================================= */
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
 
-const NET_X = canvas.width / 2;       // 425
-const BAT_LENGTH = 86;                // Blade length
-const BAT_RADIUS = 9;                 // Blade thickness radius
+const NET_X = canvas.width / 2;         // 425
+const BAT_LENGTH = 86;
+const BAT_RADIUS = 9;
 const BALL_RADIUS = 8.5;
 
-// Movement zones for 2D Bat freedom (Up, Down, Left, Right)
-const P1_BOUNDS = { minX: 38, maxX: NET_X - 42, minY: 48, maxY: canvas.height - 48 };
-const P2_BOUNDS = { minX: NET_X + 42, maxX: canvas.width - 38, minY: 48, maxY: canvas.height - 48 };
+// Service Line X coordinates where the ball is placed for manual serves
+const P1_SERVE_X = 148;
+const P2_SERVE_X = canvas.width - 148;
+
+// 2D Movement Bounds for each player's half-court
+const P1_BOUNDS = { minX: 36, maxX: NET_X - 42, minY: 48, maxY: canvas.height - 48 };
+const P2_BOUNDS = { minX: NET_X + 42, maxX: canvas.width - 36, minY: 48, maxY: canvas.height - 48 };
 
 let peer = null;
 let conn = null;
@@ -974,17 +1010,18 @@ let isAIMode = false;
 let gameActive = false;
 let animationId = null;
 let pendingRoomId = null;
+let pointTransitionTimer = null;
 
 let matchConfig = {
     targetScore: 5,
     winByTwo: true,
     p1Name: 'Player 1',
-    p2Name: 'Player 2'
+    p2Name: 'Player 2',
+    initialServer: 1 // Alternates every game in a series
 };
 
 let seriesWins = { p1: 0, p2: 0 };
 
-// 2D Bat State with Velocity, Target Tracking, and Wrist Tilt Angle
 function createBat(x, y) {
     return {
         x: x, y: y,
@@ -998,35 +1035,36 @@ function createBat(x, y) {
 }
 
 const state = {
-    p1: createBat(95, canvas.height / 2),
-    p2: createBat(canvas.width - 95, canvas.height / 2),
+    p1: createBat(82, canvas.height / 2),
+    p2: createBat(canvas.width - 82, canvas.height / 2),
     ball: {
-        x: NET_X,
+        x: P1_SERVE_X,
         y: canvas.height / 2,
         vx: 0,
         vy: 0,
         speed: 0,
-        spin: 0,       // Magnus curve spin
+        spin: 0,
         kmh: 0,
-        shotType: 'READY'
+        shotType: 'SERVE READY'
     },
     score1: 0,
     score2: 0,
     rally: 0,
     maxRally: 0,
     topKmh: 0,
-    countdownText: '',
+    waitingForServe: true,
+    currentServer: 1,
+    servesLeft: 2,
+    aiServeTimer: 0,
     bannerText: '',
     bannerTimer: 0
 };
 
-// Visual FX Arrays
 let particles = [];
 let ballTrail = [];
 let shockwaves = [];
 let screenShake = 0;
 
-// 2D Keyboard state (WASD + Arrows)
 const keys = {
     ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
     w: false, s: false, a: false, d: false,
@@ -1072,7 +1110,61 @@ function updateRuleBadge() {
 }
 
 /** =========================================================================
- *  4. ONLINE MULTIPLAYER (PeerJS) & AI MODE SETUP
+ *  4. OFFICIAL TABLE TENNIS SERVICE ROTATION CALCULATOR
+ *  ========================================================================= */
+function computeServiceRotation(s1, s2) {
+    const totalPoints = s1 + s2;
+    const t = matchConfig.targetScore;
+    const first = matchConfig.initialServer || 1;
+    const second = first === 1 ? 2 : 1;
+
+    // Official Deuce Rule: When both players reach (targetScore - 1), service alternates every 1 point!
+    const inDeuce = matchConfig.winByTwo && s1 >= (t - 1) && s2 >= (t - 1);
+
+    if (inDeuce) {
+        const pointsBeforeDeuce = (t - 1) * 2;
+        const deucePoints = totalPoints - pointsBeforeDeuce;
+        // Determine who served first at Deuce
+        const preDeuceBlocks = Math.floor(pointsBeforeDeuce / 2);
+        const deuceStartServer = (preDeuceBlocks % 2 === 0) ? first : second;
+        const deuceOtherServer = deuceStartServer === 1 ? 2 : 1;
+
+        return {
+            server: (deucePoints % 2 === 0) ? deuceStartServer : deuceOtherServer,
+            servesLeft: 1,
+            inDeuce: true
+        };
+    } else {
+        // Normal Play: Service alternates every 2 points
+        const block = Math.floor(totalPoints / 2);
+        const server = (block % 2 === 0) ? first : second;
+        const servesLeft = 2 - (totalPoints % 2);
+        return {
+            server: server,
+            servesLeft: servesLeft,
+            inDeuce: false
+        };
+    }
+}
+
+function updateServeBadgesHUD() {
+    const pill1 = document.getElementById('serve-pill-p1');
+    const pill2 = document.getElementById('serve-pill-p2');
+    const label = `🏓 ${state.servesLeft} SERVE${state.servesLeft > 1 ? 'S' : ''}`;
+
+    if (state.currentServer === 1) {
+        pill1.innerText = label;
+        pill1.classList.remove('hidden');
+        pill2.classList.add('hidden');
+    } else {
+        pill2.innerText = label;
+        pill2.classList.remove('hidden');
+        pill1.classList.add('hidden');
+    }
+}
+
+/** =========================================================================
+ *  5. ONLINE MULTIPLAYER (PeerJS) & AI MODE SETUP
  *  ========================================================================= */
 function startAIGame() {
     sfx.init();
@@ -1082,6 +1174,7 @@ function startAIGame() {
     const name = document.getElementById('host-name-input').value.trim() || 'Player 1';
     matchConfig.p1Name = name;
     matchConfig.p2Name = 'PRO AI BOT';
+    matchConfig.initialServer = 1;
     localStorage.setItem('neon_pong_nickname', name);
 
     seriesWins = { p1: 0, p2: 0 };
@@ -1098,6 +1191,7 @@ function createOnlineGame() {
     isAIMode = false;
     const name = document.getElementById('host-name-input').value.trim() || 'Player 1';
     matchConfig.p1Name = name;
+    matchConfig.initialServer = 1;
     localStorage.setItem('neon_pong_nickname', name);
 
     document.getElementById('create-btn').disabled = true;
@@ -1167,7 +1261,6 @@ function setupConnEvents() {
             startMatch();
         } 
         else if (data.type === 'sync' && !isHost) {
-            // Sync Host's 2D bat, ball, and telemetry to Player 2
             state.p1.x = data.s.p1.x;
             state.p1.y = data.s.p1.y;
             state.p1.vx = data.s.p1.vx;
@@ -1177,15 +1270,23 @@ function setupConnEvents() {
             state.rally = data.s.rally;
             state.maxRally = data.s.maxRally;
             state.topKmh = data.s.topKmh;
-            state.countdownText = data.s.cd;
+            state.waitingForServe = data.s.wfs;
+            state.currentServer = data.s.srv;
+            state.servesLeft = data.s.sLeft;
             state.bannerText = data.s.bn;
             updateTelemetryHUD();
+            updateServeBadgesHUD();
         } 
         else if (data.type === 'move' && isHost) {
-            // Host receives Player 2's 2D bat coordinates
             state.p2.targetX = data.x;
             state.p2.targetY = data.y;
         } 
+        else if (data.type === 'quick_serve' && isHost) {
+            // Player 2 clicked or pressed Spacebar to execute a quick serve
+            if (state.waitingForServe && state.currentServer === 2) {
+                executeQuickServeImpulse(2);
+            }
+        }
         else if (data.type === 'fx') {
             sfx.play(data.sfx, data.extra);
             if (data.particles) spawnParticles(data.particles.x, data.particles.y, data.particles.color, data.particles.count);
@@ -1202,6 +1303,7 @@ function setupConnEvents() {
             handleGameOver(data.winner);
         } 
         else if (data.type === 'rematch') {
+            matchConfig.initialServer = data.initialServer || 1;
             resetMatch();
         } 
         else if (data.type === 'ping') {
@@ -1232,7 +1334,7 @@ function setupConnEvents() {
 function returnToMenu() {
     sfx.play('ui');
     gameActive = false;
-    clearInterval(countdownInterval);
+    clearTimeout(pointTransitionTimer);
     if (conn) { conn.close(); conn = null; }
     if (peer) { peer.destroy(); peer = null; }
     if (window.location.search) {
@@ -1248,29 +1350,32 @@ function returnToMenu() {
 function applyConfigUI() {
     document.getElementById('name-p1').innerText = matchConfig.p1Name;
     document.getElementById('name-p2').innerText = matchConfig.p2Name;
-    document.getElementById('series-p1').innerText = `Series: ${seriesWins.p1}`;
-    document.getElementById('series-p2').innerText = `Series: ${seriesWins.p2}`;
+    document.getElementById('series-p1').innerText = `Series Wins: ${seriesWins.p1}`;
+    document.getElementById('series-p2').innerText = `Series Wins: ${seriesWins.p2}`;
     updateRuleBadge();
 }
 
 /** =========================================================================
- *  5. MATCH FLOW & SERVE SEQUENCE
+ *  6. MATCH FLOW & MANUAL SERVE PREPARATION
  *  ========================================================================= */
 function startMatch() {
     showOverlay('none');
+    clearTimeout(pointTransitionTimer);
     state.score1 = 0;
     state.score2 = 0;
     state.rally = 0;
     state.maxRally = 0;
     state.topKmh = 0;
-    state.p1 = createBat(95, canvas.height / 2);
-    state.p2 = createBat(canvas.width - 95, canvas.height / 2);
+    state.p1 = createBat(82, canvas.height / 2);
+    state.p2 = createBat(canvas.width - 82, canvas.height / 2);
     updateScoreHUD(0);
-    updateTelemetryHUD();
 
     gameActive = true;
     if (animationId) cancelAnimationFrame(animationId);
-    if (isHost) startServeSequence(0);
+
+    if (isHost) {
+        preparePlayerServe();
+    }
     gameLoop();
 }
 
@@ -1280,72 +1385,85 @@ function resetMatch() {
 }
 
 function requestRematch() {
+    // Alternate who serves first in the next game of the series!
+    matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
     if (isAIMode) {
         resetMatch();
     } else if (conn && conn.open) {
-        conn.send({ type: 'rematch' });
+        conn.send({ type: 'rematch', initialServer: matchConfig.initialServer });
         resetMatch();
     }
 }
 
-let countdownInterval = null;
-function startServeSequence(lastScorer = 0) {
+function preparePlayerServe() {
     if (!isHost) return;
-    clearInterval(countdownInterval);
+    clearTimeout(pointTransitionTimer);
 
-    state.ball.x = NET_X;
-    state.ball.y = canvas.height / 2;
+    const rot = computeServiceRotation(state.score1, state.score2);
+    state.currentServer = rot.server;
+    state.servesLeft = rot.servesLeft;
+    state.waitingForServe = true;
+    state.rally = 0;
+
+    // Position the ball at the designated server's baseline service spot
+    if (state.currentServer === 1) {
+        state.ball.x = P1_SERVE_X;
+        state.ball.y = Math.max(85, Math.min(canvas.height - 85, state.p1.y));
+    } else {
+        state.ball.x = P2_SERVE_X;
+        state.ball.y = Math.max(85, Math.min(canvas.height - 85, state.p2.y));
+        if (isAIMode) {
+            state.aiServeTimer = 55; // AI waits ~0.9s before serving
+        }
+    }
+
     state.ball.vx = 0;
     state.ball.vy = 0;
     state.ball.speed = 0;
     state.ball.spin = 0;
     state.ball.kmh = 0;
-    state.ball.shotType = 'SERVE';
-    state.rally = 0;
-    updateTelemetryHUD();
+    state.ball.shotType = 'SERVE READY';
 
     const sitText = getSituationBanner();
     if (sitText) {
         state.bannerText = sitText;
-        state.bannerTimer = 110;
+        state.bannerTimer = 140;
     }
 
-    let count = 3;
-    state.countdownText = String(count);
-    emitFX({ sfx: 'countdown', extra: 1 });
-
-    countdownInterval = setInterval(() => {
-        count--;
-        if (count > 0) {
-            state.countdownText = String(count);
-            emitFX({ sfx: 'countdown', extra: 1 });
-        } else if (count === 0) {
-            state.countdownText = 'GO!';
-            emitFX({ sfx: 'countdown', extra: 2 });
-            launchServe(lastScorer);
-        } else {
-            state.countdownText = '';
-            clearInterval(countdownInterval);
-        }
-    }, 620);
+    updateServeBadgesHUD();
+    updateTelemetryHUD();
+    emitFX({ sfx: 'ready' });
 }
 
-function launchServe(scorer) {
-    const serveSpeed = 7.2;
-    const dirX = scorer === 1 ? 1 : (scorer === 2 ? -1 : (Math.random() > 0.5 ? 1 : -1));
-    const angle = (Math.random() * 0.6) - 0.3;
-    state.ball.speed = serveSpeed;
-    state.ball.vx = dirX * serveSpeed * Math.cos(angle);
-    state.ball.vy = serveSpeed * Math.sin(angle);
-    state.ball.kmh = Math.round(serveSpeed * 8.5);
-    state.ball.shotType = 'SERVE';
-    updateTelemetryHUD();
+function executeQuickServeImpulse(playerNum) {
+    if (!isHost || !state.waitingForServe || state.currentServer !== playerNum) return;
+
+    const bat = playerNum === 1 ? state.p1 : state.p2;
+    const dir = playerNum === 1 ? 1 : -1;
+
+    // Snap bat slightly behind the ball and apply a crisp forward stroke into the ball
+    bat.x = state.ball.x - dir * 18;
+    bat.y = state.ball.y;
+    bat.targetX = state.ball.x + dir * 35;
+    bat.targetY = state.ball.y;
+    bat.vx = dir * 11;
+    bat.vy = (Math.random() - 0.5) * 3;
+    checkBatCapsuleCollision(bat, playerNum === 1);
+}
+
+function triggerManualQuickServe() {
+    if (!gameActive || !state.waitingForServe) return;
+    if (isHost && state.currentServer === 1) {
+        executeQuickServeImpulse(1);
+    } else if (!isHost && state.currentServer === 2 && conn && conn.open) {
+        conn.send({ type: 'quick_serve' });
+    }
 }
 
 function getSituationBanner() {
     const s1 = state.score1, s2 = state.score2, t = matchConfig.targetScore;
     if (matchConfig.winByTwo && s1 >= t - 1 && s2 >= t - 1) {
-        if (s1 === s2) return "⚡ DEUCE ⚡";
+        if (s1 === s2) return "⚡ DEUCE (1 SERVE EACH) ⚡";
         return s1 > s2 ? `🔥 ADVANTAGE ${matchConfig.p1Name.toUpperCase()}` : `🔥 ADVANTAGE ${matchConfig.p2Name.toUpperCase()}`;
     }
     const m1 = (s1 >= t - 1) && (!matchConfig.winByTwo || s1 - s2 >= 1);
@@ -1355,7 +1473,7 @@ function getSituationBanner() {
 }
 
 /** =========================================================================
- *  6. REAL 2D BAT MOTION & SUB-STEPPED CAPSULE PHYSICS ENGINE
+ *  7. 2D BAT MOTION, SERVE STRIKE & SUB-STEPPED PHYSICS ENGINE
  *  ========================================================================= */
 function updateKeyboardInput() {
     const moveSpeed = 10;
@@ -1376,21 +1494,44 @@ function updateAIBat() {
     const ai = state.p2;
     const b = state.ball;
 
+    // 1. If AI is the current Server and waiting to serve:
+    if (state.waitingForServe) {
+        if (state.currentServer === 2) {
+            if (state.aiServeTimer > 15) {
+                // AI retreats behind the ball and lines up a serve position
+                state.aiServeTimer--;
+                ai.targetX += ((canvas.width - 75) - ai.targetX) * 0.18;
+                const aimY = (canvas.height / 2) + Math.sin(Date.now() * 0.004) * 110;
+                ai.targetY += (aimY - ai.targetY) * 0.12;
+            } else if (state.aiServeTimer > 0) {
+                // AI lunges forward through the ball to strike the serve!
+                state.aiServeTimer--;
+                ai.targetX = P2_SERVE_X - 45;
+            } else {
+                executeQuickServeImpulse(2);
+            }
+        } else {
+            // AI waits in ready stance while Player 1 prepares to serve
+            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.1;
+            ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.1;
+        }
+        ai.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, ai.targetX));
+        ai.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, ai.targetY));
+        return;
+    }
+
+    // 2. Normal Rally AI Logic
     if (b.vx > 0) {
-        // Ball coming toward AI: Track Y and dynamically step in/out to smash or defend!
         const timeToReach = Math.max(1, (ai.x - b.x) / Math.max(2, b.vx));
         const predictedY = b.y + b.vy * timeToReach * 0.85;
         ai.targetY += (predictedY - ai.targetY) * 0.16;
 
-        // If ball is close enough, AI lunges forward for an aggressive stroke!
         if (b.x > NET_X + 95 && b.x < ai.x - 10) {
             ai.targetX += ((NET_X + 140) - ai.targetX) * 0.14;
         } else {
-            // Hold mid-court defensive position
             ai.targetX += ((canvas.width - 115) - ai.targetX) * 0.1;
         }
     } else {
-        // Recover to home stance near baseline
         ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.08;
         ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.08;
     }
@@ -1403,10 +1544,9 @@ function stepBatKinematics(bat, bounds, isPlayer1) {
     bat.prevX = bat.x;
     bat.prevY = bat.y;
 
-    // Responsive spring-damper tracking for smooth yet snappy velocity transfer
     const dx = bat.targetX - bat.x;
     const dy = bat.targetY - bat.y;
-    const maxStep = 26; // Prevents infinite teleport velocity
+    const maxStep = 26;
 
     const stepX = Math.max(-maxStep, Math.min(maxStep, dx * 0.55));
     const stepY = Math.max(-maxStep, Math.min(maxStep, dy * 0.55));
@@ -1417,14 +1557,12 @@ function stepBatKinematics(bat, bounds, isPlayer1) {
     bat.vx = bat.x - bat.prevX;
     bat.vy = bat.y - bat.prevY;
 
-    // Dynamic wrist tilt based on swing velocity
     const forwardVx = isPlayer1 ? bat.vx : -bat.vx;
     const targetAngle = Math.max(-0.36, Math.min(0.36, (bat.vy * 0.015) - (forwardVx * 0.01) * (isPlayer1 ? 1 : -1)));
     bat.angle += (targetAngle - bat.angle) * 0.35;
 
     if (bat.hitCooldown > 0) bat.hitCooldown--;
 
-    // Save motion trail when swinging fast
     const swingSpeed = Math.hypot(bat.vx, bat.vy);
     if (swingSpeed > 4) {
         bat.trail.push({ x: bat.x, y: bat.y, angle: bat.angle });
@@ -1437,12 +1575,18 @@ function stepBatKinematics(bat, bounds, isPlayer1) {
 function checkBatCapsuleCollision(bat, isPlayer1) {
     if (bat.hitCooldown > 0) return false;
 
+    const playerNum = isPlayer1 ? 1 : 2;
+
+    // If waiting for a serve, ONLY the designated server can strike the ball!
+    if (state.waitingForServe && state.currentServer !== playerNum) {
+        return false;
+    }
+
     const b = state.ball;
     const halfL = BAT_LENGTH / 2;
     const sinA = Math.sin(bat.angle);
     const cosA = Math.cos(bat.angle);
 
-    // Capsule segment endpoints A and B
     const ax = bat.x - sinA * halfL;
     const ay = bat.y - cosA * halfL;
     const bx = bat.x + sinA * halfL;
@@ -1456,7 +1600,6 @@ function checkBatCapsuleCollision(bat, isPlayer1) {
     const abLenSq = abx * abx + aby * aby;
     const t = Math.max(0, Math.min(1, (apx * abx + apy * aby) / abLenSq));
 
-    // Closest point on the bat spine to the ball center
     const closestX = ax + t * abx;
     const closestY = ay + t * aby;
 
@@ -1466,75 +1609,71 @@ function checkBatCapsuleCollision(bat, isPlayer1) {
     const minDist = BALL_RADIUS + BAT_RADIUS;
 
     if (distSq <= minDist * minDist) {
+        const forwardStroke = isPlayer1 ? bat.vx : -bat.vx;
+        const sliceStroke = bat.vy;
+
+        // During a serve, require the player to be swinging forward toward the net
+        // (so moving backward to get behind the ball never triggers a backward serve!)
+        if (state.waitingForServe && forwardStroke < 0.4) {
+            return false;
+        }
+
+        const wasServe = state.waitingForServe;
+        state.waitingForServe = false;
+
         const dist = Math.sqrt(distSq) || 0.001;
         const nx = distX / dist;
         const ny = distY / dist;
-
-        // Push ball cleanly outside the bat capsule
         const dirSign = isPlayer1 ? 1 : -1;
+
         b.x = closestX + (Math.abs(nx) > 0.2 ? nx : dirSign) * (minDist + 2);
         b.y = closestY + ny * (minDist + 2);
 
-        // --- REAL STROKE & MOMENTUM TRANSFER PHYSICS ---
-        // 1. Forward swing speed (+ when swinging toward net, - when pulling back)
-        const forwardStroke = isPlayer1 ? bat.vx : -bat.vx;
-        // 2. Vertical slice/brush speed
-        const sliceStroke = bat.vy;
-        // 3. Position on the blade (-1 = top edge, 0 = sweetspot, +1 = bottom edge)
         const bladeHitOffset = (t - 0.5) * 2;
-        // 4. Court position bonus (volleying near the net gives crisper angles)
         const netProximity = isPlayer1 
             ? (bat.x - P1_BOUNDS.minX) / (P1_BOUNDS.maxX - P1_BOUNDS.minX)
             : (P2_BOUNDS.maxX - bat.x) / (P2_BOUNDS.maxX - P2_BOUNDS.minX);
 
-        // Calculate new ball speed from incoming speed + bat stroke velocity
-        let newSpeed = Math.max(7.2, b.speed * 0.84) + (forwardStroke * 0.68);
-        let shotLabel = 'COUNTER DRIVE';
-        let soundToPlay = 'paddle';
+        let newSpeed = Math.max(7.6, b.speed * 0.84) + (forwardStroke * 0.68);
+        let shotLabel = wasServe ? '🏓 SERVE' : 'COUNTER DRIVE';
+        let soundToPlay = wasServe ? 'serve' : 'paddle';
         let particleColor = isPlayer1 ? '#00f3ff' : '#ff0055';
         let createRing = false;
 
         if (forwardStroke > 5.2) {
-            // POWER SMASH!
-            newSpeed = Math.max(newSpeed, 13.5 + forwardStroke * 0.45);
-            shotLabel = '💥 POWER SMASH';
+            newSpeed = Math.max(newSpeed, (wasServe ? 12.2 : 13.5) + forwardStroke * 0.45);
+            shotLabel = wasServe ? '⚡ POWER SERVE' : '💥 POWER SMASH';
             soundToPlay = 'smash';
             particleColor = '#ff7b00';
             createRing = true;
-        } else if (forwardStroke < -2.2) {
-            // DROP SHOT (Pulling bat back softens the impact)
+        } else if (!wasServe && forwardStroke < -2.2) {
             newSpeed = Math.max(5.6, b.speed * 0.58);
             shotLabel = '🪶 DROP SHOT';
             soundToPlay = 'dropshot';
             particleColor = '#00ff88';
-        } else if (Math.abs(sliceStroke) > 5.0) {
-            // CURVE SPIN!
-            newSpeed = Math.max(9.0, newSpeed);
-            shotLabel = '🌀 CURVE SPIN';
+        } else if (Math.abs(sliceStroke) > 4.5) {
+            newSpeed = Math.max(8.8, newSpeed);
+            shotLabel = wasServe ? '🌀 SPIN SERVE' : '🌀 CURVE SPIN';
             soundToPlay = 'spin';
             particleColor = '#bc13fe';
         }
 
-        // Clamp speed to realistic playable bounds
-        b.speed = Math.max(5.6, Math.min(19.2, newSpeed));
+        b.speed = Math.max(wasServe ? 7.8 : 5.6, Math.min(19.2, newSpeed));
 
-        // Calculate Launch Angle (Blade offset + Wrist tilt + Brush slice)
-        const maxAngle = 0.62 + (netProximity * 0.16); // Closer to net = wider cross-court angles!
-        let bounceAngle = (bladeHitOffset * 0.48) + (sliceStroke * 0.024) + (bat.angle * 0.45 * dirSign);
+        const maxAngle = wasServe ? 0.48 : (0.62 + netProximity * 0.16);
+        let bounceAngle = (bladeHitOffset * 0.45) + (sliceStroke * 0.024) + (bat.angle * 0.45 * dirSign);
         bounceAngle = Math.max(-maxAngle, Math.min(maxAngle, bounceAngle));
 
         b.vx = dirSign * b.speed * Math.cos(bounceAngle);
         b.vy = b.speed * Math.sin(bounceAngle);
 
-        // Impart Aerodynamic Magnus Spin from vertical bat slice
         b.spin = Math.max(-0.28, Math.min(0.28, sliceStroke * 0.022));
 
-        // Update Telemetry (Convert pixel speed to realistic KM/H)
         b.kmh = Math.round(b.speed * 8.6);
         b.shotType = shotLabel;
         if (b.kmh > state.topKmh) state.topKmh = b.kmh;
 
-        bat.hitCooldown = 12; // Prevent double-hit on follow-through
+        bat.hitCooldown = 12;
         state.rally++;
         if (state.rally > state.maxRally) state.maxRally = state.rally;
         updateTelemetryHUD();
@@ -1561,7 +1700,6 @@ function updatePhysics() {
     updateKeyboardInput();
 
     if (!isHost) {
-        // Guest steps local bat for instant 0-latency visual feedback and sends target to Host
         stepBatKinematics(state.p2, P2_BOUNDS, false);
         if (conn && conn.open) {
             conn.send({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
@@ -1569,12 +1707,60 @@ function updatePhysics() {
         return;
     }
 
-    // Host updates AI (if active)
     if (isAIMode) updateAIBat();
-
     if (state.bannerTimer > 0) state.bannerTimer--;
 
     const b = state.ball;
+
+    // --- MANUAL SERVE AIMING & STRIKE PHASE ---
+    if (state.waitingForServe) {
+        const prevP1X = state.p1.x, prevP1Y = state.p1.y;
+        const prevP2X = state.p2.x, prevP2Y = state.p2.y;
+
+        stepBatKinematics(state.p1, P1_BOUNDS, true);
+        stepBatKinematics(state.p2, P2_BOUNDS, false);
+
+        // While the Server's bat is behind the Service Line, the ball smoothly follows their Y position so they can aim where to serve from!
+        if (state.currentServer === 1) {
+            b.x = P1_SERVE_X;
+            if (state.p1.x < P1_SERVE_X - 18) {
+                const targetBallY = Math.max(75, Math.min(canvas.height - 75, state.p1.y));
+                b.y += (targetBallY - b.y) * 0.25;
+            }
+        } else {
+            b.x = P2_SERVE_X;
+            if (state.p2.x > P2_SERVE_X + 18) {
+                const targetBallY = Math.max(75, Math.min(canvas.height - 75, state.p2.y));
+                b.y += (targetBallY - b.y) * 0.25;
+            }
+        }
+
+        // Sub-step the server's bat swing so even a fast serve flick never misses the stationary serve ball!
+        const SUBSTEPS = 6;
+        const endP1X = state.p1.x, endP1Y = state.p1.y;
+        const endP2X = state.p2.x, endP2Y = state.p2.y;
+
+        for (let step = 1; step <= SUBSTEPS; step++) {
+            const frac = step / SUBSTEPS;
+            if (state.currentServer === 1) {
+                state.p1.x = prevP1X + (endP1X - prevP1X) * frac;
+                state.p1.y = prevP1Y + (endP1Y - prevP1Y) * frac;
+                if (checkBatCapsuleCollision(state.p1, true)) break;
+            } else {
+                state.p2.x = prevP2X + (endP2X - prevP2X) * frac;
+                state.p2.y = prevP2Y + (endP2Y - prevP2Y) * frac;
+                if (checkBatCapsuleCollision(state.p2, false)) break;
+            }
+        }
+
+        state.p1.x = endP1X; state.p1.y = endP1Y;
+        state.p2.x = endP2X; state.p2.y = endP2Y;
+
+        syncToClient();
+        return;
+    }
+
+    // If between points (brief pause after someone misses), just update bats
     if (b.vx === 0 && b.vy === 0) {
         stepBatKinematics(state.p1, P1_BOUNDS, true);
         stepBatKinematics(state.p2, P2_BOUNDS, false);
@@ -1582,7 +1768,7 @@ function updatePhysics() {
         return;
     }
 
-    // --- 6X SUB-STEPPED PHYSICS LOOP (Prevents fast bat swings from tunneling!) ---
+    // --- 6X SUB-STEPPED RALLY PHYSICS LOOP ---
     const SUBSTEPS = 6;
     const prevP1X = state.p1.x, prevP1Y = state.p1.y;
     const prevP2X = state.p2.x, prevP2Y = state.p2.y;
@@ -1596,20 +1782,15 @@ function updatePhysics() {
     for (let step = 1; step <= SUBSTEPS; step++) {
         const frac = step / SUBSTEPS;
 
-        // Interpolate bat positions along the swing path
         state.p1.x = prevP1X + (endP1X - prevP1X) * frac;
         state.p1.y = prevP1Y + (endP1Y - prevP1Y) * frac;
         state.p2.x = prevP2X + (endP2X - prevP2X) * frac;
         state.p2.y = prevP2Y + (endP2Y - prevP2Y) * frac;
 
-        // Move ball by 1/SUBSTEPS
         b.x += b.vx / SUBSTEPS;
         b.y += b.vy / SUBSTEPS;
-
-        // Apply Magnus Effect Curve Spin in mid-air
         b.vy += b.spin / SUBSTEPS;
 
-        // Top & Bottom Table Bounce
         if (b.y - BALL_RADIUS < 12) {
             b.y = 12 + BALL_RADIUS;
             b.vy = -b.vy;
@@ -1622,15 +1803,13 @@ function updatePhysics() {
             emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#ffffff', count: 8 } });
         }
 
-        // Check Capsule Collisions with Both 2D Bats
         checkBatCapsuleCollision(state.p1, true);
         checkBatCapsuleCollision(state.p2, false);
     }
 
-    // Air resistance decay on spin
     b.spin *= 0.993;
 
-    // Check Point Scored
+    // Check Point Scored (Someone missed the ball!)
     if (b.x < -12) {
         state.score2++;
         onPointScored(2, 14, b.y, '#ff0055');
@@ -1643,6 +1822,11 @@ function updatePhysics() {
 }
 
 function onPointScored(scorer, x, y, color) {
+    // Freeze ball briefly during point explosion, then hand ball to next server
+    state.ball.vx = 0;
+    state.ball.vy = 0;
+    state.ball.x = -100;
+
     emitFX({
         sfx: 'score',
         particles: { x, y, color, count: 45 },
@@ -1656,7 +1840,9 @@ function onPointScored(scorer, x, y, color) {
     } else if (hasWon(state.score2, state.score1)) {
         finishMatch(2);
     } else {
-        startServeSequence(scorer);
+        pointTransitionTimer = setTimeout(() => {
+            preparePlayerServe();
+        }, 700);
     }
 }
 
@@ -1666,7 +1852,7 @@ function hasWon(my, opp) {
 }
 
 function finishMatch(winner) {
-    clearInterval(countdownInterval);
+    clearTimeout(pointTransitionTimer);
     if (winner === 1) seriesWins.p1++; else seriesWins.p2++;
     if (conn && conn.open) {
         conn.send({ type: 'gameover', winner, series: seriesWins });
@@ -1712,7 +1898,9 @@ function syncToClient() {
                 rally: state.rally,
                 maxRally: state.maxRally,
                 topKmh: state.topKmh,
-                cd: state.countdownText,
+                wfs: state.waitingForServe,
+                srv: state.currentServer,
+                sLeft: state.servesLeft,
                 bn: state.bannerTimer > 0 ? state.bannerText : ''
             }
         });
@@ -1734,7 +1922,7 @@ function updateTelemetryHUD() {
     const badge = document.getElementById('shot-type-badge');
     badge.innerText = state.ball.shotType || 'READY';
 
-    if (state.ball.shotType.includes('SMASH')) {
+    if (state.ball.shotType.includes('SMASH') || state.ball.shotType.includes('POWER')) {
         badge.style.borderColor = '#ff7b00';
         badge.style.color = '#ff7b00';
     } else if (state.ball.shotType.includes('SPIN')) {
@@ -1750,7 +1938,7 @@ function updateTelemetryHUD() {
 }
 
 /** =========================================================================
- *  7. PRO TABLE TENNIS ARENA & RACKET RENDERER
+ *  8. PRO TABLE TENNIS ARENA & SERVE GUIDE RENDERER
  *  ========================================================================= */
 function spawnParticles(x, y, color, count = 16) {
     for (let i = 0; i < count; i++) {
@@ -1771,10 +1959,9 @@ function spawnShockwave(x, y, color) {
     shockwaves.push({ x, y, radius: 10, maxRadius: 75, alpha: 0.9, color });
 }
 
-function drawBatRacket(bat, color, isPlayer1) {
+function drawBatRacket(bat, color) {
     ctx.save();
 
-    // Draw Motion Blur Afterimages when swinging fast
     for (let i = 0; i < bat.trail.length; i++) {
         const t = bat.trail[i];
         const ratio = (i + 1) / (bat.trail.length + 1);
@@ -1792,17 +1979,14 @@ function drawBatRacket(bat, color, isPlayer1) {
         ctx.restore();
     }
 
-    // Draw Main Cyber Table-Tennis Bat
     ctx.translate(bat.x, bat.y);
     ctx.rotate(-bat.angle);
 
-    // Ergonomic Handle Grip at bottom/back of blade
     ctx.fillStyle = '#252b48';
     ctx.beginPath();
     ctx.roundRect(-5, BAT_LENGTH / 2 - 4, 10, 16, 4);
     ctx.fill();
 
-    // Glowing Rubber Blade Face
     ctx.shadowBlur = 18;
     ctx.shadowColor = color;
     ctx.strokeStyle = color;
@@ -1813,7 +1997,6 @@ function drawBatRacket(bat, color, isPlayer1) {
     ctx.lineTo(0, BAT_LENGTH / 2);
     ctx.stroke();
 
-    // Inner Carbon Core Stripe
     ctx.shadowBlur = 0;
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
@@ -1825,21 +2008,70 @@ function drawBatRacket(bat, color, isPlayer1) {
     ctx.restore();
 }
 
+function drawServeVisualGuide() {
+    if (!state.waitingForServe) return;
+
+    const b = state.ball;
+    const isP1Serve = state.currentServer === 1;
+    const srvColor = isP1Serve ? '#00f3ff' : '#ff0055';
+    const srvName = isP1Serve ? matchConfig.p1Name : matchConfig.p2Name;
+    const isMyTurn = (isHost && isP1Serve) || (!isHost && !isP1Serve);
+
+    const pulse = Math.sin(Date.now() * 0.008) * 5;
+
+    ctx.save();
+
+    // Pulsing Target Ring around the Serve Ball
+    ctx.strokeStyle = srvColor;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 24 + pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Direction Arrow showing swing direction
+    const arrowDir = isP1Serve ? 1 : -1;
+    ctx.fillStyle = srvColor;
+    ctx.font = '700 13px "Orbitron", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(isP1Serve ? "SWING ➔" : "⬅ SWING", b.x + arrowDir * 58, b.y + 4);
+
+    // Center Prompt Banner explaining whose serve it is
+    ctx.font = '900 22px "Orbitron", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = srvColor;
+
+    const topPrompt = isMyTurn 
+        ? `🏓 YOUR SERVE! (${state.servesLeft} LEFT)` 
+        : `⏳ ${srvName.toUpperCase()} IS SERVING (${state.servesLeft} LEFT)`;
+    ctx.fillText(topPrompt, NET_X, canvas.height / 2 - 14);
+
+    ctx.shadowBlur = 0;
+    ctx.font = '700 15px "Rajdhani", sans-serif';
+    ctx.fillStyle = '#a2add4';
+    const subPrompt = isMyTurn 
+        ? "Move behind the ball & SWING FORWARD through it (or Click / Press Space)" 
+        : "Get your bat in position to return the serve!";
+    ctx.fillText(subPrompt, NET_X, canvas.height / 2 + 14);
+
+    ctx.restore();
+}
+
 function drawArena() {
     ctx.save();
 
-    // Screen Shake
     if (screenShake > 0) {
         ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
         screenShake *= 0.85;
         if (screenShake < 0.4) screenShake = 0;
     }
 
-    // 1. Pro Table Tennis Court Surface
+    // 1. Court Surface
     ctx.fillStyle = '#070a14';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Subtle Half-Court Tints showing 2D Free-Movement Zones
     ctx.fillStyle = 'rgba(0, 243, 255, 0.025)';
     ctx.fillRect(14, 12, NET_X - 50, canvas.height - 24);
 
@@ -1859,7 +2091,7 @@ function drawArena() {
     ctx.lineTo(canvas.width - 14, canvas.height / 2);
     ctx.stroke();
 
-    // Kitchen / Net Reach Boundary Lines (Shows how far forward bats can step in)
+    // Kitchen / Net Reach Boundary Lines
     ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
     ctx.setLineDash([6, 8]);
     ctx.beginPath();
@@ -1874,7 +2106,7 @@ function drawArena() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Center Laser Net
+    // Center Net
     ctx.strokeStyle = '#333d66';
     ctx.lineWidth = 4;
     ctx.setLineDash([12, 10]);
@@ -1884,7 +2116,7 @@ function drawArena() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 2. Shockwave Rings on Smashes/Scores
+    // 2. Shockwave Rings
     for (let i = shockwaves.length - 1; i >= 0; i--) {
         const sw = shockwaves[i];
         sw.radius += 4.2;
@@ -1900,7 +2132,10 @@ function drawArena() {
         ctx.restore();
     }
 
-    // 3. Ball Motion Trail (Changes color based on Smash or Spin!)
+    // 3. Serve Guide Overlay
+    drawServeVisualGuide();
+
+    // 4. Ball Motion Trail
     const b = state.ball;
     if (b.vx !== 0 || b.vy !== 0) {
         ballTrail.push({ x: b.x, y: b.y });
@@ -1910,7 +2145,7 @@ function drawArena() {
     }
 
     let trailColor = '0, 243, 255';
-    if (b.shotType && b.shotType.includes('SMASH')) trailColor = '255, 123, 0';
+    if (b.shotType && (b.shotType.includes('SMASH') || b.shotType.includes('POWER'))) trailColor = '255, 123, 0';
     else if (b.shotType && b.shotType.includes('SPIN')) trailColor = '188, 19, 254';
 
     for (let i = 0; i < ballTrail.length; i++) {
@@ -1922,20 +2157,23 @@ function drawArena() {
         ctx.fill();
     }
 
-    // 4. Draw Both 2D Bats
-    drawBatRacket(state.p1, '#00f3ff', true);
-    drawBatRacket(state.p2, '#ff0055', false);
+    // 5. Draw Both 2D Bats
+    drawBatRacket(state.p1, '#00f3ff');
+    drawBatRacket(state.p2, '#ff0055');
 
-    // 5. Draw Ball
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = b.shotType && b.shotType.includes('SMASH') ? '#ff7b00' : '#ffffff';
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    // 6. Draw Ball (with gentle bounce animation while waiting to be served)
+    if (b.x > 0) {
+        const serveBounceOffset = state.waitingForServe ? Math.sin(Date.now() * 0.01) * 3.5 : 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = b.shotType && b.shotType.includes('SMASH') ? '#ff7b00' : '#ffffff';
+        ctx.beginPath();
+        ctx.arc(b.x, b.y + serveBounceOffset, BALL_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
 
-    // 6. Sparks / Particles
+    // 7. Sparks / Particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
@@ -1948,7 +2186,7 @@ function drawArena() {
     }
     ctx.globalAlpha = 1;
 
-    // 7. Dynamic Callout Banner
+    // 8. Dynamic Callout Banner (DEUCE, MATCH POINT, RALLY)
     const banner = isHost ? (state.bannerTimer > 0 ? state.bannerText : '') : state.bannerText;
     if (banner) {
         ctx.font = '900 24px "Orbitron", sans-serif';
@@ -1958,19 +2196,6 @@ function drawArena() {
         ctx.shadowColor = '#ffcc00';
         ctx.fillText(banner, NET_X, 50);
         ctx.shadowBlur = 0;
-    }
-
-    // 8. Serve Countdown
-    if (state.countdownText) {
-        ctx.font = '900 70px "Orbitron", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowBlur = 24;
-        ctx.shadowColor = '#00f3ff';
-        ctx.fillText(state.countdownText, NET_X, canvas.height / 2);
-        ctx.shadowBlur = 0;
-        ctx.textBaseline = 'alphabetic';
     }
 
     ctx.restore();
@@ -1984,7 +2209,7 @@ function gameLoop() {
 }
 
 /** =========================================================================
- *  8. 2D POINTER (MOUSE & TOUCH) INPUT HANDLERS
+ *  9. 2D POINTER (MOUSE, TOUCH) & QUICK-SERVE INPUT HANDLERS
  *  ========================================================================= */
 function handlePointer2D(clientX, clientY) {
     if (!gameActive) return;
@@ -2006,6 +2231,10 @@ function handlePointer2D(clientX, clientY) {
 
 window.addEventListener('mousemove', (e) => handlePointer2D(e.clientX, e.clientY));
 
+canvas.addEventListener('mousedown', () => {
+    triggerManualQuickServe();
+});
+
 canvas.addEventListener('touchmove', (e) => {
     e.preventDefault();
     if (e.touches.length > 0) {
@@ -2015,6 +2244,10 @@ canvas.addEventListener('touchmove', (e) => {
 
 window.addEventListener('keydown', (e) => {
     if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
+    if (e.code === 'Space') {
+        e.preventDefault();
+        triggerManualQuickServe();
+    }
 });
 window.addEventListener('keyup', (e) => {
     if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
