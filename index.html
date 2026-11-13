@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NEON PONG V7 // Cross-Play Apex Arena</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🏓%3C/text%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
@@ -14,6 +15,7 @@
             --border: rgba(255, 255, 255, 0.14);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input, textarea { -webkit-user-select: text; user-select: text; }
         html, body {
             width: 100%; height: 100dvh; overflow: hidden; background: var(--bg-dark);
             color: var(--text); font-family: 'Rajdhani', sans-serif;
@@ -25,8 +27,6 @@
             width: 100%; max-width: 980px; height: 100dvh; max-height: 760px;
             padding: 6px 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 5px;
         }
-
-        /* --- TOP UTILITY & BOUNTY BAR --- */
         .utility-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
         .btn-group { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
         .icon-btn {
@@ -45,8 +45,6 @@
             padding: 3px 10px; border-radius: 8px; font-size: 0.76rem; font-weight: 700;
             display: flex; align-items: center; gap: 6px;
         }
-
-        /* --- BROADCAST SCOREBOARD HUD --- */
         #top-bar {
             display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
             background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px;
@@ -78,7 +76,6 @@
         .od-ready { animation: pulseGlow 0.45s infinite alternate; }
         @keyframes pulseGlow { from { filter: brightness(1); } to { filter: brightness(1.65); } }
         .meta-row { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); font-weight: 700; }
-
         .center-telemetry {
             display: flex; flex-direction: column; align-items: center; padding: 0 14px;
             border-left: 1px solid var(--border); border-right: 1px solid var(--border); min-width: 200px;
@@ -87,8 +84,6 @@
         .speed-readout { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--hyper); text-shadow: 0 0 10px rgba(255,230,0,0.4); }
         .shot-badge { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
         .sub-meta { display: flex; gap: 6px; font-size: 0.72rem; color: var(--muted); margin-top: 2px; font-weight: 700; }
-
-        /* --- GAME CANVAS --- */
         #game-container {
             position: relative; width: 100%; flex: 1; min-height: 0;
             background: #050811; border: 2px solid #252f52; border-radius: 14px; overflow: hidden;
@@ -97,12 +92,7 @@
         }
         #game-container.menu-open { cursor: default; }
         canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
-
-        /* --- MOBILE / TABLET TACTILE CONTROL DECK --- */
-        #mobile-deck {
-            display: none; grid-template-columns: 1.35fr 1fr; gap: 8px;
-            height: 112px; width: 100%; padding-top: 2px;
-        }
+        #mobile-deck { display: none; grid-template-columns: 1.35fr 1fr; gap: 8px; height: 108px; width: 100%; padding-top: 2px; }
         #mobile-deck.active { display: grid; }
         .touch-pad {
             background: linear-gradient(135deg, rgba(0, 243, 255, 0.09), rgba(255, 255, 255, 0.02));
@@ -110,19 +100,17 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative; overflow: hidden; touch-action: none;
         }
-        .touch-pad span { font-family: 'Orbitron', sans-serif; font-size: 0.72rem; color: var(--p1); letter-spacing: 1px; pointer-events: none; }
-        .touch-pad small { font-size: 0.68rem; color: var(--muted); pointer-events: none; }
+        .touch-pad span { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: var(--p1); letter-spacing: 1px; pointer-events: none; }
+        .touch-pad small { font-size: 0.66rem; color: var(--muted); pointer-events: none; }
         .mobile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .m-btn {
-            border-radius: 12px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.82rem;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+            border-radius: 12px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.8rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
             cursor: pointer; touch-action: manipulation; border: 2px solid; transition: transform 0.08s;
         }
         .m-btn:active { transform: scale(0.94); filter: brightness(1.3); }
-        .m-strike { background: rgba(255, 0, 85, 0.22); border-color: var(--p2); color: #fff; box-shadow: 0 0 18px rgba(255,0,85,0.3); }
-        .m-chrono { background: rgba(0, 243, 255, 0.18); border-color: var(--p1); color: #fff; box-shadow: 0 0 18px rgba(0,243,255,0.25); }
-
-        /* --- OVERLAYS --- */
+        .m-strike { background: rgba(255, 0, 85, 0.22); border-color: var(--p2); color: #fff; box-shadow: 0 0 16px rgba(255,0,85,0.3); }
+        .m-chrono { background: rgba(0, 243, 255, 0.18); border-color: var(--p1); color: #fff; box-shadow: 0 0 16px rgba(0,243,255,0.25); }
         .overlay {
             position: absolute; inset: 0; background: var(--bg-panel); backdrop-filter: blur(10px);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -130,12 +118,11 @@
         }
         .hidden { display: none !important; }
         h1.game-title {
-            font-family: 'Orbitron', sans-serif; font-size: 2.1rem; font-weight: 900; letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif; font-size: 2.05rem; font-weight: 900; letter-spacing: 2px;
             background: linear-gradient(90deg, var(--p1), #fff, var(--p2));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .subtitle { color: var(--muted); font-size: 0.8rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
-
+        .subtitle { color: var(--muted); font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
         .racket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; width: 100%; max-width: 720px; margin-bottom: 8px; }
         .racket-card {
             background: rgba(255,255,255,0.03); border: 2px solid var(--border); border-radius: 10px;
@@ -143,12 +130,11 @@
         }
         .racket-card.selected { border-color: var(--p1); background: rgba(0, 243, 255, 0.12); box-shadow: 0 0 14px rgba(0, 243, 255, 0.25); }
         .racket-card .r-title { font-family: 'Orbitron', sans-serif; font-size: 0.72rem; font-weight: 700; color: #fff; }
-        .racket-card .r-ult { font-size: 0.65rem; color: var(--hyper); font-weight: 700; margin: 2px 0; }
-        .racket-card .r-desc { font-size: 0.66rem; color: var(--muted); line-height: 1.1; }
-
+        .racket-card .r-ult { font-size: 0.64rem; color: var(--hyper); font-weight: 700; margin: 2px 0; }
+        .racket-card .r-desc { font-size: 0.65rem; color: var(--muted); line-height: 1.1; }
         .panel-card {
             background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px;
-            padding: 9px 14px; width: 100%; max-width: 460px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
+            padding: 8px 14px; width: 100%; max-width: 460px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px;
         }
         .settings-row { display: flex; justify-content: space-between; align-items: center; }
         .settings-row label { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; }
@@ -159,7 +145,6 @@
         .pill-selector { display: flex; background: #0a0d16; border-radius: 7px; padding: 2px; border: 1px solid #283252; }
         .pill-btn { background: transparent; border: none; color: var(--muted); padding: 4px 9px; border-radius: 5px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; cursor: pointer; }
         .pill-btn.active { background: var(--p1); color: #000; font-weight: 700; }
-
         .btn-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
         .btn {
             background: linear-gradient(135deg, rgba(0,243,255,0.22), rgba(0,243,255,0.05));
@@ -170,29 +155,24 @@
         .btn:hover { background: var(--p1); color: #000; }
         .btn-secondary { border-color: var(--p2); background: linear-gradient(135deg, rgba(255,0,85,0.22), rgba(255,0,85,0.05)); box-shadow: 0 0 14px rgba(255,0,85,0.25); }
         .btn-secondary:hover { background: var(--p2); color: #fff; }
-
         .invite-box { display: flex; width: 100%; max-width: 440px; margin: 6px 0; background: #0a0d16; border: 1px solid var(--p1); border-radius: 9px; overflow: hidden; }
         .invite-box input { flex: 1; background: transparent; border: none; color: #fff; padding: 8px 12px; font-size: 0.88rem; outline: none; }
         .invite-box button { background: var(--p1); color: #000; border: none; padding: 0 14px; font-family: 'Orbitron', sans-serif; font-weight: 700; cursor: pointer; }
         .qr-wrap { background: #fff; padding: 6px; border-radius: 10px; margin: 6px 0; display: inline-block; }
-        .qr-wrap img { width: 110px; height: 110px; display: block; }
-
+        .qr-wrap img { width: 108px; height: 108px; display: block; }
         .locker-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; width: 100%; max-width: 560px; margin: 8px 0; }
         .shop-item { background: rgba(0,0,0,0.55); border: 1px solid var(--border); border-radius: 9px; padding: 7px 10px; display: flex; justify-content: space-between; align-items: center; }
         .shop-item.equipped { border-color: var(--success); background: rgba(0,255,136,0.08); }
-
-        .leaderboard-container { width: 100%; max-width: 580px; max-height: 190px; overflow-y: auto; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; margin: 6px 0; }
+        .leaderboard-container { width: 100%; max-width: 580px; max-height: 185px; overflow-y: auto; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 10px; margin: 6px 0; }
         table.lb-table { width: 100%; border-collapse: collapse; text-align: left; }
         table.lb-table th { background: #101424; color: var(--muted); font-size: 0.72rem; padding: 7px 10px; position: sticky; top: 0; }
         table.lb-table td { padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.84rem; font-weight: 600; }
-
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; width: 100%; max-width: 500px; margin: 8px 0 12px; }
         .stat-box { background: rgba(0,0,0,0.45); border: 1px solid var(--border); padding: 7px; border-radius: 9px; }
         .stat-box .val { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; color: var(--hyper); font-weight: 700; }
         .stat-box .lbl { font-size: 0.64rem; text-transform: uppercase; color: var(--muted); }
         .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--p1); border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; margin: 6px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
         @media (max-width: 760px) {
             .racket-grid { grid-template-columns: repeat(2, 1fr); }
             .racket-card .r-desc { display: none; }
@@ -200,7 +180,7 @@
             .speed-readout { font-size: 1rem; }
             .score-box { font-size: 1.5rem; min-width: 38px; padding: 2px 6px; }
             .player-name { font-size: 0.78rem; }
-            h1.game-title { font-size: 1.55rem; }
+            h1.game-title { font-size: 1.5rem; }
             .locker-grid { grid-template-columns: 1fr; }
         }
     </style>
@@ -208,7 +188,6 @@
 <body>
 
 <div id="app-wrapper">
-    <!-- Top Utility Bar + Live Bounty Quest + Emotes -->
     <div class="utility-bar">
         <div class="btn-group">
             <button class="icon-btn" onclick="openLeaderboard()">🏆 Ranks</button>
@@ -221,14 +200,13 @@
             <button class="icon-btn" onclick="sendEmote(1)">😱 SAVE</button>
             <button class="icon-btn" onclick="sendEmote(2)">📐 CALC</button>
             <button class="icon-btn" onclick="sendEmote(3)">💀 RIP</button>
-            <button class="icon-btn" onclick="toggleMobileDeck()" title="Toggle Touch Control Deck">📱 Pad</button>
-            <button class="icon-btn" onclick="toggleFullscreen()" title="Fullscreen">⛶</button>
+            <button class="icon-btn" onclick="toggleMobileDeck()">📱 Pad</button>
+            <button class="icon-btn" onclick="toggleFullscreen()">⛶</button>
             <button class="icon-btn" onclick="toggleMute()"><span id="sound-icon">🔊</span></button>
             <button class="icon-btn" id="leave-match-btn" style="display:none;border-color:var(--p2);" onclick="returnToMenu()">✖</button>
         </div>
     </div>
 
-    <!-- Broadcast Scoreboard HUD -->
     <div id="top-bar">
         <div class="player-card p1">
             <div class="score-box" id="score-p1">0</div>
@@ -275,7 +253,6 @@
         </div>
     </div>
 
-    <!-- Main Game Arena -->
     <div id="game-container" class="menu-open" oncontextmenu="return false;">
         <canvas id="pongCanvas" width="880" height="500"></canvas>
 
@@ -365,11 +342,13 @@
             <button class="btn btn-secondary" onclick="confirmJoinGame()">⚡ Join Match & Enable Audio</button>
         </div>
 
-        <!-- 3. INVITE OVERLAY (With QR Code + Native Mobile Share!) -->
+        <!-- 3. INVITE OVERLAY -->
         <div id="invite-overlay" class="overlay hidden">
             <h2 style="font-family:'Orbitron',sans-serif; font-size:1.3rem;">Waiting for Challenger...</h2>
             <p style="color:var(--muted); font-size:0.82rem;">Scan QR with Phone Camera or Share Link:</p>
-            <div class="qr-wrap"><img id="qr-img" src="" alt="Scan QR to Join"></div>
+            <div class="qr-wrap">
+                <img id="qr-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Scan QR">
+            </div>
             <div class="invite-box">
                 <input type="text" id="invite-link-input" readonly>
                 <button onclick="copyLink()" id="copy-btn">COPY</button>
@@ -427,7 +406,7 @@
         </div>
     </div>
 
-    <!-- Dedicated Mobile/Tablet Ergonomic Control Deck -->
+    <!-- Dedicated Mobile/Tablet Control Deck -->
     <div id="mobile-deck">
         <div class="touch-pad" id="mobile-trackpad">
             <span>✥ DRAG THUMB HERE TO MOVE BAT</span>
@@ -435,29 +414,46 @@
         </div>
         <div class="mobile-actions">
             <button class="m-btn m-strike" id="btn-mobile-strike">
-                <span style="font-size:1.2rem;">⚡</span>
+                <span style="font-size:1.1rem;">⚡</span>
                 <span>STRIKE / PARRY</span>
-                <small style="font-size:0.6rem;color:#ffd0e0;">SERVE & SMASH</small>
+                <small style="font-size:0.58rem;color:#ffd0e0;">SERVE & SMASH</small>
             </button>
             <button class="m-btn m-chrono" id="btn-mobile-chrono">
-                <span style="font-size:1.2rem;">⏱️</span>
+                <span style="font-size:1.1rem;">⏱️</span>
                 <span>CHRONO DASH</span>
-                <small style="font-size:0.6rem;color:#b8f8ff;">50% OVERDRIVE</small>
+                <small style="font-size:0.58rem;color:#b8f8ff;">50% OVERDRIVE</small>
             </button>
         </div>
     </div>
 </div>
 
 <script>
-/** =========================================================================
- *  1. RACKETS, COSMETICS, EMOTES & BOUNTY QUESTS
- *  ========================================================================= */
+// ---------- Compatibility / safety helpers ----------
+if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
+}
+const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} }
+};
+function esc(s) {
+    return String(s).replace(/[&<>"'`]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
+}
+function cleanName(s, fallback = 'Player') {
+    const out = String(s == null ? '' : s).replace(/[<>&"'`\\]/g, '').replace(/[\u0000-\u001f]/g, '').trim().slice(0, 12);
+    return out || fallback;
+}
+function cleanDev(s) { return ['💻', '📱', '🤖'].includes(s) ? s : '📱'; }
+const num = (v, def = 0) => (typeof v === 'number' && Number.isFinite(v)) ? v : def;
+
 const RACKETS = {
     pro:    { id: 'pro',    name: '⚖️ Neon Pro',     len: 94,  spd: 1.0,  spin: 1.0,  odRate: 1.0, ult: '⚡ HYPER COMET',   col: '#ffe600' },
     katana: { id: 'katana', name: '🗡️ Cyber-Katana', len: 82,  spd: 1.16, spin: 0.85, odRate: 1.1, ult: '🔦 RAILGUN LASER', col: '#00f3ff' },
     vortex: { id: 'vortex', name: '🌀 Vortex Blade', len: 92,  spd: 0.96, spin: 1.45, odRate: 1.1, ult: '🐍 SNAKE SHOT',    col: '#bc13fe' },
     titan:  { id: 'titan',  name: '🛡️ Titan Aegis',  len: 112, spd: 0.95, spin: 0.9,  odRate: 1.3, ult: '💥 GRAVITY QUAKE', col: '#ff7b00' }
 };
+const rk = k => (RACKETS[k] ? k : 'pro');
 
 const COSMETICS = [
     { id: 'trail_plasma',  type: 'trail', name: 'Cyan Plasma Trail',   cost: 0,   val: 'default' },
@@ -484,10 +480,8 @@ const BOUNTY_POOL = [
     { type: 'ring',  goal: 1, reward: 130, desc: 'Hit 1 Floating Arena Ring' },
     { type: 'spin',  goal: 3, reward: 110, desc: 'Hit 3 Wicked Spin Shots' }
 ];
+const BOUNTY_TYPES = BOUNTY_POOL.map(b => b.type);
 
-/** =========================================================================
- *  2. SOUND ENGINE
- *  ========================================================================= */
 class SoundEngine {
     constructor() { this.ctx = null; this.muted = false; this.noiseBuf = null; }
     init() {
@@ -503,6 +497,7 @@ class SoundEngine {
     }
     play(type, extra = 0) {
         if (this.muted) return;
+        extra = num(extra, 0);
         try {
             this.init();
             if (type === 'ui') this.tone(800, 1250, 0.04, 'sine', 0.08);
@@ -560,24 +555,15 @@ function toggleMute() {
     if (!sfx.muted) sfx.play('ui');
 }
 
-/** =========================================================================
- *  3. PROFILE, BOUNTY QUESTS, LOCKER & LEADERBOARD
- *  ========================================================================= */
 const PROF_KEY = 'neon_pong_v7_profile';
 const LB_KEY = 'neon_pong_v7_leaderboard';
-
-let profile = {
-    rp: 100, coins: 50,
-    unlocked: ['trail_plasma', 'theme_cyber'],
-    trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a',
-    bountyIdx: 0, bountyProg: 0
-};
+let profile = { rp: 100, coins: 50, unlocked: ['trail_plasma', 'theme_cyber'], trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a', bountyIdx: 0, bountyProg: 0 };
 
 function loadProfile() {
-    try { const s = JSON.parse(localStorage.getItem(PROF_KEY)); if (s) Object.assign(profile, s); } catch {}
+    try { const s = JSON.parse(store.get(PROF_KEY)); if (s) Object.assign(profile, s); } catch {}
     updateProfileBadge(); updateBountyUI();
 }
-function saveProfile() { localStorage.setItem(PROF_KEY, JSON.stringify(profile)); updateProfileBadge(); }
+function saveProfile() { store.set(PROF_KEY, JSON.stringify(profile)); updateProfileBadge(); }
 function getRankTitle(rp) {
     if (rp >= 600) return '👑 GM';
     if (rp >= 400) return '💎 DIAMOND';
@@ -592,6 +578,7 @@ function updateProfileBadge() {
 function advanceBounty(type, amount = 1, isSet = false) {
     const b = BOUNTY_POOL[profile.bountyIdx % BOUNTY_POOL.length];
     if (!b || b.type !== type) return;
+    amount = Math.max(0, Math.min(999, num(amount, 1)));
     profile.bountyProg = isSet ? Math.max(profile.bountyProg, amount) : profile.bountyProg + amount;
     if (profile.bountyProg >= b.goal) {
         profile.coins += b.reward;
@@ -602,13 +589,23 @@ function advanceBounty(type, amount = 1, isSet = false) {
     }
     saveProfile(); updateBountyUI();
 }
+// Credits a bounty to the right human: locally if it's me, over the network if it's the remote player.
+function awardBounty(playerNum, type, amount = 1, isSet = false) {
+    const mine = isHost ? 1 : 2;
+    if (playerNum === mine) advanceBounty(type, amount, isSet);
+    else if (!isAIMode) sendCtl({ type: 'bounty', kind: type, n: amount, set: isSet });
+}
 function updateBountyUI() {
     const b = BOUNTY_POOL[profile.bountyIdx % BOUNTY_POOL.length];
     document.getElementById('bounty-pill').innerText = `🎯 ${b.desc} (${profile.bountyProg}/${b.goal}) ➔ +${b.reward} 🪙`;
 }
 
+let paused = false;
+function pauseIfAI() { paused = gameActive && isAIMode; }
+function resumeFromPause() { if (paused) { paused = false; lastTime = performance.now(); } }
+
 function openLocker() {
-    sfx.play('ui');
+    sfx.play('ui'); pauseIfAI();
     document.getElementById('locker-coins').innerText = profile.coins;
     document.getElementById('locker-items-grid').innerHTML = COSMETICS.map(item => {
         const owned = profile.unlocked.includes(item.id);
@@ -631,54 +628,54 @@ function buyOrEquip(id) {
     if (item.type === 'theme') { profile.themeBg = item.bg; profile.themeNet = item.net; }
     sfx.play('fever'); saveProfile(); openLocker(); drawArena();
 }
-function closeLocker() { sfx.play('ui'); document.getElementById('locker-overlay').classList.add('hidden'); }
+function closeLocker() { sfx.play('ui'); document.getElementById('locker-overlay').classList.add('hidden'); resumeFromPause(); }
 
-function getLeaderboard() { try { return JSON.parse(localStorage.getItem(LB_KEY)) || {}; } catch { return {}; } }
+function getLeaderboard() { try { return JSON.parse(store.get(LB_KEY)) || {}; } catch { return {}; } }
 function recordMatchStats(p1, p2, s1, s2, rally, kmh) {
     const db = getLeaderboard(), w1 = s1 > s2;
     const upd = (name, won) => {
-        const n = (name || 'Player').trim();
+        const n = cleanName(name);
         if (n === 'PRO AI BOT') return;
-        if (!db[n]) db[n] = { name: n, wins: 0, losses: 0, topKmh: 0, bestRally: 0 };
+        if (!Object.prototype.hasOwnProperty.call(db, n)) db[n] = { name: n, wins: 0, losses: 0, topKmh: 0, bestRally: 0 };
         if (won) db[n].wins++; else db[n].losses++;
         if (rally > db[n].bestRally) db[n].bestRally = rally;
         if (kmh > db[n].topKmh) db[n].topKmh = kmh;
     };
     upd(p1, w1); upd(p2, !w1);
-    localStorage.setItem(LB_KEY, JSON.stringify(db));
+    store.set(LB_KEY, JSON.stringify(db));
 }
 function openLeaderboard() {
-    sfx.play('ui');
+    sfx.play('ui'); pauseIfAI();
     const list = Object.values(getLeaderboard()).sort((a, b) => b.wins - a.wins || b.topKmh - a.topKmh);
     document.getElementById('leaderboard-body').innerHTML = list.length ? list.map((p, i) => {
         const rate = Math.round((p.wins / Math.max(1, p.wins + p.losses)) * 100);
-        return `<tr><td>${i + 1}</td><td style="font-family:'Orbitron';color:var(--p1)">${p.name}</td><td>${p.wins}W - ${p.losses}L</td><td>${rate}%</td><td style="color:var(--hyper)">⚡ ${p.topKmh} KM/H</td><td>🔥 ${p.bestRally}</td></tr>`;
+        return `<tr><td>${i + 1}</td><td style="font-family:'Orbitron';color:var(--p1)">${esc(p.name)}</td><td>${num(p.wins)}W - ${num(p.losses)}L</td><td>${rate}%</td><td style="color:var(--hyper)">⚡ ${num(p.topKmh)} KM/H</td><td>🔥 ${num(p.bestRally)}</td></tr>`;
     }).join('') : `<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">No matches recorded yet!</td></tr>`;
     document.getElementById('leaderboard-overlay').classList.remove('hidden');
 }
-function closeLeaderboard() { sfx.play('ui'); document.getElementById('leaderboard-overlay').classList.add('hidden'); }
-function clearLeaderboard() { if (confirm("Clear all stats?")) { localStorage.removeItem(LB_KEY); openLeaderboard(); } }
+function closeLeaderboard() { sfx.play('ui'); document.getElementById('leaderboard-overlay').classList.add('hidden'); resumeFromPause(); }
+function clearLeaderboard() { if (confirm("Clear all stats?")) { store.del(LB_KEY); openLeaderboard(); } }
 
-/** =========================================================================
- *  4. CROSS-DEVICE DETECTION, ARENA & V7 PHYSICS STATE
- *  ========================================================================= */
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
-
 const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 820);
 const myDeviceIcon = isTouchDevice ? '📱' : '💻';
 
-const NET_X = canvas.width / 2;         // 440
+const NET_X = canvas.width / 2;
 const BAT_RADIUS = 11;
 const BALL_RADIUS = 9.5;
 const P1_BOUNDS = { minX: 36, maxX: NET_X - 38, minY: 42, maxY: canvas.height - 42 };
 const P2_BOUNDS = { minX: NET_X + 38, maxX: canvas.width - 36, minY: 42, maxY: canvas.height - 42 };
 
-let peer = null, conn = null, isHost = true, isAIMode = false, aiSkill = 0.95;
+// conn = reliable/ordered control channel, connF = unreliable/fast channel (sync + movement)
+let peer = null, conn = null, connF = null, pingTimer = null, leaving = false;
+let isHost = true, isAIMode = false, aiSkill = 0.95;
 let gameActive = false, animationId = null, lastTime = performance.now(), pendingRoomId = null, pointTimer = null;
 let mySelectedRacket = 'pro';
+let hitStopTimer = 0, slowMoTimer = 0, cameraZoom = 1.0, screenShake = 0, screenFlash = 0, guestSlow = false;
 
-let hitStopTimer = 0, slowMoTimer = 0, cameraZoom = 1.0, screenShake = 0, screenFlash = 0;
+function sendCtl(m) { if (conn && conn.open) conn.send(m); }
+function sendFast(m) { if (connF && connF.open) connF.send(m); }
 
 let matchConfig = {
     targetScore: 5, winByTwo: true,
@@ -692,7 +689,7 @@ function createBat(x, y, rKey = 'pro') {
     return {
         x, y, targetX: x, targetY: y, prevX: x, prevY: y,
         vx: 0, vy: 0, velHistory: [],
-        angle: 0, hitCooldown: 0, hitFlash: 0,
+        angle: 0, hitCooldown: 0, hitFlash: 0, strikeCd: 0,
         lungeOffset: 0, lungeVel: 0,
         overdrive: 0, racket: rKey, streak: 0,
         emoteTxt: '', emoteCol: '#fff', emoteTimer: 0,
@@ -708,10 +705,11 @@ const state = {
         vx: 0, vy: 0, speed: 0, spin: 0, kmh: 0, shotType: 'SERVE READY',
         isHyper: false, ultType: '', netClipped: false
     },
-    decoyBall: { active: false, x: 0, y: 0, vx: 0, vy: 0 }, // Mirage Multi-Ball Decoy!
-    feverRing: { active: false, x: NET_X, y: 250, vy: 2.3, radius: 34, mode: 'fever' }, // 'fever' or 'mirage'
+    decoyBall: { active: false, x: 0, y: 0, vx: 0, vy: 0 },
+    feverRing: { active: false, x: NET_X, y: 250, vy: 2.3, radius: 34, mode: 'fever' },
     pointIsFever: false,
     score1: 0, score2: 0, rally: 0, maxRally: 0, topKmh: 0,
+    pointsPlayed: 0, deuceStart: -1,
     waitingForServe: true, serveLockTimer: 0, currentServer: 1, servesLeft: 2, aiServeTimer: 0
 };
 
@@ -719,19 +717,18 @@ let particles = [], ballTrail = [], shockwaves = [], bounceMarks = [], floatingT
 const keys = { ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false, w:false, s:false, a:false, d:false, W:false, S:false, A:false, D:false };
 
 window.onload = () => {
-    loadProfile();
-    if (isTouchDevice) document.getElementById('mobile-deck').classList.add('active');
-    const saved = localStorage.getItem('neon_pong_nickname');
-    if (saved) { document.getElementById('host-name-input').value = saved; document.getElementById('guest-name-input').value = saved; }
+    try {
+        loadProfile();
+        if (isTouchDevice) document.getElementById('mobile-deck').classList.add('active');
+        const saved = store.get('neon_pong_nickname');
+        if (saved) { document.getElementById('host-name-input').value = cleanName(saved); document.getElementById('guest-name-input').value = cleanName(saved); }
+    } catch (e) {}
     const room = new URLSearchParams(window.location.search).get('room');
     if (room) { pendingRoomId = room; isHost = false; showOverlay('join-overlay'); }
     drawArena();
 };
 
-function toggleMobileDeck() {
-    sfx.play('ui');
-    document.getElementById('mobile-deck').classList.toggle('active');
-}
+function toggleMobileDeck() { sfx.play('ui'); document.getElementById('mobile-deck').classList.toggle('active'); }
 function toggleFullscreen() {
     sfx.play('ui');
     if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
@@ -759,36 +756,32 @@ function setAIDifficulty(val, btn) {
     btn.classList.add('active');
 }
 
-/** =========================================================================
- *  5. OFFICIAL SERVICE ROTATION, EMOTES & HUD
- *  ========================================================================= */
-function computeServiceRotation(s1, s2) {
-    const total = s1 + s2, t = matchConfig.targetScore;
+// Rotation is driven by points *played* (a 2X Fever point still counts as one point of service).
+function computeServiceRotation() {
     const first = matchConfig.initialServer || 1, second = first === 1 ? 2 : 1;
-    const inDeuce = matchConfig.winByTwo && s1 >= (t - 1) && s2 >= (t - 1);
-    if (inDeuce) {
-        const pre = (t - 1) * 2;
-        const startSrv = (Math.floor(pre / 2) % 2 === 0) ? first : second;
-        return { server: ((total - pre) % 2 === 0) ? startSrv : (startSrv === 1 ? 2 : 1), servesLeft: 1 };
+    const pp = state.pointsPlayed;
+    if (state.deuceStart >= 0) {
+        const startSrv = (Math.floor(state.deuceStart / 2) % 2 === 0) ? first : second;
+        return { server: ((pp - state.deuceStart) % 2 === 0) ? startSrv : (startSrv === 1 ? 2 : 1), servesLeft: 1 };
     }
-    const block = Math.floor(total / 2);
-    return { server: (block % 2 === 0) ? first : second, servesLeft: 2 - (total % 2) };
+    const block = Math.floor(pp / 2);
+    return { server: (block % 2 === 0) ? first : second, servesLeft: 2 - (pp % 2) };
 }
 
 function sendEmote(idx) {
     if (!gameActive) return;
     if (isHost) {
         applyEmote(1, idx);
-        if (conn && conn.open) conn.send({ type: 'emote', p: 1, idx });
+        sendCtl({ type: 'emote', p: 1, idx });
     } else if (conn && conn.open) {
         applyEmote(2, idx);
-        conn.send({ type: 'emote', p: 2, idx });
+        sendCtl({ type: 'emote', p: 2, idx });
     }
 }
 function applyEmote(playerNum, idx) {
     const em = EMOTES[idx];
     if (!em) return;
-    const bat = playerNum === 1 ? state.p1 : state.p2;
+    const bat = playerNum === 2 ? state.p2 : state.p1;
     bat.emoteTxt = em.txt; bat.emoteCol = em.col; bat.emoteTimer = 95;
     sfx.play('emote', idx);
 }
@@ -818,19 +811,16 @@ function updateHUD() {
     else { p2Pill.innerText = lbl; p2Pill.classList.remove('hidden'); p1Pill.classList.add('hidden'); }
 }
 
-/** =========================================================================
- *  6. CROSS-PLAY MULTIPLAYER NETWORKING & QR / SHARE SETUP
- *  ========================================================================= */
 function startAIGame() {
     sfx.init(); sfx.play('ui');
     isHost = true; isAIMode = true;
-    matchConfig.p1Name = document.getElementById('host-name-input').value.trim() || 'Player 1';
+    matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p2Name = 'PRO AI BOT';
     matchConfig.p1Dev = myDeviceIcon; matchConfig.p2Dev = '🤖';
     matchConfig.p1Racket = mySelectedRacket;
     const aiKeys = ['pro', 'katana', 'vortex', 'titan'];
     matchConfig.p2Racket = aiKeys[Math.floor(Math.random() * aiKeys.length)];
-    localStorage.setItem('neon_pong_nickname', matchConfig.p1Name);
+    store.set('neon_pong_nickname', matchConfig.p1Name);
     seriesWins = { p1: 0, p2: 0 };
     document.getElementById('ping-display').innerText = 'AI ARENA';
     document.getElementById('leave-match-btn').style.display = 'flex';
@@ -839,11 +829,11 @@ function startAIGame() {
 
 function createOnlineGame() {
     sfx.init(); sfx.play('ui');
-    isHost = true; isAIMode = false;
-    matchConfig.p1Name = document.getElementById('host-name-input').value.trim() || 'Player 1';
+    isHost = true; isAIMode = false; leaving = false;
+    matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p1Dev = myDeviceIcon;
     matchConfig.p1Racket = mySelectedRacket;
-    localStorage.setItem('neon_pong_nickname', matchConfig.p1Name);
+    store.set('neon_pong_nickname', matchConfig.p1Name);
     document.getElementById('create-btn').disabled = true;
     document.getElementById('status-text').innerText = "Creating Cross-Play Room...";
     initPeer();
@@ -851,87 +841,133 @@ function createOnlineGame() {
 
 function confirmJoinGame() {
     sfx.init(); sfx.play('ui');
-    isAIMode = false;
-    matchConfig.p2Name = document.getElementById('guest-name-input').value.trim() || 'Player 2';
+    isAIMode = false; leaving = false;
+    matchConfig.p2Name = cleanName(document.getElementById('guest-name-input').value, 'Player 2');
     matchConfig.p2Dev = myDeviceIcon;
     matchConfig.p2Racket = mySelectedRacket;
-    localStorage.setItem('neon_pong_nickname', matchConfig.p2Name);
+    store.set('neon_pong_nickname', matchConfig.p2Name);
     showOverlay('connecting-overlay');
     initPeer(null, pendingRoomId);
 }
 
+// STUN + best-effort public TURN relay (needed for phones on mobile data / CGNAT).
+// For production reliability, replace the TURN entry with your own credentials (e.g. Metered, Twilio, coturn).
+const PEER_CONFIG = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+        { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turn:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
+    ]
+};
+
 function initPeer(customId = null, targetId = null) {
     if (peer) peer.destroy();
-    peer = new Peer(customId, { debug: 1 });
+    peer = new Peer(customId, { debug: 1, config: PEER_CONFIG });
     peer.on('open', (id) => {
         if (isHost) {
-            const url = `${window.location.origin}${window.location.pathname}?room=${id}`;
+            const base = window.location.href.split(/[?#]/)[0];
+            const url = `${base}?room=${id}`;
             document.getElementById('invite-link-input').value = url;
             document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(url)}`;
             showOverlay('invite-overlay');
         } else if (targetId) {
-            conn = peer.connect(targetId, { reliable: false });
-            setupConnEvents();
+            conn = peer.connect(targetId, { reliable: true, label: 'ctl' });
+            connF = peer.connect(targetId, { reliable: false, label: 'fast' });
+            setupConnEvents(conn, true);
+            setupConnEvents(connF, false);
         }
     });
-    peer.on('connection', (c) => { if (isHost && !conn) { conn = c; setupConnEvents(); } });
-    peer.on('error', (err) => { alert("Network error: " + err.type); returnToMenu(); });
+    peer.on('connection', (c) => {
+        if (!isHost) return;
+        if (c.label === 'fast') { if (!connF) { connF = c; setupConnEvents(c, false); } else c.close(); }
+        else if (!conn) { conn = c; setupConnEvents(c, true); }
+        else c.close();
+    });
+    peer.on('error', (err) => { if (leaving) return; alert("Network error: " + err.type); returnToMenu(); });
 }
 
-function setupConnEvents() {
-    conn.on('open', () => {
+function handleNetData(d) {
+    if (!d || typeof d !== 'object') return;
+    if (d.type === 'hello' && isHost) {
+        matchConfig.p2Name = cleanName(d.name, 'Player 2');
+        matchConfig.p2Racket = rk(d.racket);
+        matchConfig.p2Dev = cleanDev(d.dev);
+        sendCtl({ type: 'config', config: matchConfig, series: seriesWins });
+        applyNamesUI(); startMatch();
+    } else if (d.type === 'config' && !isHost) {
+        const c = d.config || {};
+        matchConfig = {
+            targetScore: [5, 7, 11].includes(c.targetScore) ? c.targetScore : 5,
+            winByTwo: !!c.winByTwo,
+            p1Name: cleanName(c.p1Name, 'Player 1'), p2Name: cleanName(c.p2Name, 'Player 2'),
+            p1Dev: cleanDev(c.p1Dev), p2Dev: cleanDev(c.p2Dev),
+            p1Racket: rk(c.p1Racket), p2Racket: rk(c.p2Racket),
+            initialServer: c.initialServer === 2 ? 2 : 1
+        };
+        seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
+        applyNamesUI(); startMatch();
+    } else if (d.type === 'sync' && !isHost) {
+        const s = d.s; if (!s || !s.p1 || !s.ball) return;
+        for (const k of ['x', 'y', 'vx', 'vy', 'angle', 'overdrive', 'streak', 'hitFlash']) if (Number.isFinite(s.p1[k])) state.p1[k] = s.p1[k];
+        if (RACKETS[s.p1.racket]) state.p1.racket = s.p1.racket;
+        state.p2.overdrive = num(s.p2Od); state.p2.streak = num(s.p2St);
+        state.p2.hitFlash = Math.max(state.p2.hitFlash, num(s.p2Flash));
+        state.feverRing = s.ring; state.decoyBall = s.decoy;
+        guestSlow = !!s.slow;
+        const dist = Math.hypot(s.ball.x - state.ball.x, s.ball.y - state.ball.y);
+        if (dist > 45 || s.wfs) state.ball = s.ball;
+        else {
+            state.ball.x += (s.ball.x - state.ball.x) * 0.5;
+            state.ball.y += (s.ball.y - state.ball.y) * 0.5;
+            Object.assign(state.ball, { z: s.ball.z, vx: s.ball.vx, vy: s.ball.vy, vz: s.ball.vz, spin: s.ball.spin, kmh: s.ball.kmh, shotType: s.ball.shotType, isHyper: s.ball.isHyper, ultType: s.ball.ultType });
+        }
+        state.rally = s.rally; state.maxRally = s.maxRally; state.topKmh = s.topKmh;
+        state.waitingForServe = s.wfs; state.currentServer = s.srv; state.servesLeft = s.sLeft;
+        updateHUD();
+    } else if (d.type === 'move' && isHost) {
+        if (Number.isFinite(d.x) && Number.isFinite(d.y)) {
+            state.p2.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, d.x));
+            state.p2.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, d.y));
+        }
+    } else if (d.type === 'whip' && isHost) {
+        triggerWhipStrike(2);
+    } else if (d.type === 'chrono' && isHost) {
+        triggerChronoDash(2);
+    } else if (d.type === 'emote') {
+        const p = d.p === 2 ? 2 : 1;
+        if ((isHost && p === 2) || (!isHost && p === 1)) applyEmote(p, d.idx | 0);
+    } else if (d.type === 'bounty' && !isHost) {
+        if (BOUNTY_TYPES.includes(d.kind)) advanceBounty(d.kind, num(d.n, 1), !!d.set);
+    } else if (d.type === 'fx' && !isHost) {
+        triggerLocalFX(d);
+    } else if (d.type === 'gameover' && !isHost) {
+        seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
+        state.score1 = num(d.s1, state.score1); state.score2 = num(d.s2, state.score2);
+        updateScoreBox(0);
+        handleGameOver(d.winner === 2 ? 2 : 1);
+    } else if (d.type === 'rematch' && !isHost) {
+        matchConfig.initialServer = d.initialServer === 2 ? 2 : 1; resetMatch();
+    } else if (d.type === 'ping') sendCtl({ type: 'pong', t: d.t });
+    else if (d.type === 'pong' && isHost) {
+        const rtt = Date.now() - num(d.t);
+        document.getElementById('ping-display').innerText = `${rtt} ms`;
+        sendCtl({ type: 'ping_val', rtt });
+    } else if (d.type === 'ping_val') document.getElementById('ping-display').innerText = `${num(d.rtt)} ms`;
+}
+
+function setupConnEvents(c, isControl) {
+    c.on('open', () => {
+        if (!isControl) return;
         document.getElementById('leave-match-btn').style.display = 'flex';
-        if (!isHost) conn.send({ type: 'hello', name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon });
+        if (!isHost) c.send({ type: 'hello', name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon });
+        else { clearInterval(pingTimer); pingTimer = setInterval(() => sendCtl({ type: 'ping', t: Date.now() }), 2000); }
     });
-    conn.on('data', (d) => {
-        if (d.type === 'hello' && isHost) {
-            matchConfig.p2Name = d.name || 'Player 2';
-            matchConfig.p2Racket = d.racket || 'pro';
-            matchConfig.p2Dev = d.dev || '📱';
-            conn.send({ type: 'config', config: matchConfig, series: seriesWins });
-            applyNamesUI(); startMatch();
-        } else if (d.type === 'config' && !isHost) {
-            matchConfig = d.config; seriesWins = d.series;
-            applyNamesUI(); startMatch();
-        } else if (d.type === 'sync' && !isHost) {
-            Object.assign(state.p1, d.s.p1);
-            state.p2.overdrive = d.s.p2Od;
-            state.p2.streak = d.s.p2St;
-            state.feverRing = d.s.ring;
-            state.decoyBall = d.s.decoy;
-            const dist = Math.hypot(d.s.ball.x - state.ball.x, d.s.ball.y - state.ball.y);
-            if (dist > 45 || d.s.wfs) state.ball = d.s.ball;
-            else {
-                state.ball.x += (d.s.ball.x - state.ball.x) * 0.5;
-                state.ball.y += (d.s.ball.y - state.ball.y) * 0.5;
-                Object.assign(state.ball, { z: d.s.ball.z, vx: d.s.ball.vx, vy: d.s.ball.vy, vz: d.s.ball.vz, spin: d.s.ball.spin, kmh: d.s.ball.kmh, shotType: d.s.ball.shotType, isHyper: d.s.ball.isHyper, ultType: d.s.ball.ultType });
-            }
-            state.rally = d.s.rally; state.maxRally = d.s.maxRally; state.topKmh = d.s.topKmh;
-            state.waitingForServe = d.s.wfs; state.currentServer = d.s.srv; state.servesLeft = d.s.sLeft;
-            updateHUD();
-        } else if (d.type === 'move' && isHost) {
-            state.p2.targetX = d.x; state.p2.targetY = d.y;
-        } else if (d.type === 'whip' && isHost) {
-            triggerWhipStrike(2);
-        } else if (d.type === 'chrono' && isHost) {
-            triggerChronoDash(2);
-        } else if (d.type === 'emote') {
-            applyEmote(d.p, d.idx);
-        } else if (d.type === 'fx') {
-            triggerLocalFX(d);
-        } else if (d.type === 'gameover') {
-            seriesWins = d.series; handleGameOver(d.winner);
-        } else if (d.type === 'rematch') {
-            matchConfig.initialServer = d.initialServer; resetMatch();
-        } else if (d.type === 'ping') conn.send({ type: 'pong', t: d.t });
-        else if (d.type === 'pong') {
-            const rtt = Date.now() - d.t;
-            document.getElementById('ping-display').innerText = `${rtt} ms`;
-            conn.send({ type: 'ping_val', rtt });
-        } else if (d.type === 'ping_val') document.getElementById('ping-display').innerText = `${d.rtt} ms`;
+    c.on('data', handleNetData);
+    if (isControl) c.on('close', () => {
+        clearInterval(pingTimer); pingTimer = null;
+        if (leaving) return;
+        alert("Opponent disconnected."); returnToMenu();
     });
-    conn.on('close', () => { alert("Opponent disconnected."); returnToMenu(); });
-    if (isHost) setInterval(() => { if (conn && conn.open) conn.send({ type: 'ping', t: Date.now() }); }, 2000);
 }
 
 function applyNamesUI() {
@@ -941,11 +977,14 @@ function applyNamesUI() {
     document.getElementById('name-p2').innerText = `${matchConfig.p2Dev} ${matchConfig.p2Name}${s2Fire}`;
     document.getElementById('racket-label-p1').innerText = (RACKETS[matchConfig.p1Racket] || RACKETS.pro).name;
     document.getElementById('racket-label-p2').innerText = (RACKETS[matchConfig.p2Racket] || RACKETS.pro).name;
+    document.getElementById('rule-badge').innerText = `FIRST TO ${matchConfig.targetScore}`;
 }
 
 function returnToMenu() {
-    sfx.play('ui'); gameActive = false; clearTimeout(pointTimer);
-    if (conn) { conn.close(); conn = null; }
+    sfx.play('ui'); gameActive = false; paused = false; leaving = true; clearTimeout(pointTimer);
+    clearInterval(pingTimer); pingTimer = null;
+    if (conn) { try { conn.close(); } catch {} conn = null; }
+    if (connF) { try { connF.close(); } catch {} connF = null; }
     if (peer) { peer.destroy(); peer = null; }
     if (window.location.search) { window.location.href = window.location.pathname; return; }
     document.getElementById('create-btn').disabled = false;
@@ -954,12 +993,10 @@ function returnToMenu() {
     showOverlay('menu-overlay');
 }
 
-/** =========================================================================
- *  7. APEX V7 PHYSICS: ULTS, PARRY, CHRONO-DASH, MIRAGE ORB & BOUNTIES
- *  ========================================================================= */
 function startMatch() {
     showOverlay('none'); clearTimeout(pointTimer);
     state.score1 = 0; state.score2 = 0; state.rally = 0; state.maxRally = 0; state.topKmh = 0;
+    state.pointsPlayed = 0; state.deuceStart = -1; guestSlow = false; slowMoTimer = 0; hitStopTimer = 0; paused = false;
     state.p1 = createBat(95, canvas.height / 2, matchConfig.p1Racket);
     state.p2 = createBat(canvas.width - 95, canvas.height / 2, matchConfig.p2Racket);
     updateScoreBox(0); applyNamesUI();
@@ -973,13 +1010,13 @@ function resetMatch() { sfx.play('ui'); startMatch(); }
 function requestRematch() {
     matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
     if (isAIMode) resetMatch();
-    else if (conn && conn.open) { conn.send({ type: 'rematch', initialServer: matchConfig.initialServer }); resetMatch(); }
+    else if (conn && conn.open) { sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer }); resetMatch(); }
 }
 
 function preparePlayerServe() {
     if (!isHost) return;
     clearTimeout(pointTimer);
-    const rot = computeServiceRotation(state.score1, state.score2);
+    const rot = computeServiceRotation();
     state.currentServer = rot.server; state.servesLeft = rot.servesLeft;
     state.waitingForServe = true; state.serveLockTimer = 15; state.rally = 0;
     state.pointIsFever = false; state.feverRing.active = false; state.decoyBall.active = false;
@@ -1020,6 +1057,10 @@ function triggerWhipStrike(playerNum) {
         launchServe(playerNum, dir * 12, bat.vy);
         return;
     }
+
+    // Strike cooldown: prevents button-mashing from keeping a permanent parry window open.
+    if (bat.strikeCd > 0) return;
+    bat.strikeCd = 22;
 
     bat.lungeVel = dir * 19;
     sfx.play('whip');
@@ -1075,6 +1116,7 @@ function launchServe(playerNum, customVx, customVy) {
 function stepBatKinematics(bat, bounds, isP1, dt) {
     bat.prevX = bat.x; bat.prevY = bat.y;
     if (bat.emoteTimer > 0) bat.emoteTimer -= dt;
+    if (bat.strikeCd > 0) bat.strikeCd = Math.max(0, bat.strikeCd - dt);
 
     bat.lungeOffset += bat.lungeVel * dt;
     bat.lungeVel -= bat.lungeOffset * 0.38 * dt;
@@ -1136,16 +1178,19 @@ function checkBatCapsuleCollision(bat, isP1) {
 
     if (dx * dx + dy * dy <= minDist * minDist) {
         const dir = isP1 ? 1 : -1;
+        const pn = isP1 ? 1 : 2;
         b.x = cx + dir * (minDist + 2);
         b.netClipped = false;
-        state.decoyBall.active = false; // Clear decoy once real ball is struck
+        state.decoyBall.active = false;
 
         if (b.ultType === 'quake') {
             bat.lungeVel = -dir * 26;
             screenShake = 14;
         }
 
-        const fwdStroke = (isP1 ? bat.vx : -bat.vx) + Math.abs(bat.lungeVel) * 0.6;
+        // Only a *forward* lunge counts toward strokes/parries (the quake knock-back must not).
+        const lungeFwd = Math.max(0, dir * bat.lungeVel);
+        const fwdStroke = (isP1 ? bat.vx : -bat.vx) + lungeFwd * 0.6;
         const sliceStroke = bat.vy;
         const bladeOffset = (t - 0.5) * 2;
 
@@ -1158,18 +1203,15 @@ function checkBatCapsuleCollision(bat, isP1) {
 
         const wasIncomingFast = b.speed >= 15.0 || b.isHyper;
         b.isHyper = false; b.ultType = '';
-        const isLocalPlayer = (isHost && isP1) || (!isHost && !isP1);
 
-        // 1. PERFECT PARRY CLASH!
-        if (wasIncomingFast && Math.abs(bat.lungeVel) > 6.0) {
+        if (wasIncomingFast && lungeFwd > 6.0) {
             newSpeed = Math.min(26.5, b.speed * 1.18);
             shotLabel = '⚔️ PARRY CLASH!'; sfxName = 'parry'; pColor = '#00ff88';
             freezeFrames = 5.0; b.isHyper = true; b.z = 24; b.vz = 1.0;
             callout = '⚔️ PERFECT PARRY! ⚔️';
             bat.overdrive = Math.min(100, bat.overdrive + 35);
-            if (isLocalPlayer) advanceBounty('parry', 1);
+            awardBounty(pn, 'parry', 1);
         }
-        // 2. 100% OVERDRIVE RACKET ULTIMATE!
         else if (bat.overdrive >= 100 && fwdStroke > 2.0) {
             bat.overdrive = 0; sfxName = 'hyper'; pColor = rStats.col;
             freezeFrames = 4.5; b.isHyper = true; shotLabel = rStats.ult; callout = `${rStats.ult}!`;
@@ -1177,15 +1219,14 @@ function checkBatCapsuleCollision(bat, isP1) {
             else if (bat.racket === 'vortex') { newSpeed = 19.5; b.ultType = 'snake'; b.z = 22; b.vz = 1.2; }
             else if (bat.racket === 'titan') { newSpeed = 22.0; b.ultType = 'quake'; b.z = 26; b.vz = 0.8; }
             else { newSpeed = 23.8; b.ultType = 'comet'; b.z = 26; b.vz = 0.7; }
-            if (isLocalPlayer) advanceBounty('smash', 1);
+            awardBounty(pn, 'smash', 1);
         }
-        // 3. STANDARD SHOTS
         else if (fwdStroke > 4.6) {
             newSpeed = Math.max(newSpeed, (14.8 + fwdStroke * 0.42) * rStats.spd);
             shotLabel = '💥 POWER SMASH'; sfxName = 'smash'; pColor = '#ff7b00';
             freezeFrames = 2.6; b.z = 24; b.vz = 0.9; callout = '💥 SMASH!';
             bat.overdrive = Math.min(100, bat.overdrive + 24 * rStats.odRate);
-            if (isLocalPlayer) advanceBounty('smash', 1);
+            awardBounty(pn, 'smash', 1);
         } else if (fwdStroke < -2.2) {
             newSpeed = Math.max(6.8, b.speed * 0.62);
             shotLabel = '🪶 DROP SHOT'; sfxName = 'table'; pColor = '#00ff88';
@@ -1196,7 +1237,7 @@ function checkBatCapsuleCollision(bat, isP1) {
             shotLabel = '🌀 WICKED SPIN'; sfxName = 'spin'; pColor = '#bc13fe';
             b.z = 20; b.vz = 1.4; callout = '🌀 CURVE!';
             bat.overdrive = Math.min(100, bat.overdrive + 20 * rStats.odRate);
-            if (isLocalPlayer) advanceBounty('spin', 1);
+            awardBounty(pn, 'spin', 1);
         } else {
             b.z = 19; b.vz = 1.45;
             bat.overdrive = Math.min(100, bat.overdrive + 16 * rStats.odRate);
@@ -1220,9 +1261,9 @@ function checkBatCapsuleCollision(bat, isP1) {
 
         bat.hitCooldown = 11; bat.hitFlash = 1.0;
         state.rally++; if (state.rally > state.maxRally) state.maxRally = state.rally;
-        advanceBounty('rally', state.rally, true);
+        awardBounty(1, 'rally', state.rally, true);
+        awardBounty(2, 'rally', state.rally, true);
 
-        // Spawn Fever Ring or Mirage Multi-Ball Ring at 3+ Rally!
         if (state.rally === 3 && !state.feverRing.active && !state.pointIsFever) {
             state.feverRing.active = true;
             state.feverRing.y = canvas.height / 2;
@@ -1261,7 +1302,6 @@ function updateAIBat(dt) {
     }
     if (b.vx > 0) {
         const tReach = Math.max(1, (ai.x - b.x) / Math.max(4, b.vx));
-        // If Mirage Decoy is active, AI gets slightly confused between decoy and real ball!
         const trackY = (state.decoyBall.active && b.x < NET_X + 140) ? state.decoyBall.y : b.y;
         const predY = trackY + (b.vy + b.spin * 10) * tReach * 0.88;
         ai.targetY += (predY - ai.targetY) * (0.21 * aiSkill) * dt;
@@ -1298,12 +1338,13 @@ function updatePhysics(rawDt) {
 
     if (!isHost) {
         stepBatKinematics(state.p2, P2_BOUNDS, false, rawDt);
-        if (conn && conn.open) conn.send({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
+        sendFast({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
         if (state.waitingForServe && state.currentServer === 2) {
             state.ball.x = state.p2.x - 28; state.ball.y = state.p2.y;
-            if (-state.p2.vx > 6.5 && conn && conn.open) conn.send({ type: 'whip' });
+            if (-state.p2.vx > 6.5) sendCtl({ type: 'whip' });
         } else if (!state.waitingForServe && (state.ball.vx !== 0 || state.ball.vy !== 0)) {
-            state.ball.x += state.ball.vx * dt; state.ball.y += state.ball.vy * dt; state.ball.vy += state.ball.spin * dt;
+            const gdt = guestSlow ? rawDt * 0.44 : rawDt;
+            state.ball.x += state.ball.vx * gdt; state.ball.y += state.ball.vy * gdt; state.ball.vy += state.ball.spin * gdt;
         }
         return;
     }
@@ -1366,17 +1407,18 @@ function updatePhysics(rawDt) {
         if (!b.netClipped && state.rally > 1 && ((prevBX < NET_X && b.x >= NET_X) || (prevBX > NET_X && b.x <= NET_X))) {
             if (b.z < 9.5) {
                 b.netClipped = true; b.vx *= 0.52; b.speed *= 0.55; b.vz = 2.4; b.z = 11;
+                b.kmh = Math.round(b.speed * 9.6);
                 emitFX({ sfx: 'wall', particles: { x: NET_X, y: b.y, color: '#ffe600', count: 16 }, text: { x: NET_X, y: b.y - 20, txt: '🍀 NET CORD!', color: '#ffe600' } });
             }
         }
 
-        // Check Fever Ring or Mirage Multi-Ball Ring Hit!
         if (state.feverRing.active && Math.hypot(b.x - state.feverRing.x, b.y - state.feverRing.y) < state.feverRing.radius + BALL_RADIUS) {
             const isMirage = state.feverRing.mode === 'mirage';
             state.feverRing.active = false;
-            const hitter = b.vx > 0 ? state.p1 : state.p2;
+            const hitterNum = b.vx > 0 ? 1 : 2;
+            const hitter = hitterNum === 1 ? state.p1 : state.p2;
             hitter.overdrive = 100;
-            advanceBounty('ring', 1);
+            awardBounty(hitterNum, 'ring', 1);
             updateHUD();
 
             if (isMirage) {
@@ -1404,7 +1446,7 @@ function updatePhysics(rawDt) {
             b.z = 0; b.vz = -b.vz * 0.75;
             if (b.vz > 0.5 && b.x > 25 && b.x < canvas.width - 25) {
                 if (b.y < 36 || b.y > canvas.height - 36) {
-                    b.vx *= 1.14;
+                    b.vx *= 1.14; b.speed *= 1.14; b.kmh = Math.round(b.speed * 9.6);
                     emitFX({ sfx: 'table', bounce: { x: b.x, y: b.y }, text: { x: b.x, y: b.y - 18, txt: '⚡ EDGE CLIP!', color: '#00ff88' } });
                 } else {
                     emitFX({ sfx: 'table', bounce: { x: b.x, y: b.y } });
@@ -1420,7 +1462,9 @@ function updatePhysics(rawDt) {
             emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#fff', count: 8 } });
         }
 
-        if (checkBatCapsuleCollision(state.p1, true) || checkBatCapsuleCollision(state.p2, false)) break;
+        // No early break: the rest of the frame's substeps still move the ball after a hit (hitCooldown prevents re-hits).
+        checkBatCapsuleCollision(state.p1, true);
+        checkBatCapsuleCollision(state.p2, false);
     }
 
     state.p1.x = p1x1; state.p1.y = p1y1; state.p2.x = p2x1; state.p2.y = p2y1;
@@ -1435,6 +1479,7 @@ function updatePhysics(rawDt) {
 
 function onPointScored(scorer, x, y, color, pts = 1) {
     state.ball.vx = 0; state.ball.vy = 0; state.ball.x = -100; state.decoyBall.active = false;
+    state.pointsPlayed++;
     applyNamesUI();
     const sBat = scorer === 1 ? state.p1 : state.p2;
     const sName = scorer === 1 ? matchConfig.p1Name : matchConfig.p2Name;
@@ -1447,13 +1492,14 @@ function onPointScored(scorer, x, y, color, pts = 1) {
     });
 
     const t = matchConfig.targetScore;
+    if (matchConfig.winByTwo && state.deuceStart < 0 && state.score1 >= t - 1 && state.score2 >= t - 1) state.deuceStart = state.pointsPlayed;
     const p1Won = state.score1 >= t && (!matchConfig.winByTwo || state.score1 - state.score2 >= 2);
     const p2Won = state.score2 >= t && (!matchConfig.winByTwo || state.score2 - state.score1 >= 2);
 
     if (p1Won || p2Won) {
         const w = p1Won ? 1 : 2;
         if (w === 1) seriesWins.p1++; else seriesWins.p2++;
-        if (conn && conn.open) conn.send({ type: 'gameover', winner: w, series: seriesWins });
+        sendCtl({ type: 'gameover', winner: w, series: seriesWins, s1: state.score1, s2: state.score2 });
         handleGameOver(w);
     } else {
         pointTimer = setTimeout(() => preparePlayerServe(), 650);
@@ -1485,26 +1531,27 @@ function handleGameOver(winner) {
 function triggerLocalFX(d) {
     sfx.play(d.sfx, d.extra);
     if (d.particles) {
-        for (let i = 0; i < d.particles.count; i++) {
+        const count = Math.max(0, Math.min(80, num(d.particles.count)));
+        for (let i = 0; i < count; i++) {
             const a = Math.random() * Math.PI * 2, sp = Math.random() * 7 + 2;
-            particles.push({ x: d.particles.x, y: d.particles.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, size: Math.random() * 4 + 2, alpha: 1, color: d.particles.color });
+            particles.push({ x: num(d.particles.x), y: num(d.particles.y), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, size: Math.random() * 4 + 2, alpha: 1, color: String(d.particles.color || '#fff').slice(0, 20) });
         }
     }
-    if (d.ring) shockwaves.push({ x: d.ring.x, y: d.ring.y, radius: 10, alpha: 0.95, color: d.ring.color });
-    if (d.bounce) bounceMarks.push({ x: d.bounce.x, y: d.bounce.y, radius: 4, alpha: 0.75 });
-    if (d.text) floatingTexts.push({ x: d.text.x, y: d.text.y, txt: d.text.txt, color: d.text.color, alpha: 1.0 });
-    if (d.shake) screenShake = d.shake;
-    if (d.hitStop) hitStopTimer = d.hitStop;
-    if (d.flash) screenFlash = d.flash;
+    if (d.ring) shockwaves.push({ x: num(d.ring.x), y: num(d.ring.y), radius: 10, alpha: 0.95, color: String(d.ring.color || '#fff').slice(0, 20) });
+    if (d.bounce) bounceMarks.push({ x: num(d.bounce.x), y: num(d.bounce.y), radius: 4, alpha: 0.75 });
+    if (d.text) floatingTexts.push({ x: num(d.text.x), y: num(d.text.y), txt: String(d.text.txt || '').slice(0, 60), color: String(d.text.color || '#fff').slice(0, 20), alpha: 1.0 });
+    if (d.shake) screenShake = num(d.shake);
+    if (d.hitStop) hitStopTimer = Math.min(8, num(d.hitStop));
+    if (d.flash) screenFlash = Math.min(1, num(d.flash));
     if (d.scoreUpdate) {
-        state.score1 = d.scoreUpdate.s1; state.score2 = d.scoreUpdate.s2;
+        state.score1 = num(d.scoreUpdate.s1); state.score2 = num(d.scoreUpdate.s2);
         updateScoreBox(d.scoreUpdate.scorer);
     }
 }
 
 function emitFX(payload) {
     triggerLocalFX(payload);
-    if (conn && conn.open) conn.send({ type: 'fx', ...payload });
+    sendCtl({ type: 'fx', ...payload });
 }
 
 function updateScoreBox(scorer) {
@@ -1515,13 +1562,13 @@ function updateScoreBox(scorer) {
 }
 
 function syncToClient() {
-    if (conn && conn.open) {
-        conn.send({
+    if (connF && connF.open) {
+        connF.send({
             type: 'sync',
             s: {
-                p1: { x: state.p1.x, y: state.p1.y, vx: state.p1.vx, vy: state.p1.vy, angle: state.p1.angle, overdrive: state.p1.overdrive, racket: state.p1.racket, streak: state.p1.streak },
-                p2Od: state.p2.overdrive, p2St: state.p2.streak,
-                ring: state.feverRing, decoy: state.decoyBall,
+                p1: { x: state.p1.x, y: state.p1.y, vx: state.p1.vx, vy: state.p1.vy, angle: state.p1.angle, overdrive: state.p1.overdrive, racket: state.p1.racket, streak: state.p1.streak, hitFlash: state.p1.hitFlash },
+                p2Od: state.p2.overdrive, p2St: state.p2.streak, p2Flash: state.p2.hitFlash,
+                ring: state.feverRing, decoy: state.decoyBall, slow: slowMoTimer > 0,
                 ball: state.ball, rally: state.rally, maxRally: state.maxRally, topKmh: state.topKmh,
                 wfs: state.waitingForServe, srv: state.currentServer, sLeft: state.servesLeft
             }
@@ -1529,9 +1576,6 @@ function syncToClient() {
     }
 }
 
-/** =========================================================================
- *  8. APEX RENDERER
- *  ========================================================================= */
 function drawBatRacket(bat, color) {
     ctx.save();
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
@@ -1609,11 +1653,11 @@ function drawArena() {
         ctx.strokeStyle = `rgba(255,255,255,${bm.alpha})`; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.arc(bm.x, bm.y, bm.radius, 0, Math.PI * 2); ctx.stroke();
     }
+
     ctx.strokeStyle = profile.themeNet || '#3b4a7a'; ctx.lineWidth = 4; ctx.setLineDash([12, 10]);
     ctx.beginPath(); ctx.moveTo(NET_X, 8); ctx.lineTo(NET_X, canvas.height - 8); ctx.stroke();
     ctx.setLineDash([]);
 
-    // Draw Floating Fever Ring or Mirage Multi-Ball Ring
     if (state.feverRing.active) {
         ctx.save();
         const isMirage = state.feverRing.mode === 'mirage';
@@ -1626,7 +1670,6 @@ function drawArena() {
         ctx.restore();
     }
 
-    // Serve Aiming Line
     if (state.waitingForServe) {
         const b = state.ball, isP1S = state.currentServer === 1;
         const srvBat = isP1S ? state.p1 : state.p2, dir = isP1S ? 1 : -1;
@@ -1642,7 +1685,6 @@ function drawArena() {
         ctx.fillText(myTurn ? `🏓 YOUR SERVE (${state.servesLeft} LEFT) — TAP STRIKE, CLICK, OR FLICK!` : `⏳ WAITING FOR SERVE...`, NET_X, 40);
     }
 
-    // Shockwaves
     for (let i = shockwaves.length - 1; i >= 0; i--) {
         const sw = shockwaves[i]; sw.radius += 4.8; sw.alpha -= 0.04;
         if (sw.alpha <= 0) { shockwaves.splice(i, 1); continue; }
@@ -1651,7 +1693,6 @@ function drawArena() {
     }
     ctx.globalAlpha = 1;
 
-    // Ball Trail (Supports Custom Locker Trails)
     const b = state.ball;
     if (!state.waitingForServe && (b.vx !== 0 || b.vy !== 0)) {
         ballTrail.push({ x: b.x, y: b.y - (b.z || 0) * 0.45 });
@@ -1665,13 +1706,13 @@ function drawArena() {
         else if (profile.trail === 'fire') ctx.fillStyle = `rgba(255, ${Math.floor(r * 130)}, 0, ${r * 0.6})`;
         else if (profile.trail === 'gold') ctx.fillStyle = `rgba(255, 215, 0, ${r * 0.6})`;
         else {
-            const tCol = b.shotType.includes('SMASH') ? '255, 123, 0' : (b.shotType.includes('SPIN') ? '188, 19, 254' : '0, 243, 255');
+            const st = String(b.shotType || '');
+            const tCol = st.includes('SMASH') ? '255, 123, 0' : (st.includes('SPIN') ? '188, 19, 254' : '0, 243, 255');
             ctx.fillStyle = `rgba(${tCol}, ${r * 0.5})`;
         }
         ctx.beginPath(); ctx.arc(pt.x, pt.y, BALL_RADIUS * r * 1.1, 0, Math.PI * 2); ctx.fill();
     }
 
-    // Draw Mirage Decoy Ball (if active)
     if (state.decoyBall.active) {
         ctx.save();
         ctx.globalAlpha = 0.72;
@@ -1681,11 +1722,9 @@ function drawArena() {
         ctx.restore();
     }
 
-    // Draw Bats
     drawBatRacket(state.p1, '#00f3ff');
     drawBatRacket(state.p2, '#ff0055');
 
-    // Draw 2.5D Ball & Shadow
     if (b.x > 0) {
         const zH = Math.max(0, b.z || 0);
         const vy = b.y - zH * 0.45, vr = BALL_RADIUS * (1 + zH * 0.007);
@@ -1699,7 +1738,6 @@ function drawArena() {
         ctx.shadowBlur = 0;
     }
 
-    // Particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.032;
         if (p.alpha <= 0) { particles.splice(i, 1); continue; }
@@ -1708,7 +1746,6 @@ function drawArena() {
     }
     ctx.globalAlpha = 1;
 
-    // Floating Callouts
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         const ft = floatingTexts[i]; ft.y -= 1.2; ft.alpha -= 0.024;
         if (ft.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
@@ -1733,6 +1770,7 @@ function drawArena() {
 
 function gameLoop(now) {
     if (!gameActive) return;
+    if (paused) { lastTime = now; animationId = requestAnimationFrame(gameLoop); return; }
     const dt = Math.max(0.25, Math.min(2.2, (now - lastTime) / 16.667));
     lastTime = now;
     updatePhysics(dt);
@@ -1740,15 +1778,15 @@ function gameLoop(now) {
     animationId = requestAnimationFrame(gameLoop);
 }
 
-/** =========================================================================
- *  9. CROSS-DEVICE INPUTS (MOUSE, DIRECT TOUCH, MOBILE TRACKPAD & DECK)
- *  ========================================================================= */
+// Maps a screen point to canvas space, accounting for object-fit: contain letterboxing.
 function handlePointerMove(clientX, clientY, isDirectTouch = false) {
-    if (!gameActive) return;
-    const rect = canvas.getBoundingClientRect();
-    const normX = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    const normY = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-    // Apply -36px vertical offset on direct canvas touch so thumb never hides the bat!
+    if (!gameActive || paused) return;
+    const r = canvas.getBoundingClientRect();
+    const sc = Math.min(r.width / canvas.width, r.height / canvas.height);
+    const w = canvas.width * sc, h = canvas.height * sc;
+    const ox = r.left + (r.width - w) / 2, oy = r.top + (r.height - h) / 2;
+    const normX = Math.max(0, Math.min(1, (clientX - ox) / w));
+    const normY = Math.max(0, Math.min(1, (clientY - oy) / h));
     const canvasY = (normY * canvas.height) - (isDirectTouch ? 36 : 0);
 
     if (isHost) {
@@ -1765,15 +1803,20 @@ function handlePointerMove(clientX, clientY, isDirectTouch = false) {
 window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY, false));
 
 function onActionStrike() {
-    if (!gameActive) return;
+    if (!gameActive || paused) return;
     if (isHost) triggerWhipStrike(1);
-    else if (conn && conn.open) conn.send({ type: 'whip' });
+    else if (conn && conn.open) {
+        sendCtl({ type: 'whip' });
+        // Local prediction so the guest sees their own lunge immediately (host runs the authoritative copy).
+        const b2 = state.p2;
+        if (!(state.waitingForServe && state.currentServer === 2) && b2.strikeCd <= 0) { b2.strikeCd = 22; b2.lungeVel = -19; sfx.play('whip'); }
+    }
 }
 
 function onChronoAction() {
-    if (!gameActive) return;
+    if (!gameActive || paused) return;
     if (isHost) triggerChronoDash(1);
-    else if (conn && conn.open) conn.send({ type: 'chrono' });
+    else sendCtl({ type: 'chrono' });
 }
 
 canvas.addEventListener('mousedown', (e) => {
@@ -1792,23 +1835,23 @@ canvas.addEventListener('touchmove', (e) => {
     if (e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY, true);
 }, { passive: false });
 
-// --- DEDICATED MOBILE TRACKPAD & THUMB BUTTONS ---
+// Trackpad: tracks its own finger by identifier so other fingers (Strike button) can't hijack it.
 const trackpad = document.getElementById('mobile-trackpad');
-let padTouch = { active: false, lastX: 0, lastY: 0 };
+let padTouch = { id: null, lastX: 0, lastY: 0 };
 
 trackpad.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (e.touches.length > 0) {
-        padTouch.active = true;
-        padTouch.lastX = e.touches[0].clientX;
-        padTouch.lastY = e.touches[0].clientY;
-    }
+    if (padTouch.id !== null) return;
+    const t = e.changedTouches[0];
+    padTouch = { id: t.identifier, lastX: t.clientX, lastY: t.clientY };
 }, { passive: false });
 
 trackpad.addEventListener('touchmove', (e) => {
     e.preventDefault();
-    if (!padTouch.active || !gameActive || e.touches.length === 0) return;
-    const t = e.touches[0];
+    if (padTouch.id === null || !gameActive || paused) return;
+    let t = null;
+    for (const c of e.changedTouches) if (c.identifier === padTouch.id) { t = c; break; }
+    if (!t) return;
     const dx = (t.clientX - padTouch.lastX) * 2.3;
     const dy = (t.clientY - padTouch.lastY) * 2.5;
     padTouch.lastX = t.clientX;
@@ -1820,7 +1863,11 @@ trackpad.addEventListener('touchmove', (e) => {
     myBat.targetY = Math.max(myBounds.minY, Math.min(myBounds.maxY, myBat.targetY + dy));
 }, { passive: false });
 
-trackpad.addEventListener('touchend', () => { padTouch.active = false; });
+function endPadTouch(e) {
+    for (const c of e.changedTouches) if (c.identifier === padTouch.id) { padTouch.id = null; break; }
+}
+trackpad.addEventListener('touchend', endPadTouch);
+trackpad.addEventListener('touchcancel', endPadTouch);
 
 document.getElementById('btn-mobile-strike').addEventListener('touchstart', (e) => { e.preventDefault(); onActionStrike(); }, { passive: false });
 document.getElementById('btn-mobile-strike').addEventListener('click', onActionStrike);
@@ -1828,14 +1875,15 @@ document.getElementById('btn-mobile-strike').addEventListener('click', onActionS
 document.getElementById('btn-mobile-chrono').addEventListener('touchstart', (e) => { e.preventDefault(); onChronoAction(); }, { passive: false });
 document.getElementById('btn-mobile-chrono').addEventListener('click', onChronoAction);
 
-// Keyboard Controls
 window.addEventListener('keydown', (e) => {
-    if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
-    if (e.code === 'Space') { e.preventDefault(); onActionStrike(); }
-    if (e.key === 'Shift') { e.preventDefault(); onChronoAction(); }
-    if (['1', '2', '3', '4'].includes(e.key)) sendEmote(parseInt(e.key) - 1);
+    if (e.target && e.target.matches && e.target.matches('input, textarea')) return;
+    if (Object.prototype.hasOwnProperty.call(keys, e.key)) keys[e.key] = true;
+    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) onActionStrike(); }
+    if (e.key === 'Shift') { e.preventDefault(); if (!e.repeat) onChronoAction(); }
+    if (['1', '2', '3', '4'].includes(e.key) && !e.repeat) sendEmote(parseInt(e.key) - 1);
 });
-window.addEventListener('keyup', (e) => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
+window.addEventListener('keyup', (e) => { if (Object.prototype.hasOwnProperty.call(keys, e.key)) keys[e.key] = false; });
+window.addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); });
 
 function showOverlay(id) {
     ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay'].forEach(o => document.getElementById(o).classList.add('hidden'));
