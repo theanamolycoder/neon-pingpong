@@ -173,6 +173,27 @@
         .stat-box .lbl { font-size: 0.64rem; text-transform: uppercase; color: var(--muted); }
         .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--p1); border-radius: 50%; width: 28px; height: 28px; animation: spin 1s linear infinite; margin: 6px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ===== Accounts + global leaderboard ===== */
+        .lb-tabs { display: flex; gap: 6px; margin: 4px 0 2px; }
+        .lb-tab { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); padding: 4px 14px; border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+        .lb-tab.active { background: var(--p1); border-color: var(--p1); color: #000; }
+        .lb-note { font-size: 0.72rem; color: var(--muted); min-height: 1em; }
+        table.lb-table tr.me-row td { background: rgba(0,243,255,0.12); color: #fff; }
+        table.lb-table tr.me-row td:first-child { box-shadow: inset 3px 0 0 var(--p1); }
+        .auth-card { gap: 7px; width: 100%; max-width: 360px; }
+        .auth-card .text-input { width: 100%; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; padding: 7px 10px; }
+        .auth-or { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; }
+        .auth-or::before, .auth-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .google-btn { width: 100%; border-color: #fff; box-shadow: none; background: rgba(255,255,255,0.08); }
+        .google-btn:hover { background: #fff; color: #000; }
+        .auth-msg { font-size: 0.8rem; font-weight: 700; color: var(--p2); min-height: 1em; text-align: center; }
+        .auth-msg.ok { color: var(--success); }
+        .auth-link { background: none; border: none; color: var(--muted); font-family: 'Rajdhani', sans-serif; font-size: 0.78rem; cursor: pointer; text-decoration: underline; }
+        .auth-hint { font-size: 0.72rem; color: var(--muted); text-align: center; }
+        .acct-stats { grid-template-columns: repeat(3, 1fr); max-width: 360px; margin: 2px 0; }
+        .acct-lbl { font-size: 0.62rem; text-transform: uppercase; color: var(--muted); }
+        #account-btn.signed-in { border-color: var(--success); color: var(--success); }
         @media (max-width: 760px) {
             .racket-grid { grid-template-columns: repeat(2, 1fr); }
             .racket-card .r-desc { display: none; }
@@ -250,6 +271,7 @@
 <div id="app-wrapper">
     <div class="utility-bar">
         <div class="btn-group">
+            <button class="icon-btn" id="account-btn" onclick="openAccount()" title="Account">👤<span id="account-btn-label" class="lbl"> Sign in</span></button>
             <button class="icon-btn" onclick="openLeaderboard()">🏆 Ranks</button>
             <button class="icon-btn" onclick="openLocker()">🎨 Locker</button>
             <div class="profile-pill" id="rank-coin-pill">🥉 BRONZE • 🪙 50</div>
@@ -453,16 +475,61 @@
         <!-- 7. LEADERBOARD OVERLAY -->
         <div id="leaderboard-overlay" class="overlay hidden">
             <h2 style="font-family:'Orbitron',sans-serif; color:var(--hyper);">🏆 HALL OF FAME</h2>
+            <div class="lb-tabs">
+                <button class="lb-tab active" id="lb-tab-local" onclick="setLbTab('local')">📍 LOCAL</button>
+                <button class="lb-tab" id="lb-tab-global" onclick="setLbTab('global')">🌍 GLOBAL</button>
+            </div>
+            <div class="lb-note" id="lb-note"></div>
             <div class="leaderboard-container">
                 <table class="lb-table">
-                    <thead><tr><th>#</th><th>Player</th><th>W - L</th><th>Win %</th><th>Top Speed</th><th>Best Rally</th></tr></thead>
+                    <thead id="leaderboard-head"></thead>
                     <tbody id="leaderboard-body"></tbody>
                 </table>
             </div>
             <div class="btn-row">
                 <button class="btn" onclick="closeLeaderboard()">Close</button>
-                <button class="icon-btn" onclick="clearLeaderboard()" style="color:var(--p2);">Reset</button>
+                <button class="icon-btn" id="lb-reset-btn" onclick="clearLeaderboard()" style="color:var(--p2);">Reset</button>
+                <button class="icon-btn hidden" id="lb-refresh-btn" onclick="refreshGlobal()">↻ Refresh</button>
             </div>
+        </div>
+
+        <!-- 8. ACCOUNT OVERLAY -->
+        <div id="account-overlay" class="overlay hidden">
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--p1);">👤 NEON ACCOUNT</h2>
+            <div class="panel-card auth-card hidden" id="acct-off">
+                <p class="auth-hint" id="acct-off-text">Accounts aren't switched on for this copy of the game. Guest play works exactly the same.</p>
+            </div>
+            <div class="panel-card auth-card hidden" id="acct-loading"><div class="loader"></div><p class="auth-hint">Connecting to the cloud…</p></div>
+            <div class="panel-card auth-card hidden" id="acct-signin">
+                <button class="btn google-btn" onclick="cloudGoogle()">Continue with Google</button>
+                <div class="auth-or">or email</div>
+                <input type="email" id="auth-email" class="text-input" placeholder="Email" autocomplete="email" maxlength="120">
+                <input type="password" id="auth-pass" class="text-input" placeholder="Password (6+ characters)" autocomplete="current-password" maxlength="128">
+                <input type="text" id="auth-nick" class="text-input" placeholder="Nickname (for new accounts)" maxlength="12">
+                <div class="btn-row">
+                    <button class="btn" onclick="cloudEmail('in')">Sign in</button>
+                    <button class="btn btn-secondary" onclick="cloudEmail('up')">Create account</button>
+                </div>
+                <button class="auth-link" onclick="cloudReset()">Forgot password?</button>
+                <p class="auth-hint">A brand-new account takes your current guest RP, coins &amp; unlocks with it.</p>
+            </div>
+            <div class="panel-card auth-card hidden" id="acct-in">
+                <div style="font-family:'Orbitron',sans-serif; font-size:1rem; color:#fff;" id="acct-name">PLAYER</div>
+                <div class="auth-hint" id="acct-email"></div>
+                <div class="stats-grid acct-stats">
+                    <div class="stat-box"><div class="val" id="acct-rrp">100</div><div class="acct-lbl">Ranked RP</div></div>
+                    <div class="stat-box"><div class="val" id="acct-wl">0 - 0</div><div class="acct-lbl">Ranked W - L</div></div>
+                    <div class="stat-box"><div class="val" id="acct-sync">✓</div><div class="acct-lbl">Cloud Save</div></div>
+                </div>
+                <div class="settings-row" style="gap:6px;">
+                    <input type="text" id="acct-nick" class="text-input" maxlength="12" placeholder="Nickname">
+                    <button class="icon-btn" onclick="cloudRename()">Save name</button>
+                </div>
+                <p class="auth-hint">Only online matches against real players count for the 🌍 Global board.</p>
+                <button class="icon-btn" style="align-self:center; color:var(--p2);" onclick="cloudSignOut()">Sign out</button>
+            </div>
+            <p class="auth-msg" id="auth-msg"></p>
+            <button class="btn" onclick="closeAccount()">Close</button>
         </div>
     </div>
 
@@ -617,13 +684,35 @@ function toggleMute() {
 
 const PROF_KEY = 'neon_pong_v7_profile';
 const LB_KEY = 'neon_pong_v7_leaderboard';
-let profile = { rp: 100, coins: 50, unlocked: ['trail_plasma', 'theme_cyber'], trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a', bountyIdx: 0, bountyProg: 0 };
+const DEFAULT_PROFILE = () => ({ rp: 100, coins: 50, unlocked: ['trail_plasma', 'theme_cyber'], trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a', bountyIdx: 0, bountyProg: 0 });
+let profile = DEFAULT_PROFILE();
+const clampInt = (v, lo, hi, def) => (typeof v === 'number' && Number.isFinite(v)) ? Math.max(lo, Math.min(hi, Math.floor(v))) : def;
 
-function loadProfile() {
-    try { const s = JSON.parse(store.get(PROF_KEY)); if (s) Object.assign(profile, s); } catch {}
-    updateProfileBadge(); updateBountyUI();
+// Anything loaded from localStorage or the cloud goes through here before the game touches it.
+function sanitizeProfile(s) {
+    const d = DEFAULT_PROFILE();
+    if (!s || typeof s !== 'object') return d;
+    d.rp = clampInt(s.rp, 0, 100000, d.rp);
+    d.coins = clampInt(s.coins, 0, 10000000, d.coins);
+    const ids = new Set(COSMETICS.map(c => c.id));
+    if (Array.isArray(s.unlocked)) d.unlocked = [...new Set([...d.unlocked, ...s.unlocked.filter(x => typeof x === 'string' && ids.has(x))])];
+    const trail = COSMETICS.find(c => c.type === 'trail' && c.val === s.trail && d.unlocked.includes(c.id));
+    if (trail) d.trail = trail.val;
+    const theme = COSMETICS.find(c => c.type === 'theme' && c.bg === s.themeBg && d.unlocked.includes(c.id));
+    if (theme) { d.themeBg = theme.bg; d.themeNet = theme.net; }
+    d.bountyIdx = clampInt(s.bountyIdx, 0, BOUNTY_POOL.length - 1, 0);
+    d.bountyProg = clampInt(s.bountyProg, 0, 999, 0);
+    return d;
 }
-function saveProfile() { store.set(PROF_KEY, JSON.stringify(profile)); updateProfileBadge(); }
+function readLocalProfile(key) { try { return sanitizeProfile(JSON.parse(store.get(key))); } catch { return DEFAULT_PROFILE(); } }
+function profileKey() { return cloud.user ? `${PROF_KEY}_${cloud.user.uid}` : PROF_KEY; }
+function applyProfile(p) {
+    profile = sanitizeProfile(p);
+    updateProfileBadge(); updateBountyUI();
+    try { drawArena(); } catch {}
+}
+function loadProfile() { applyProfile(readLocalProfile(PROF_KEY)); }
+function saveProfile() { store.set(profileKey(), JSON.stringify(profile)); updateProfileBadge(); scheduleCloudSync(); }
 function getRankTitle(rp) {
     if (rp >= 600) return '👑 GM';
     if (rp >= 400) return '💎 DIAMOND';
@@ -704,17 +793,411 @@ function recordMatchStats(p1, p2, s1, s2, rally, kmh) {
     upd(p1, w1); upd(p2, !w1);
     store.set(LB_KEY, JSON.stringify(db));
 }
+let lbTab = 'local';
 function openLeaderboard() {
     sfx.play('ui'); pauseIfAI();
+    document.getElementById('leaderboard-overlay').classList.remove('hidden');
+    renderLeaderboard();
+}
+function setLbTab(t) { sfx.play('ui'); lbTab = t === 'global' ? 'global' : 'local'; renderLeaderboard(); }
+function lbEmptyRow(msg) { return `<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">${msg}</td></tr>`; }
+function renderLeaderboard() {
+    const g = lbTab === 'global';
+    document.getElementById('lb-tab-local').classList.toggle('active', !g);
+    document.getElementById('lb-tab-global').classList.toggle('active', g);
+    document.getElementById('lb-reset-btn').classList.toggle('hidden', g);
+    document.getElementById('lb-refresh-btn').classList.toggle('hidden', !g || !cloud.user);
+    if (g) { renderGlobalLeaderboard(); return; }
+    document.getElementById('lb-note').innerText = 'Matches played on this device.';
+    document.getElementById('leaderboard-head').innerHTML = '<tr><th>#</th><th>Player</th><th>W - L</th><th>Win %</th><th>Top Speed</th><th>Best Rally</th></tr>';
     const list = Object.values(getLeaderboard()).sort((a, b) => b.wins - a.wins || b.topKmh - a.topKmh);
     document.getElementById('leaderboard-body').innerHTML = list.length ? list.map((p, i) => {
         const rate = Math.round((p.wins / Math.max(1, p.wins + p.losses)) * 100);
         return `<tr><td>${i + 1}</td><td style="font-family:'Orbitron';color:var(--p1)">${esc(p.name)}</td><td>${num(p.wins)}W - ${num(p.losses)}L</td><td>${rate}%</td><td style="color:var(--hyper)">⚡ ${num(p.topKmh)} KM/H</td><td>🔥 ${num(p.bestRally)}</td></tr>`;
-    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--muted)">No matches recorded yet!</td></tr>`;
-    document.getElementById('leaderboard-overlay').classList.remove('hidden');
+    }).join('') : lbEmptyRow('No matches recorded yet!');
 }
 function closeLeaderboard() { sfx.play('ui'); document.getElementById('leaderboard-overlay').classList.add('hidden'); resumeFromPause(); }
-function clearLeaderboard() { if (confirm("Clear all stats?")) { store.del(LB_KEY); openLeaderboard(); } }
+function clearLeaderboard() { if (confirm("Clear all stats?")) { store.del(LB_KEY); renderLeaderboard(); } }
+
+// =====================================================================
+//  ☁️  FIREBASE: accounts, cloud saves, global leaderboard
+//  Paste your config from Firebase console → Project settings → Your apps → Web app.
+//  These keys are not secret; security comes from firestore.rules.
+//  While apiKey still says PASTE_API_KEY, the game runs in guest-only mode.
+// =====================================================================
+const FIREBASE_CONFIG = {
+    apiKey: "PASTE_API_KEY",
+    authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+    projectId: "PASTE_PROJECT_ID",
+    storageBucket: "PASTE_PROJECT_ID.appspot.com",
+    messagingSenderId: "PASTE_SENDER_ID",
+    appId: "PASTE_APP_ID"
+};
+const FIREBASE_VER = '10.14.1';
+const SYNC_MS = 20000;        // profile writes at most every 20 s (plus once at match end)
+const MIN_GAP_MS = 4000;      // rules reject profile writes < 3 s apart
+const LB_GAP_MS = 11000;      // rules reject leaderboard writes < 10 s apart
+const LB_CACHE_MS = 60000;    // global board is re-read at most once a minute
+const START_RRP = 100;
+
+const cloud = {
+    status: 'off',            // off | loading | ready | error
+    auth: null, db: null,
+    user: null,               // set only after the cloud save has been loaded
+    name: '', ranked: null,
+    dirty: false, writing: false, lastWrite: 0, timer: null,
+    lbDirty: false, lbLastWrite: 0, lbTimer: null,
+    pendingNick: '', lbCache: null, lbLoading: false, err: ''
+};
+const cloudConfigured = () => !String(FIREBASE_CONFIG.apiKey).startsWith('PASTE');
+
+function loadScript(src) {
+    return new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src; s.async = true;
+        const t = setTimeout(() => rej(new Error('timeout ' + src)), 15000);
+        s.onload = () => { clearTimeout(t); res(); };
+        s.onerror = () => { clearTimeout(t); rej(new Error('failed ' + src)); };
+        document.head.appendChild(s);
+    });
+}
+
+async function initCloud() {
+    if (!cloudConfigured()) { cloud.status = 'off'; updateAccountUI(); return; }
+    cloud.status = 'loading'; updateAccountUI();
+    try {
+        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VER}/`;
+        await loadScript(base + 'firebase-app-compat.js');
+        await Promise.all([loadScript(base + 'firebase-auth-compat.js'), loadScript(base + 'firebase-firestore-compat.js')]);
+        firebase.initializeApp(FIREBASE_CONFIG);
+        cloud.auth = firebase.auth();
+        cloud.db = firebase.firestore();
+        cloud.auth.getRedirectResult().catch(e => showAuthMsg(authErrorText(e)));
+        cloud.auth.onAuthStateChanged(onAuthChanged);
+    } catch (e) {
+        console.warn('[cloud] Firebase unavailable, guest mode only:', e);
+        cloud.status = 'error'; cloud.err = 'Cloud is unreachable right now. Guest play still works.';
+        updateAccountUI();
+    }
+}
+
+function sanitizeRanked(d) {
+    d = d && typeof d === 'object' ? d : {};
+    const wins = clampInt(d.wins, 0, 1e7, 0), losses = clampInt(d.losses, 0, 1e7, 0);
+    return {
+        exists: !!d.__exists,
+        rankedRp: clampInt(d.rankedRp, 0, 100000, START_RRP),
+        wins, losses, matches: wins + losses,
+        topKmh: clampInt(d.topKmh, 0, 1000, 0),
+        bestRally: clampInt(d.bestRally, 0, 1000, 0)
+    };
+}
+
+async function onAuthChanged(user) {
+    clearTimeout(cloud.timer); clearTimeout(cloud.lbTimer); cloud.timer = cloud.lbTimer = null;
+    cloud.lbCache = null;
+    if (!user) {
+        cloud.user = null; cloud.ranked = null; cloud.name = '';
+        cloud.status = 'ready';
+        applyProfile(readLocalProfile(PROF_KEY));
+        updateAccountUI(); return;
+    }
+    cloud.status = 'loading'; updateAccountUI();
+    try {
+        const uRef = cloud.db.collection('users').doc(user.uid);
+        const [uSnap, lSnap] = await Promise.all([uRef.get(), cloud.db.collection('leaderboard').doc(user.uid).get()]);
+        const fallbackName = cloud.pendingNick || user.displayName || (user.email || '').split('@')[0] || document.getElementById('host-name-input').value;
+        cloud.ranked = sanitizeRanked(lSnap.exists ? { ...lSnap.data(), __exists: true } : null);
+        let isNew = false;
+        if (uSnap.exists) {
+            const data = uSnap.data();
+            cloud.name = cleanName(data.name, cleanName(fallbackName));
+            cloud.user = user;
+            applyProfile(data);
+        } else {
+            // Brand-new account: carry the guest progress over, then reset the guest slot so it can't be claimed twice.
+            isNew = true;
+            cloud.name = cleanName(fallbackName);
+            cloud.user = user;
+            applyProfile(readLocalProfile(PROF_KEY));
+            store.set(PROF_KEY, JSON.stringify(DEFAULT_PROFILE()));
+        }
+        cloud.pendingNick = '';
+        cloud.status = 'ready'; cloud.err = '';
+        store.set(profileKey(), JSON.stringify(profile));
+        ['host-name-input', 'guest-name-input'].forEach(id => document.getElementById(id).value = cloud.name);
+        store.set('neon_pong_nickname', cloud.name);
+        updateAccountUI();
+        if (isNew) { cloud.dirty = true; flushCloud(true); showAuthMsg(`Welcome, ${cloud.name}! Your progress is now saved to the cloud.`, true); }
+        else showAuthMsg(`Signed in as ${cloud.name}.`, true);
+    } catch (e) {
+        console.warn('[cloud] could not load save:', e);
+        cloud.user = null; cloud.status = 'error';
+        cloud.err = 'Signed in, but the cloud save could not be loaded (' + (e.code || e.message) + '). Playing as guest for now.';
+        updateAccountUI();
+    }
+}
+
+function profileDoc() {
+    return {
+        name: cloud.name, rp: profile.rp, coins: profile.coins, unlocked: profile.unlocked.slice(0, 50),
+        trail: profile.trail, themeBg: profile.themeBg, themeNet: profile.themeNet,
+        bountyIdx: profile.bountyIdx, bountyProg: profile.bountyProg,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+}
+
+function scheduleCloudSync() {
+    if (!cloud.user) return;
+    cloud.dirty = true;
+    if (cloud.timer) return;
+    const wait = Math.max(0, SYNC_MS - (Date.now() - cloud.lastWrite));
+    cloud.timer = setTimeout(() => { cloud.timer = null; flushCloud(); }, wait);
+    updateSyncBadge();
+}
+
+// immediate = true at match end / sign-out: skip the 20 s throttle (but still respect the rules' minimum gap).
+async function flushCloud(immediate = false) {
+    if (!cloud.user || cloud.writing || !cloud.dirty) return;
+    const gap = Date.now() - cloud.lastWrite;
+    const minGap = immediate ? MIN_GAP_MS : SYNC_MS;
+    if (gap < minGap) {
+        clearTimeout(cloud.timer);
+        cloud.timer = setTimeout(() => { cloud.timer = null; flushCloud(immediate); }, minGap - gap + 50);
+        return;
+    }
+    clearTimeout(cloud.timer); cloud.timer = null;
+    const uid = cloud.user.uid;
+    cloud.writing = true; cloud.dirty = false; cloud.lastWrite = Date.now(); updateSyncBadge();
+    try {
+        await cloud.db.collection('users').doc(uid).set(profileDoc());
+    } catch (e) {
+        console.warn('[cloud] save failed, will retry:', e);
+        if (cloud.user && cloud.user.uid === uid) cloud.dirty = true;
+    } finally {
+        cloud.writing = false;
+        if (cloud.dirty && cloud.user) scheduleCloudSync();
+        updateSyncBadge();
+    }
+}
+
+// ---- Ranked (global) results ----
+let oppRankedRp = START_RRP, matchCounted = false;
+const myRankedRp = () => (cloud.user && cloud.ranked) ? cloud.ranked.rankedRp : null;
+function setOppRankedRp(v) { oppRankedRp = clampInt(v, 0, 100000, START_RRP); }
+function isRankedMatch() { return !!(cloud.user && cloud.ranked && !isAIMode && conn && conn.open); }
+// Elo-style: beating a stronger player is worth more. Always between 5 and 40 RP (rules allow 40 per match).
+function rankedDelta(me, opp, won) {
+    const expected = 1 / (1 + Math.pow(10, (opp - me) / 400));
+    const d = Math.round(32 * ((won ? 1 : 0) - expected));
+    return won ? Math.min(40, Math.max(5, d)) : Math.max(-40, Math.min(-5, d));
+}
+function applyRankedResult(won, kmh, rally) {
+    const r = cloud.ranked;
+    const delta = rankedDelta(r.rankedRp, oppRankedRp, won);
+    const before = r.rankedRp;
+    r.rankedRp = Math.max(0, r.rankedRp + delta);
+    if (won) r.wins++; else r.losses++;
+    r.matches = r.wins + r.losses;
+    r.topKmh = Math.max(r.topKmh, clampInt(kmh, 0, 1000, 0));
+    r.bestRally = Math.max(r.bestRally, clampInt(rally, 0, 1000, 0));
+    cloud.lbDirty = true; cloud.lbCache = null;
+    flushRanked();
+    sendCtl({ type: 'rrp', v: r.rankedRp });
+    return r.rankedRp - before;
+}
+async function flushRanked() {
+    if (!cloud.user || !cloud.ranked || !cloud.lbDirty) return;
+    const gap = Date.now() - cloud.lbLastWrite;
+    if (gap < LB_GAP_MS) {
+        clearTimeout(cloud.lbTimer);
+        cloud.lbTimer = setTimeout(() => { cloud.lbTimer = null; flushRanked(); }, LB_GAP_MS - gap + 50);
+        return;
+    }
+    const uid = cloud.user.uid, r = cloud.ranked;
+    cloud.lbDirty = false; cloud.lbLastWrite = Date.now();
+    try {
+        await cloud.db.collection('leaderboard').doc(uid).set({
+            name: cloud.name, rankedRp: r.rankedRp, wins: r.wins, losses: r.losses, matches: r.matches,
+            topKmh: r.topKmh, bestRally: r.bestRally,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        r.exists = true;
+    } catch (e) {
+        console.warn('[cloud] ranked save failed, will retry:', e);
+        if (cloud.user && cloud.user.uid === uid) { cloud.lbDirty = true; cloud.lbTimer = setTimeout(() => { cloud.lbTimer = null; flushRanked(); }, 30000); }
+    }
+    updateAccountUI();
+}
+
+// ---- Global leaderboard ----
+function refreshGlobal() { sfx.play('ui'); cloud.lbCache = null; renderGlobalLeaderboard(); }
+async function renderGlobalLeaderboard() {
+    const head = document.getElementById('leaderboard-head'), body = document.getElementById('leaderboard-body'), note = document.getElementById('lb-note');
+    head.innerHTML = '<tr><th>#</th><th>Player</th><th>Ranked RP</th><th>W - L</th><th>Win %</th><th>Top Speed</th></tr>';
+    if (!cloudConfigured() || cloud.status === 'off') { note.innerText = ''; body.innerHTML = lbEmptyRow('🌍 Global ranks aren\'t switched on for this copy of the game.'); return; }
+    if (!cloud.user) {
+        note.innerText = '';
+        body.innerHTML = cloud.status === 'loading' ? lbEmptyRow('Connecting…')
+            : lbEmptyRow('<button class="btn" onclick="closeLeaderboard(); openAccount();">👤 Sign in to see the global ranks</button>');
+        return;
+    }
+    note.innerText = 'Top 25 by ranked RP • online matches only, AI games never count.';
+    const fresh = cloud.lbCache && Date.now() - cloud.lbCache.t < LB_CACHE_MS;
+    if (!fresh) {
+        if (cloud.lbLoading) return;
+        cloud.lbLoading = true;
+        body.innerHTML = lbEmptyRow('<div class="loader"></div>');
+        try {
+            const snap = await cloud.db.collection('leaderboard').orderBy('rankedRp', 'desc').limit(25).get();
+            cloud.lbCache = { t: Date.now(), rows: snap.docs.map(d => ({ id: d.id, ...sanitizeRanked(d.data()), name: cleanName(d.data().name, 'Player') })) };
+        } catch (e) {
+            console.warn('[cloud] leaderboard read failed:', e);
+            cloud.lbLoading = false;
+            body.innerHTML = lbEmptyRow('Couldn\'t load the global board (' + esc(e.code || 'network') + '). Try ↻ Refresh.');
+            return;
+        }
+        cloud.lbLoading = false;
+        if (lbTab !== 'global' || !cloud.user) return;
+    }
+    const me = cloud.user.uid;
+    const rows = cloud.lbCache.rows.slice();
+    const row = (p, rank) => {
+        const rate = Math.round((p.wins / Math.max(1, p.matches)) * 100);
+        const isMe = p.id === me;
+        return `<tr class="${isMe ? 'me-row' : ''}"><td>${rank}</td><td style="font-family:'Orbitron';color:${isMe ? '#fff' : 'var(--p1)'}">${esc(p.name)}${isMe ? ' (you)' : ''}</td><td style="color:var(--hyper)">${getRankTitle(p.rankedRp).split(' ')[0]} ${p.rankedRp}</td><td>${p.wins}W - ${p.losses}L</td><td>${rate}%</td><td>⚡ ${p.topKmh} KM/H</td></tr>`;
+    };
+    let html = rows.map((p, i) => row(p, i + 1)).join('');
+    if (!rows.some(p => p.id === me) && cloud.ranked && cloud.ranked.matches > 0) html += row({ id: me, name: cloud.name, ...cloud.ranked }, '25+');
+    body.innerHTML = html || lbEmptyRow('No ranked matches yet. Invite a friend and be the first! 🏓');
+}
+
+// ---- Account UI + actions ----
+function openAccount() {
+    sfx.play('ui'); pauseIfAI();
+    showAuthMsg('');
+    updateAccountUI();
+    document.getElementById('account-overlay').classList.remove('hidden');
+}
+function closeAccount() { sfx.play('ui'); document.getElementById('account-overlay').classList.add('hidden'); resumeFromPause(); }
+function showAuthMsg(t, ok = false) {
+    const el = document.getElementById('auth-msg');
+    if (!el) return;
+    el.innerText = t || ''; el.classList.toggle('ok', ok);
+}
+function updateSyncBadge() {
+    const el = document.getElementById('acct-sync');
+    if (el) el.innerText = cloud.writing ? '⏳' : (cloud.dirty ? '•••' : '✓');
+}
+function updateAccountUI() {
+    const show = id => ['acct-off', 'acct-loading', 'acct-signin', 'acct-in'].forEach(x => document.getElementById(x).classList.toggle('hidden', x !== id));
+    const btn = document.getElementById('account-btn'), lbl = document.getElementById('account-btn-label');
+    btn.classList.toggle('signed-in', !!cloud.user);
+    lbl.innerText = cloud.user ? ' ' + cloud.name : ' Sign in';
+    if (!cloudConfigured() || cloud.status === 'off') {
+        document.getElementById('acct-off-text').innerText = "Accounts aren't switched on for this copy of the game. Guest play works exactly the same.";
+        show('acct-off');
+    } else if (cloud.status === 'loading') show('acct-loading');
+    else if (cloud.user) {
+        show('acct-in');
+        document.getElementById('acct-name').innerText = `${getRankTitle(cloud.ranked ? cloud.ranked.rankedRp : START_RRP)} ${cloud.name}`;
+        document.getElementById('acct-email').innerText = cloud.user.email || '';
+        document.getElementById('acct-rrp').innerText = cloud.ranked ? cloud.ranked.rankedRp : START_RRP;
+        document.getElementById('acct-wl').innerText = cloud.ranked ? `${cloud.ranked.wins} - ${cloud.ranked.losses}` : '0 - 0';
+        const nick = document.getElementById('acct-nick');
+        if (document.activeElement !== nick) nick.value = cloud.name;
+        updateSyncBadge();
+    } else if (cloud.status === 'error' && !cloud.auth) {
+        document.getElementById('acct-off-text').innerText = cloud.err;
+        show('acct-off');
+    } else {
+        show('acct-signin');
+        if (cloud.err) { showAuthMsg(cloud.err); cloud.err = ''; }
+    }
+    if (!document.getElementById('leaderboard-overlay').classList.contains('hidden')) renderLeaderboard();
+}
+function authErrorText(e) {
+    const c = (e && e.code) || '';
+    const map = {
+        'auth/invalid-email': 'That email address doesn\'t look right.',
+        'auth/missing-password': 'Enter your password.',
+        'auth/weak-password': 'Password needs at least 6 characters.',
+        'auth/email-already-in-use': 'That email already has an account. Tap "Sign in" instead.',
+        'auth/invalid-credential': 'Wrong email or password.',
+        'auth/wrong-password': 'Wrong email or password.',
+        'auth/user-not-found': 'No account with that email. Tap "Create account".',
+        'auth/too-many-requests': 'Too many tries. Wait a minute and try again.',
+        'auth/network-request-failed': 'No connection to the sign-in server.',
+        'auth/popup-closed-by-user': 'Sign-in window was closed.',
+        'auth/cancelled-popup-request': '',
+        'auth/unauthorized-domain': 'This website isn\'t on the Firebase authorized-domains list yet (see SETUP.md step 3).',
+        'auth/operation-not-allowed': 'This sign-in method isn\'t enabled in Firebase yet (see SETUP.md step 2).',
+        'auth/api-key-not-valid.-please-pass-a-valid-api-key.': 'The Firebase apiKey in index.html is wrong. Copy it again from the console.'
+    };
+    return Object.prototype.hasOwnProperty.call(map, c) ? map[c] : ('Sign-in failed: ' + (c || (e && e.message) || 'unknown error'));
+}
+async function cloudGoogle() {
+    if (!cloud.auth) return;
+    sfx.play('ui'); showAuthMsg('');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try { await cloud.auth.signInWithPopup(provider); }
+    catch (e) {
+        if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) {
+            try { await cloud.auth.signInWithRedirect(provider); } catch (e2) { showAuthMsg(authErrorText(e2)); }
+        } else showAuthMsg(authErrorText(e));
+    }
+}
+async function cloudEmail(mode) {
+    if (!cloud.auth) return;
+    sfx.play('ui');
+    const email = document.getElementById('auth-email').value.trim();
+    const pass = document.getElementById('auth-pass').value;
+    const nickRaw = document.getElementById('auth-nick').value;
+    if (!email || !pass) { showAuthMsg('Enter your email and password.'); return; }
+    try {
+        if (mode === 'up') {
+            const nick = cleanName(nickRaw, '');
+            if (!nick) { showAuthMsg('Pick a nickname for your new account.'); return; }
+            cloud.pendingNick = nick;
+            showAuthMsg('Creating account…', true);
+            const cred = await cloud.auth.createUserWithEmailAndPassword(email, pass);
+            cred.user.updateProfile({ displayName: nick }).catch(() => {});
+        } else {
+            showAuthMsg('Signing in…', true);
+            await cloud.auth.signInWithEmailAndPassword(email, pass);
+        }
+        document.getElementById('auth-pass').value = '';
+    } catch (e) { cloud.pendingNick = ''; showAuthMsg(authErrorText(e)); }
+}
+async function cloudReset() {
+    if (!cloud.auth) return;
+    const email = document.getElementById('auth-email').value.trim();
+    if (!email) { showAuthMsg('Type your email above first, then tap "Forgot password?".'); return; }
+    try { await cloud.auth.sendPasswordResetEmail(email); showAuthMsg('Reset link sent. Check your inbox (and spam).', true); }
+    catch (e) { showAuthMsg(authErrorText(e)); }
+}
+async function cloudRename() {
+    if (!cloud.user) return;
+    sfx.play('ui');
+    const nick = cleanName(document.getElementById('acct-nick').value, '');
+    if (!nick) { showAuthMsg('Nickname can\'t be empty.'); return; }
+    if (nick === cloud.name) return;
+    cloud.name = nick;
+    ['host-name-input', 'guest-name-input'].forEach(id => document.getElementById(id).value = nick);
+    store.set('neon_pong_nickname', nick);
+    cloud.dirty = true; flushCloud(true);
+    if (cloud.ranked && cloud.ranked.exists) { cloud.lbDirty = true; cloud.lbCache = null; flushRanked(); }
+    updateAccountUI(); showAuthMsg('Nickname saved.', true);
+}
+async function cloudSignOut() {
+    if (!cloud.auth) return;
+    sfx.play('ui');
+    try { if (cloud.dirty) { cloud.lastWrite = 0; await flushCloud(true); } } catch {}
+    try { await cloud.auth.signOut(); showAuthMsg('Signed out. Playing as guest.', true); }
+    catch (e) { showAuthMsg(authErrorText(e)); }
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushCloud(true); });
 
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
@@ -786,6 +1269,8 @@ window.onload = () => {
     const room = new URLSearchParams(window.location.search).get('room');
     if (room) { pendingRoomId = room; isHost = false; showOverlay('join-overlay'); }
     drawArena();
+    updateAccountUI();
+    initCloud();
 };
 
 function toggleMobileDeck() { sfx.play('ui'); document.getElementById('mobile-deck').classList.toggle('active'); }
@@ -952,7 +1437,8 @@ function handleNetData(d) {
         matchConfig.p2Name = cleanName(d.name, 'Player 2');
         matchConfig.p2Racket = rk(d.racket);
         matchConfig.p2Dev = cleanDev(d.dev);
-        sendCtl({ type: 'config', config: matchConfig, series: seriesWins });
+        setOppRankedRp(d.rrp);
+        sendCtl({ type: 'config', config: matchConfig, series: seriesWins, rrp: myRankedRp() });
         applyNamesUI(); startMatch();
     } else if (d.type === 'config' && !isHost) {
         const c = d.config || {};
@@ -965,6 +1451,7 @@ function handleNetData(d) {
             initialServer: c.initialServer === 2 ? 2 : 1
         };
         seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
+        setOppRankedRp(d.rrp);
         applyNamesUI(); startMatch();
     } else if (d.type === 'sync' && !isHost) {
         const s = d.s; if (!s || !s.p1 || !s.ball) return;
@@ -1007,7 +1494,8 @@ function handleNetData(d) {
         handleGameOver(d.winner === 2 ? 2 : 1);
     } else if (d.type === 'rematch' && !isHost) {
         matchConfig.initialServer = d.initialServer === 2 ? 2 : 1; resetMatch();
-    } else if (d.type === 'ping') sendCtl({ type: 'pong', t: d.t });
+    } else if (d.type === 'rrp') setOppRankedRp(d.v);
+    else if (d.type === 'ping') sendCtl({ type: 'pong', t: d.t });
     else if (d.type === 'pong' && isHost) {
         const rtt = Date.now() - num(d.t);
         document.getElementById('ping-display').innerText = `${rtt} ms`;
@@ -1019,7 +1507,7 @@ function setupConnEvents(c, isControl) {
     c.on('open', () => {
         if (!isControl) return;
         document.getElementById('leave-match-btn').style.display = 'flex';
-        if (!isHost) c.send({ type: 'hello', name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon });
+        if (!isHost) c.send({ type: 'hello', name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon, rrp: myRankedRp() });
         else { clearInterval(pingTimer); pingTimer = setInterval(() => sendCtl({ type: 'ping', t: Date.now() }), 2000); }
     });
     c.on('data', handleNetData);
@@ -1057,6 +1545,7 @@ function startMatch() {
     showOverlay('none'); clearTimeout(pointTimer);
     state.score1 = 0; state.score2 = 0; state.rally = 0; state.maxRally = 0; state.topKmh = 0;
     state.pointsPlayed = 0; state.deuceStart = -1; guestSlow = false; slowMoTimer = 0; hitStopTimer = 0; paused = false;
+    matchCounted = false;
     state.p1 = createBat(95, canvas.height / 2, matchConfig.p1Racket);
     state.p2 = createBat(canvas.width - 95, canvas.height / 2, matchConfig.p2Racket);
     updateScoreBox(0); applyNamesUI();
@@ -1568,6 +2057,8 @@ function onPointScored(scorer, x, y, color, pts = 1) {
 
 function handleGameOver(winner) {
     gameActive = false; applyNamesUI();
+    if (matchCounted) return;   // a duplicate 'gameover' message must not pay out twice
+    matchCounted = true;
     recordMatchStats(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally, state.topKmh);
     const iWon = (isHost && winner === 1) || (!isHost && winner === 2);
     sfx.play(iWon ? 'win' : 'lose');
@@ -1576,11 +2067,17 @@ function handleGameOver(winner) {
     const coinsEarned = (iWon ? 55 : 25) + Math.floor(state.maxRally * 1.5);
     profile.rp = Math.max(0, profile.rp + rpDelta);
     profile.coins += coinsEarned;
+    let rankedTxt = '';
+    if (isRankedMatch()) {
+        const d = applyRankedResult(iWon, state.topKmh, state.maxRally);
+        rankedTxt = ` • 🌍 ${d >= 0 ? '+' : ''}${d} RANKED`;
+    }
     saveProfile();
+    flushCloud(true);
 
     const wName = winner === 1 ? matchConfig.p1Name : matchConfig.p2Name;
     document.getElementById('winner-text').innerText = `${wName.toUpperCase()} WINS!`;
-    document.getElementById('match-subtitle').innerText = `${iWon ? '+' + rpDelta : rpDelta} RP • +${coinsEarned} 🪙 NEON COINS EARNED!`;
+    document.getElementById('match-subtitle').innerText = `${iWon ? '+' + rpDelta : rpDelta} RP • +${coinsEarned} 🪙 NEON COINS EARNED!${rankedTxt}`;
     document.getElementById('end-score-val').innerText = `${state.score1} - ${state.score2}`;
     document.getElementById('end-speed-val').innerText = `${state.topKmh} KM/H`;
     document.getElementById('end-rally-val').innerText = state.maxRally;

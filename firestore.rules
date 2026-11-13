@@ -1,0 +1,76 @@
+rules_version = '2';
+
+// Neon Pong: accounts, cloud saves and the global leaderboard.
+// Paste this whole file into Firebase console → Firestore Database → Rules → Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function isInt(v, lo, hi) { return v is int && v >= lo && v <= hi; }
+    function validName(n) { return n is string && n.size() >= 1 && n.size() <= 12; }
+
+    // ---------- Private cloud save: only the owner can read or write it ----------
+    function validProfile(d) {
+      return d.keys().hasOnly(['name', 'rp', 'coins', 'unlocked', 'trail', 'themeBg', 'themeNet',
+                               'bountyIdx', 'bountyProg', 'updatedAt'])
+        && validName(d.name)
+        && isInt(d.rp, 0, 100000)
+        && isInt(d.coins, 0, 10000000)
+        && d.unlocked is list && d.unlocked.size() <= 50
+        && d.trail is string && d.trail.size() <= 20
+        && d.themeBg is string && d.themeBg.size() <= 9
+        && d.themeNet is string && d.themeNet.size() <= 9
+        && isInt(d.bountyIdx, 0, 50)
+        && isInt(d.bountyProg, 0, 999)
+        && d.updatedAt == request.time;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid) && validProfile(request.resource.data);
+      // At most one save every 3 seconds (the game itself saves at most every 20 s).
+      allow update: if isOwner(uid) && validProfile(request.resource.data)
+        && request.time > resource.data.updatedAt + duration.value(3, 's');
+    }
+
+    // ---------- Public ranked stats: readable by signed-in players ----------
+    function validRanked(d) {
+      return d.keys().hasOnly(['name', 'rankedRp', 'wins', 'losses', 'matches', 'topKmh', 'bestRally', 'updatedAt'])
+        && validName(d.name)
+        && isInt(d.rankedRp, 0, 100000)
+        && isInt(d.wins, 0, 10000000)
+        && isInt(d.losses, 0, 10000000)
+        && d.matches == d.wins + d.losses
+        && isInt(d.topKmh, 0, 1000)
+        && isInt(d.bestRally, 0, 1000)
+        && d.updatedAt == request.time;
+    }
+
+    function rankedStep(n, o) {
+      let dm = n.matches - o.matches;
+      return dm >= 0 && dm <= 3
+        && n.wins >= o.wins && n.losses >= o.losses
+        && math.abs(n.rankedRp - o.rankedRp) <= 40 * dm;
+    }
+
+    match /leaderboard/{uid} {
+      // To make the board public (no sign-in needed to view), change this line to: allow get, list: if true;
+      allow get: if signedIn();
+      allow list: if signedIn() && request.query.limit <= 50;
+      allow delete: if isOwner(uid);
+
+      // First ranked write: 1 to 3 matches, at most 40 RP gained per match.
+      allow create: if isOwner(uid) && validRanked(request.resource.data)
+        && request.resource.data.matches >= 1 && request.resource.data.matches <= 3
+        && request.resource.data.rankedRp <= 100 + 40 * request.resource.data.matches;
+
+      // Growth caps: at most 3 new matches per write, at most 40 RP change per match,
+      // win/loss counts never go down, and writes are at least 10 s apart.
+      allow update: if isOwner(uid) && validRanked(request.resource.data)
+        && rankedStep(request.resource.data, resource.data)
+        && request.time > resource.data.updatedAt + duration.value(10, 's');
+    }
+
+  }
+}
