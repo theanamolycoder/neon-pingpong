@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEON PONG V3.5 // Pro Table Tennis Rules</title>
+    <title>NEON PONG V4 // Ultra-Smooth 2.5D Table Tennis</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
-            --bg-dark: #06070c;
-            --bg-panel: rgba(13, 16, 28, 0.90);
+            --bg-dark: #05060b;
+            --bg-panel: rgba(12, 15, 26, 0.92);
             --p1-color: #00f3ff;
             --p2-color: #ff0055;
             --smash-color: #ff7b00;
@@ -40,20 +40,20 @@
             min-height: 100vh;
             overflow: hidden;
             background-image: 
-                radial-gradient(circle at 12% 50%, rgba(0, 243, 255, 0.09), transparent 42%),
-                radial-gradient(circle at 88% 50%, rgba(255, 0, 85, 0.09), transparent 42%),
-                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+                radial-gradient(circle at 12% 50%, rgba(0, 243, 255, 0.08), transparent 45%),
+                radial-gradient(circle at 88% 50%, rgba(255, 0, 85, 0.08), transparent 45%),
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
         }
 
         #app-wrapper {
             width: 100%;
-            max-width: 920px;
+            max-width: 940px;
             padding: 8px 14px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         /* --- TOP UTILITY BAR --- */
@@ -61,30 +61,33 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .icon-btn {
             background: rgba(255, 255, 255, 0.05);
             color: var(--text);
             border: 1px solid var(--border);
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 8px;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
-            transition: 0.2s;
+            transition: 0.18s;
         }
 
-        .icon-btn:hover {
-            background: rgba(255, 255, 255, 0.12);
+        .icon-btn:hover, .icon-btn.active-lock {
+            background: rgba(0, 243, 255, 0.15);
             border-color: var(--p1-color);
+            color: #fff;
         }
 
-        /* --- PRO BROADCAST SCOREBOARD & TELEMETRY HUD --- */
+        /* --- BROADCAST SCOREBOARD & TELEMETRY HUD --- */
         #top-bar {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
@@ -92,9 +95,9 @@
             background: var(--bg-panel);
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 10px 20px;
+            padding: 8px 18px;
             backdrop-filter: blur(12px);
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         }
 
         .player-card {
@@ -110,11 +113,11 @@
 
         .score-box {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.3rem;
+            font-size: 2.2rem;
             font-weight: 900;
-            min-width: 58px;
+            min-width: 56px;
             text-align: center;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 10px;
             background: rgba(0, 0, 0, 0.5);
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -154,14 +157,14 @@
 
         .player-name {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 700;
             letter-spacing: 1px;
         }
 
         .serve-pill {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-weight: 700;
             padding: 2px 8px;
             border-radius: 12px;
@@ -173,20 +176,19 @@
         }
 
         .series-wins {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             font-weight: 600;
         }
 
-        /* Center Telemetry Box */
         .center-telemetry {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0 24px;
+            padding: 0 22px;
             border-left: 1px solid var(--border);
             border-right: 1px solid var(--border);
-            min-width: 250px;
+            min-width: 245px;
         }
 
         .telemetry-row {
@@ -197,7 +199,7 @@
 
         .speed-readout {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 900;
             color: var(--gold);
             text-shadow: 0 0 10px rgba(255, 204, 0, 0.35);
@@ -205,7 +207,7 @@
 
         .shot-badge {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 700;
             padding: 2px 9px;
             border-radius: 20px;
@@ -218,10 +220,10 @@
 
         .sub-meta {
             display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
+            gap: 10px;
+            font-size: 0.78rem;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 3px;
             font-weight: 600;
         }
 
@@ -229,13 +231,14 @@
         #game-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 850 / 520;
-            background: #070a14;
-            border: 2px solid #232a46;
+            aspect-ratio: 860 / 520;
+            background: #070b16;
+            border: 2px solid #232c4b;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 0 45px rgba(0, 243, 255, 0.12), 0 0 45px rgba(255, 0, 85, 0.08);
             cursor: none;
+            touch-action: none;
         }
 
         #game-container.menu-open {
@@ -253,15 +256,15 @@
             position: absolute;
             inset: 0;
             background: var(--bg-panel);
-            backdrop-filter: blur(9px);
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 22px;
+            padding: 20px;
             text-align: center;
             z-index: 20;
-            animation: fadeIn 0.22s ease;
+            animation: fadeIn 0.2s ease;
         }
 
         @keyframes fadeIn {
@@ -273,7 +276,7 @@
 
         h1.game-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.8rem;
+            font-size: 2.7rem;
             font-weight: 900;
             letter-spacing: 4px;
             text-transform: uppercase;
@@ -286,7 +289,7 @@
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 14px;
@@ -297,7 +300,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             width: 100%;
-            max-width: 680px;
+            max-width: 700px;
             margin-bottom: 14px;
         }
 
@@ -312,12 +315,12 @@
         .tip-card b {
             display: block;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             margin-bottom: 3px;
         }
 
         .tip-card span {
-            font-size: 0.76rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             line-height: 1.2;
             display: block;
@@ -327,13 +330,13 @@
             background: rgba(0, 0, 0, 0.45);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 14px 20px;
+            padding: 14px 18px;
             width: 100%;
-            max-width: 440px;
+            max-width: 450px;
             margin-bottom: 14px;
             display: flex;
             flex-direction: column;
-            gap: 11px;
+            gap: 10px;
         }
 
         .input-group {
@@ -344,7 +347,7 @@
         }
 
         .input-group label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
@@ -355,10 +358,10 @@
             background: #0b0e18;
             border: 1px solid #283050;
             color: var(--text);
-            padding: 9px 14px;
+            padding: 8px 12px;
             border-radius: 8px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             outline: none;
         }
 
@@ -385,10 +388,10 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 5px 12px;
+            padding: 5px 11px;
             border-radius: 6px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             cursor: pointer;
             transition: 0.2s;
         }
@@ -410,13 +413,13 @@
             background: linear-gradient(135deg, rgba(0, 243, 255, 0.18), rgba(0, 243, 255, 0.05));
             color: var(--text);
             border: 2px solid var(--p1-color);
-            padding: 11px 24px;
+            padding: 11px 22px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 700;
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.22s ease;
+            transition: all 0.2s ease;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
@@ -476,12 +479,12 @@
         .leaderboard-container {
             width: 100%;
             max-width: 620px;
-            max-height: 250px;
+            max-height: 240px;
             overflow-y: auto;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--border);
             border-radius: 12px;
-            margin: 14px 0;
+            margin: 12px 0;
         }
 
         table.lb-table {
@@ -493,7 +496,7 @@
         table.lb-table th {
             background: #121626;
             color: var(--text-muted);
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             text-transform: uppercase;
             padding: 10px 14px;
             position: sticky;
@@ -503,7 +506,7 @@
         table.lb-table td {
             padding: 9px 14px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 600;
         }
 
@@ -529,7 +532,7 @@
             gap: 10px;
             width: 100%;
             max-width: 540px;
-            margin: 14px 0 20px;
+            margin: 12px 0 18px;
         }
 
         .stat-box {
@@ -541,13 +544,13 @@
 
         .stat-box .val {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             color: var(--gold);
             font-weight: 700;
         }
 
         .stat-box .lbl {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             color: var(--text-muted);
         }
@@ -559,16 +562,16 @@
             width: 36px;
             height: 36px;
             animation: spin 1s linear infinite;
-            margin: 14px auto;
+            margin: 12px auto;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         @media (max-width: 720px) {
-            h1.game-title { font-size: 2rem; }
+            h1.game-title { font-size: 1.9rem; }
             .physics-tips { display: none; }
-            .center-telemetry { min-width: auto; padding: 0 10px; }
-            .score-box { font-size: 1.6rem; min-width: 42px; }
+            .center-telemetry { min-width: auto; padding: 0 8px; }
+            .score-box { font-size: 1.5rem; min-width: 40px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
@@ -582,13 +585,16 @@
             <button class="icon-btn" onclick="openLeaderboard()">
                 <span>🏆</span> Hall of Fame
             </button>
+            <button class="icon-btn" id="pointer-lock-btn" onclick="togglePointerLock()" title="Locks mouse directly to bat so cursor never leaves the table">
+                <span>🎯</span> <span id="lock-text">Lock Mouse: OFF</span>
+            </button>
             <button class="icon-btn" id="leave-match-btn" style="display:none;" onclick="returnToMenu()">
-                <span>⬅</span> Main Menu
+                <span>⬅</span> Menu
             </button>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
-            <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 6px;">
-                Serve: <b>Swing Bat Through Ball</b> or <b>Click / Space</b>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">
+                Serve: <b>Click / Space / Flick Forward</b>
             </span>
             <button class="icon-btn" id="sound-toggle-btn" onclick="toggleMute()">
                 <span id="sound-icon">🔊</span> <span id="sound-text">SFX: ON</span>
@@ -637,29 +643,29 @@
 
     <!-- Main Arena Container -->
     <div id="game-container" class="menu-open">
-        <canvas id="pongCanvas" width="850" height="520"></canvas>
+        <canvas id="pongCanvas" width="860" height="520"></canvas>
 
         <!-- 1. MAIN MENU OVERLAY -->
         <div id="menu-overlay" class="overlay">
-            <h1 class="game-title">Neon Pong V3.5</h1>
-            <p class="subtitle">2D Free-Motion Bat & Official Ping Pong Serve Rules</p>
+            <h1 class="game-title">Neon Pong V4</h1>
+            <p class="subtitle">Zero-Lag 1:1 Control • 2.5D Table Bounce • Real Serve Rules</p>
 
             <div class="physics-tips">
                 <div class="tip-card">
-                    <b style="color: var(--gold);">🏓 MANUAL SERVE</b>
-                    <span>Line up behind the ball & <b>swing forward</b> (or Click/Space) to serve!</span>
+                    <b style="color: var(--gold);">🏓 BALL-IN-HAND SERVE</b>
+                    <span>Aim with your bat, then <b>Click / Space / Flick Forward</b> to serve!</span>
                 </div>
                 <div class="tip-card">
                     <b style="color: var(--smash-color);">💥 POWER SMASH</b>
-                    <span>Swing your bat <b>forward</b> into the ball for a 150+ KM/H rocket!</span>
+                    <span>Swing forward into the ball for a high-arcing 150+ KM/H slam!</span>
                 </div>
                 <div class="tip-card">
                     <b style="color: var(--spin-color);">🌀 CURVE SPIN</b>
-                    <span>Slice your bat <b>up or down</b> on impact to curve the ball in mid-air!</span>
+                    <span>Brush your bat <b>up or down</b> on impact to curve the ball mid-flight!</span>
                 </div>
                 <div class="tip-card">
                     <b style="color: var(--p1-color);">🪶 DROP SHOT</b>
-                    <span>Pull your bat <b>backward</b> on impact to absorb speed & drop it short!</span>
+                    <span>Hold still or pull back gently on impact to drop the ball short!</span>
                 </div>
             </div>
 
@@ -670,7 +676,7 @@
                 </div>
 
                 <div class="settings-row">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">TARGET SCORE</label>
+                    <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">TARGET SCORE</label>
                     <div class="pill-selector" id="score-selector">
                         <button class="pill-btn active" onclick="setTargetScore(5, this)">5</button>
                         <button class="pill-btn" onclick="setTargetScore(7, this)">7</button>
@@ -679,25 +685,34 @@
                 </div>
 
                 <div class="settings-row">
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">DEUCE (WIN BY 2)</label>
+                    <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">DEUCE (WIN BY 2)</label>
                     <div class="pill-selector">
                         <button class="pill-btn active" id="wb2-on" onclick="setWinByTwo(true)">ON</button>
                         <button class="pill-btn" id="wb2-off" onclick="setWinByTwo(false)">OFF</button>
+                    </div>
+                </div>
+
+                <div class="settings-row">
+                    <label style="font-size: 0.78rem; color: var(--text-muted); font-weight: 700;">AI BOT SKILL</label>
+                    <div class="pill-selector" id="ai-selector">
+                        <button class="pill-btn" onclick="setAIDifficulty(0.65, this)">CASUAL</button>
+                        <button class="pill-btn active" onclick="setAIDifficulty(0.92, this)">PRO</button>
+                        <button class="pill-btn" onclick="setAIDifficulty(1.2, this)">MASTER</button>
                     </div>
                 </div>
             </div>
 
             <div class="btn-row">
                 <button id="create-btn" class="btn" onclick="createOnlineGame()">🔗 Invite Friend (2P Online)</button>
-                <button class="btn btn-secondary" onclick="startAIGame()">🤖 Practice vs Pro AI</button>
+                <button class="btn btn-secondary" onclick="startAIGame()">🤖 Play vs AI Bot</button>
             </div>
-            <div id="status-text" style="margin-top: 10px; color: var(--p2-color); font-weight: 700;"></div>
+            <div id="status-text" style="margin-top: 8px; color: var(--p2-color); font-weight: 700;"></div>
         </div>
 
-        <!-- 2. JOIN MATCH OVERLAY (Player 2 Invite Screen) -->
+        <!-- 2. JOIN MATCH OVERLAY -->
         <div id="join-overlay" class="overlay hidden">
             <h1 class="game-title" style="font-size: 2.3rem;">Challenger Invited</h1>
-            <p class="subtitle">2D Pro Physics Table Tennis Arena</p>
+            <p class="subtitle">2.5D Pro Physics Table Tennis Arena</p>
 
             <div class="panel-card">
                 <div class="input-group">
@@ -725,12 +740,12 @@
         <div id="connecting-overlay" class="overlay hidden">
             <h2 style="font-family: 'Orbitron', sans-serif;">Connecting to Host...</h2>
             <div class="loader"></div>
-            <p style="color: var(--text-muted);">Syncing 2D physics arena...</p>
+            <p style="color: var(--text-muted);">Syncing 2.5D physics arena...</p>
         </div>
 
         <!-- 5. GAME OVER OVERLAY -->
         <div id="gameover-overlay" class="overlay hidden">
-            <h1 id="winner-text" class="game-title" style="font-size: 2.6rem;">PLAYER 1 WINS!</h1>
+            <h1 id="winner-text" class="game-title" style="font-size: 2.5rem;">PLAYER 1 WINS!</h1>
             <p id="match-subtitle" class="subtitle" style="margin-bottom: 6px;">CHAMPIONSHIP VICTORY</p>
 
             <div class="stats-grid">
@@ -790,7 +805,7 @@
 
 <script>
 /** =========================================================================
- *  1. ACOUSTIC + ARCADE SYNTH SOUND ENGINE
+ *  1. ACOUSTIC "TOCK-PING" + ARCADE SYNTH SOUND ENGINE
  *  ========================================================================= */
 class SoundEngine {
     constructor() {
@@ -816,39 +831,46 @@ class SoundEngine {
         try {
             this.init();
             if (type === 'ui') {
-                this.tone(750, 1150, 0.04, 'sine', 0.08);
+                this.tone(780, 1180, 0.04, 'sine', 0.08);
             } 
             else if (type === 'serve') {
-                // Crisp table tennis serve strike
-                this.tone(420, 720, 0.09, 'triangle', 0.25);
-                this.noise(0.04, 0.12, 2400);
+                // Crisp racket serve contact ("Tock")
+                this.tone(460, 740, 0.07, 'triangle', 0.24);
+                this.noise(0.03, 0.12, 2600);
             }
             else if (type === 'paddle') {
-                const base = Math.min(360 + extra * 14, 850);
-                this.tone(base, base * 1.6, 0.075, 'triangle', 0.22);
-                this.noise(0.035, 0.1, 2200);
+                // Authentic rubber-blade "Tock" + subtle pitch rise with rally
+                const base = Math.min(390 + extra * 12, 820);
+                this.tone(base, base * 1.55, 0.065, 'triangle', 0.24);
+                this.noise(0.03, 0.11, 2400);
             } 
+            else if (type === 'table') {
+                // Iconic hollow celluloid ball bounce on table ("Ping!")
+                this.tone(680, 920, 0.045, 'sine', 0.14);
+                this.noise(0.018, 0.05, 3200);
+            }
             else if (type === 'smash') {
-                this.tone(180, 620, 0.14, 'sawtooth', 0.3);
-                this.tone(95, 40, 0.18, 'sine', 0.35);
-                this.noise(0.12, 0.25, 3200);
+                // Heavy kinetic whip + boom
+                this.tone(190, 680, 0.13, 'sawtooth', 0.28);
+                this.tone(95, 42, 0.17, 'sine', 0.34);
+                this.noise(0.11, 0.24, 3400);
             } 
             else if (type === 'spin') {
-                this.tone(420, 960, 0.11, 'sine', 0.2);
-                this.noise(0.08, 0.12, 1400);
+                this.tone(440, 980, 0.09, 'sine', 0.2);
+                this.noise(0.06, 0.11, 1600);
             } 
             else if (type === 'dropshot') {
-                this.tone(260, 180, 0.06, 'sine', 0.15);
+                this.tone(290, 210, 0.055, 'sine', 0.15);
             } 
             else if (type === 'wall') {
-                this.tone(210, 110, 0.06, 'sine', 0.16);
+                this.tone(240, 140, 0.05, 'sine', 0.14);
             } 
             else if (type === 'ready') {
-                this.tone(520, 660, 0.08, 'sine', 0.07);
+                this.tone(540, 680, 0.07, 'sine', 0.06);
             } 
             else if (type === 'score') {
-                this.tone(300, 55, 0.32, 'sawtooth', 0.2);
-                this.noise(0.22, 0.14, 650);
+                this.tone(310, 55, 0.3, 'sawtooth', 0.2);
+                this.noise(0.2, 0.14, 650);
             } 
             else if (type === 'win') {
                 [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
@@ -909,7 +931,7 @@ function toggleMute() {
 /** =========================================================================
  *  2. HALL OF FAME LEADERBOARD (localStorage)
  *  ========================================================================= */
-const LB_KEY = 'neon_pong_v3_leaderboard';
+const LB_KEY = 'neon_pong_v4_leaderboard';
 
 function getLeaderboard() {
     try { return JSON.parse(localStorage.getItem(LB_KEY)) || {}; }
@@ -985,39 +1007,40 @@ function escapeHtml(s) {
 }
 
 /** =========================================================================
- *  3. 2D BAT, BALL & OFFICIAL PING PONG SERVE CONFIGURATION
+ *  3. ARENA DIMENSIONS, ZERO-LAG BAT STATE & 2.5D BALL PHYSICS
  *  ========================================================================= */
 const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
 
-const NET_X = canvas.width / 2;         // 425
-const BAT_LENGTH = 86;
-const BAT_RADIUS = 9;
+const NET_X = canvas.width / 2;         // 430
+const BAT_LENGTH = 90;                  // Slightly wider sweet-spot for smoother play
+const BAT_RADIUS = 10;
 const BALL_RADIUS = 8.5;
 
-// Service Line X coordinates where the ball is placed for manual serves
-const P1_SERVE_X = 148;
-const P2_SERVE_X = canvas.width - 148;
-
 // 2D Movement Bounds for each player's half-court
-const P1_BOUNDS = { minX: 36, maxX: NET_X - 42, minY: 48, maxY: canvas.height - 48 };
-const P2_BOUNDS = { minX: NET_X + 42, maxX: canvas.width - 36, minY: 48, maxY: canvas.height - 48 };
+const P1_BOUNDS = { minX: 34, maxX: NET_X - 34, minY: 42, maxY: canvas.height - 42 };
+const P2_BOUNDS = { minX: NET_X + 34, maxX: canvas.width - 34, minY: 42, maxY: canvas.height - 42 };
 
 let peer = null;
 let conn = null;
 let isHost = true;
 let isAIMode = false;
+let aiSkill = 0.92;
 let gameActive = false;
 let animationId = null;
+let lastFrameTime = performance.now();
 let pendingRoomId = null;
 let pointTransitionTimer = null;
+
+// Raw Mouse Pointer position (for visual reticle when outside bounds)
+let rawPointer = { x: 95, y: 260, active: false };
 
 let matchConfig = {
     targetScore: 5,
     winByTwo: true,
     p1Name: 'Player 1',
     p2Name: 'Player 2',
-    initialServer: 1 // Alternates every game in a series
+    initialServer: 1
 };
 
 let seriesWins = { p1: 0, p2: 0 };
@@ -1028,18 +1051,22 @@ function createBat(x, y) {
         targetX: x, targetY: y,
         prevX: x, prevY: y,
         vx: 0, vy: 0,
+        velHistory: [], // 4-frame rolling velocity buffer for ultra-smooth swing detection
         angle: 0,
         hitCooldown: 0,
+        hitFlash: 0,
         trail: []
     };
 }
 
 const state = {
-    p1: createBat(82, canvas.height / 2),
-    p2: createBat(canvas.width - 82, canvas.height / 2),
+    p1: createBat(90, canvas.height / 2),
+    p2: createBat(canvas.width - 90, canvas.height / 2),
     ball: {
-        x: P1_SERVE_X,
+        x: 124,
         y: canvas.height / 2,
+        z: 16,          // 2.5D Height above table
+        vz: 0,          // Vertical velocity for table arc & bounce
         vx: 0,
         vy: 0,
         speed: 0,
@@ -1053,6 +1080,7 @@ const state = {
     maxRally: 0,
     topKmh: 0,
     waitingForServe: true,
+    serveLockTimer: 0,  // Prevents accidental instant serve right as point resets
     currentServer: 1,
     servesLeft: 2,
     aiServeTimer: 0,
@@ -1063,6 +1091,7 @@ const state = {
 let particles = [];
 let ballTrail = [];
 let shockwaves = [];
+let bounceMarks = []; // Glowing marks where the ball bounces on the table surface
 let screenShake = 0;
 
 const keys = {
@@ -1104,10 +1133,36 @@ function setWinByTwo(val) {
     updateRuleBadge();
 }
 
+function setAIDifficulty(val, btn) {
+    sfx.play('ui');
+    aiSkill = val;
+    document.querySelectorAll('#ai-selector .pill-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
 function updateRuleBadge() {
     const mode = matchConfig.winByTwo ? 'WIN BY 2' : 'SUDDEN DEATH';
     document.getElementById('rule-badge').innerText = `FIRST TO ${matchConfig.targetScore} (${mode})`;
 }
+
+// Optional Raw Pointer Lock Mode (Zero cursor-edge desync)
+function togglePointerLock() {
+    sfx.play('ui');
+    if (document.pointerLockElement === canvas) {
+        document.exitPointerLock();
+    } else if (gameActive) {
+        canvas.requestPointerLock();
+    } else {
+        alert("Start a match first, then click 'Lock Mouse' (or double-click the court) to lock your mouse directly to the bat!");
+    }
+}
+
+document.addEventListener('pointerlockchange', () => {
+    const locked = document.pointerLockElement === canvas;
+    const btn = document.getElementById('pointer-lock-btn');
+    document.getElementById('lock-text').innerText = locked ? 'Lock Mouse: ON (ESC)' : 'Lock Mouse: OFF';
+    btn.classList.toggle('active-lock', locked);
+});
 
 /** =========================================================================
  *  4. OFFICIAL TABLE TENNIS SERVICE ROTATION CALCULATOR
@@ -1118,13 +1173,11 @@ function computeServiceRotation(s1, s2) {
     const first = matchConfig.initialServer || 1;
     const second = first === 1 ? 2 : 1;
 
-    // Official Deuce Rule: When both players reach (targetScore - 1), service alternates every 1 point!
     const inDeuce = matchConfig.winByTwo && s1 >= (t - 1) && s2 >= (t - 1);
 
     if (inDeuce) {
         const pointsBeforeDeuce = (t - 1) * 2;
         const deucePoints = totalPoints - pointsBeforeDeuce;
-        // Determine who served first at Deuce
         const preDeuceBlocks = Math.floor(pointsBeforeDeuce / 2);
         const deuceStartServer = (preDeuceBlocks % 2 === 0) ? first : second;
         const deuceOtherServer = deuceStartServer === 1 ? 2 : 1;
@@ -1135,7 +1188,6 @@ function computeServiceRotation(s1, s2) {
             inDeuce: true
         };
     } else {
-        // Normal Play: Service alternates every 2 points
         const block = Math.floor(totalPoints / 2);
         const server = (block % 2 === 0) ? first : second;
         const servesLeft = 2 - (totalPoints % 2);
@@ -1261,12 +1313,29 @@ function setupConnEvents() {
             startMatch();
         } 
         else if (data.type === 'sync' && !isHost) {
+            // Smoothly reconcile Host state on Guest client
             state.p1.x = data.s.p1.x;
             state.p1.y = data.s.p1.y;
             state.p1.vx = data.s.p1.vx;
             state.p1.vy = data.s.p1.vy;
             state.p1.angle = data.s.p1.angle;
-            state.ball = data.s.ball;
+
+            // Smooth ball reconciliation for jitter-free client prediction
+            const dist = Math.hypot(data.s.ball.x - state.ball.x, data.s.ball.y - state.ball.y);
+            if (dist > 45 || data.s.wfs) {
+                state.ball = data.s.ball;
+            } else {
+                state.ball.x += (data.s.ball.x - state.ball.x) * 0.45;
+                state.ball.y += (data.s.ball.y - state.ball.y) * 0.45;
+                state.ball.z = data.s.ball.z;
+                state.ball.vx = data.s.ball.vx;
+                state.ball.vy = data.s.ball.vy;
+                state.ball.vz = data.s.ball.vz;
+                state.ball.spin = data.s.ball.spin;
+                state.ball.kmh = data.s.ball.kmh;
+                state.ball.shotType = data.s.ball.shotType;
+            }
+
             state.rally = data.s.rally;
             state.maxRally = data.s.maxRally;
             state.topKmh = data.s.topKmh;
@@ -1281,16 +1350,16 @@ function setupConnEvents() {
             state.p2.targetX = data.x;
             state.p2.targetY = data.y;
         } 
-        else if (data.type === 'quick_serve' && isHost) {
-            // Player 2 clicked or pressed Spacebar to execute a quick serve
+        else if (data.type === 'serve_strike' && isHost) {
             if (state.waitingForServe && state.currentServer === 2) {
-                executeQuickServeImpulse(2);
+                launchServeFromHand(2, data.vx, data.vy);
             }
         }
         else if (data.type === 'fx') {
             sfx.play(data.sfx, data.extra);
             if (data.particles) spawnParticles(data.particles.x, data.particles.y, data.particles.color, data.particles.count);
             if (data.ring) spawnShockwave(data.ring.x, data.ring.y, data.ring.color);
+            if (data.bounce) spawnBounceMark(data.bounce.x, data.bounce.y);
             if (data.shake) screenShake = data.shake;
             if (data.scoreUpdate) {
                 state.score1 = data.scoreUpdate.s1;
@@ -1334,6 +1403,7 @@ function setupConnEvents() {
 function returnToMenu() {
     sfx.play('ui');
     gameActive = false;
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
     clearTimeout(pointTransitionTimer);
     if (conn) { conn.close(); conn = null; }
     if (peer) { peer.destroy(); peer = null; }
@@ -1356,7 +1426,7 @@ function applyConfigUI() {
 }
 
 /** =========================================================================
- *  6. MATCH FLOW & MANUAL SERVE PREPARATION
+ *  6. MATCH FLOW & EFFORTLESS "BALL-IN-HAND" SERVE SYSTEM
  *  ========================================================================= */
 function startMatch() {
     showOverlay('none');
@@ -1366,17 +1436,18 @@ function startMatch() {
     state.rally = 0;
     state.maxRally = 0;
     state.topKmh = 0;
-    state.p1 = createBat(82, canvas.height / 2);
-    state.p2 = createBat(canvas.width - 82, canvas.height / 2);
+    state.p1 = createBat(95, canvas.height / 2);
+    state.p2 = createBat(canvas.width - 95, canvas.height / 2);
     updateScoreHUD(0);
 
     gameActive = true;
+    lastFrameTime = performance.now();
     if (animationId) cancelAnimationFrame(animationId);
 
     if (isHost) {
         preparePlayerServe();
     }
-    gameLoop();
+    gameLoop(lastFrameTime);
 }
 
 function resetMatch() {
@@ -1385,7 +1456,6 @@ function resetMatch() {
 }
 
 function requestRematch() {
-    // Alternate who serves first in the next game of the series!
     matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
     if (isAIMode) {
         resetMatch();
@@ -1403,20 +1473,16 @@ function preparePlayerServe() {
     state.currentServer = rot.server;
     state.servesLeft = rot.servesLeft;
     state.waitingForServe = true;
+    state.serveLockTimer = 18; // ~0.3s lock so residual swing from previous point doesn't auto-serve
     state.rally = 0;
 
-    // Position the ball at the designated server's baseline service spot
-    if (state.currentServer === 1) {
-        state.ball.x = P1_SERVE_X;
-        state.ball.y = Math.max(85, Math.min(canvas.height - 85, state.p1.y));
-    } else {
-        state.ball.x = P2_SERVE_X;
-        state.ball.y = Math.max(85, Math.min(canvas.height - 85, state.p2.y));
-        if (isAIMode) {
-            state.aiServeTimer = 55; // AI waits ~0.9s before serving
-        }
-    }
+    const srvBat = state.currentServer === 1 ? state.p1 : state.p2;
+    const dir = state.currentServer === 1 ? 1 : -1;
 
+    state.ball.x = srvBat.x + dir * 28;
+    state.ball.y = srvBat.y;
+    state.ball.z = 18;
+    state.ball.vz = 0;
     state.ball.vx = 0;
     state.ball.vy = 0;
     state.ball.speed = 0;
@@ -1424,10 +1490,14 @@ function preparePlayerServe() {
     state.ball.kmh = 0;
     state.ball.shotType = 'SERVE READY';
 
+    if (state.currentServer === 2 && isAIMode) {
+        state.aiServeTimer = 42;
+    }
+
     const sitText = getSituationBanner();
     if (sitText) {
         state.bannerText = sitText;
-        state.bannerTimer = 140;
+        state.bannerTimer = 130;
     }
 
     updateServeBadgesHUD();
@@ -1435,28 +1505,70 @@ function preparePlayerServe() {
     emitFX({ sfx: 'ready' });
 }
 
-function executeQuickServeImpulse(playerNum) {
+// Launches the ball cleanly from the server's hand/bat
+function launchServeFromHand(playerNum, customVx = null, customVy = null) {
     if (!isHost || !state.waitingForServe || state.currentServer !== playerNum) return;
 
     const bat = playerNum === 1 ? state.p1 : state.p2;
     const dir = playerNum === 1 ? 1 : -1;
+    const b = state.ball;
 
-    // Snap bat slightly behind the ball and apply a crisp forward stroke into the ball
-    bat.x = state.ball.x - dir * 18;
-    bat.y = state.ball.y;
-    bat.targetX = state.ball.x + dir * 35;
-    bat.targetY = state.ball.y;
-    bat.vx = dir * 11;
-    bat.vy = (Math.random() - 0.5) * 3;
-    checkBatCapsuleCollision(bat, playerNum === 1);
+    state.waitingForServe = false;
+    bat.hitCooldown = 14;
+    bat.hitFlash = 1.0;
+
+    const forwardSpeed = customVx !== null ? Math.abs(customVx) : Math.max(7.5, Math.abs(bat.vx) * 0.9);
+    const sliceSpeed = customVy !== null ? customVy : bat.vy;
+
+    let serveSpeed = Math.max(8.8, Math.min(14.8, 8.2 + forwardSpeed * 0.45));
+    let shotLabel = '🏓 SERVE';
+    let sfxName = 'serve';
+    let pColor = playerNum === 1 ? '#00f3ff' : '#ff0055';
+
+    if (forwardSpeed > 9.5) {
+        shotLabel = '⚡ POWER SERVE';
+        sfxName = 'smash';
+        pColor = '#ff7b00';
+    } else if (Math.abs(sliceSpeed) > 4.5) {
+        shotLabel = '🌀 SPIN SERVE';
+        sfxName = 'spin';
+        pColor = '#bc13fe';
+    }
+
+    // Aiming angle combines bat's vertical motion + slight cross-court guidance toward center
+    const centerBias = ((canvas.height / 2) - b.y) * 0.0012;
+    const rawAngle = (sliceSpeed * 0.025) - (bat.angle * 0.4 * dir) + centerBias;
+    const launchAngle = Math.max(-0.46, Math.min(0.46, rawAngle));
+
+    b.speed = serveSpeed;
+    b.vx = dir * serveSpeed * Math.cos(launchAngle);
+    b.vy = serveSpeed * Math.sin(launchAngle);
+    b.z = 22;
+    b.vz = 1.6; // Gentle upward arc over the net
+    b.spin = Math.max(-0.24, Math.min(0.24, sliceSpeed * 0.02));
+    b.kmh = Math.round(serveSpeed * 8.6);
+    b.shotType = shotLabel;
+    if (b.kmh > state.topKmh) state.topKmh = b.kmh;
+
+    state.rally = 1;
+    if (state.rally > state.maxRally) state.maxRally = 1;
+    updateTelemetryHUD();
+
+    emitFX({
+        sfx: sfxName,
+        extra: 1,
+        particles: { x: b.x, y: b.y, color: pColor, count: 22 },
+        ring: { x: b.x, y: b.y, color: pColor },
+        shake: 4
+    });
 }
 
-function triggerManualQuickServe() {
+function triggerManualServeAction() {
     if (!gameActive || !state.waitingForServe) return;
     if (isHost && state.currentServer === 1) {
-        executeQuickServeImpulse(1);
+        launchServeFromHand(1, 9.5, state.p1.vy);
     } else if (!isHost && state.currentServer === 2 && conn && conn.open) {
-        conn.send({ type: 'quick_serve' });
+        conn.send({ type: 'serve_strike', vx: 9.5, vy: state.p2.vy });
     }
 }
 
@@ -1473,10 +1585,10 @@ function getSituationBanner() {
 }
 
 /** =========================================================================
- *  7. 2D BAT MOTION, SERVE STRIKE & SUB-STEPPED PHYSICS ENGINE
+ *  7. ZERO-LAG 1:1 BAT KINEMATICS & 12X SWEPT CAPSULE PHYSICS
  *  ========================================================================= */
-function updateKeyboardInput() {
-    const moveSpeed = 10;
+function updateKeyboardInput(dt) {
+    const moveSpeed = 11 * dt;
     const myBat = isHost ? state.p1 : state.p2;
     const bounds = isHost ? P1_BOUNDS : P2_BOUNDS;
 
@@ -1489,82 +1601,85 @@ function updateKeyboardInput() {
     myBat.targetY = Math.max(bounds.minY, Math.min(bounds.maxY, myBat.targetY));
 }
 
-function updateAIBat() {
+function updateAIBat(dt) {
     if (!isAIMode) return;
     const ai = state.p2;
     const b = state.ball;
 
-    // 1. If AI is the current Server and waiting to serve:
     if (state.waitingForServe) {
         if (state.currentServer === 2) {
-            if (state.aiServeTimer > 15) {
-                // AI retreats behind the ball and lines up a serve position
-                state.aiServeTimer--;
-                ai.targetX += ((canvas.width - 75) - ai.targetX) * 0.18;
-                const aimY = (canvas.height / 2) + Math.sin(Date.now() * 0.004) * 110;
-                ai.targetY += (aimY - ai.targetY) * 0.12;
-            } else if (state.aiServeTimer > 0) {
-                // AI lunges forward through the ball to strike the serve!
-                state.aiServeTimer--;
-                ai.targetX = P2_SERVE_X - 45;
-            } else {
-                executeQuickServeImpulse(2);
+            state.aiServeTimer -= dt;
+            const targetY = (canvas.height / 2) + Math.sin(Date.now() * 0.005) * 115;
+            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.15 * dt;
+            ai.targetY += (targetY - ai.targetY) * 0.14 * dt;
+
+            if (state.aiServeTimer <= 0) {
+                launchServeFromHand(2, -10.5, (Math.random() - 0.5) * 6);
             }
         } else {
-            // AI waits in ready stance while Player 1 prepares to serve
-            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.1;
-            ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.1;
+            ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.12 * dt;
+            ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.12 * dt;
         }
-        ai.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, ai.targetX));
-        ai.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, ai.targetY));
         return;
     }
 
-    // 2. Normal Rally AI Logic
     if (b.vx > 0) {
-        const timeToReach = Math.max(1, (ai.x - b.x) / Math.max(2, b.vx));
-        const predictedY = b.y + b.vy * timeToReach * 0.85;
-        ai.targetY += (predictedY - ai.targetY) * 0.16;
+        const distToAI = Math.max(10, ai.x - b.x);
+        const timeToReach = distToAI / Math.max(3, b.vx);
+        const predictedY = b.y + (b.vy + b.spin * 10) * timeToReach * 0.88;
 
-        if (b.x > NET_X + 95 && b.x < ai.x - 10) {
-            ai.targetX += ((NET_X + 140) - ai.targetX) * 0.14;
+        ai.targetY += (predictedY - ai.targetY) * (0.19 * aiSkill) * dt;
+
+        // Step in to attack high balls or hold baseline against deep drives
+        if (b.x > NET_X + 75 && b.x < ai.x - 15 && b.speed < 13) {
+            ai.targetX += ((NET_X + 125) - ai.targetX) * (0.16 * aiSkill) * dt;
         } else {
-            ai.targetX += ((canvas.width - 115) - ai.targetX) * 0.1;
+            ai.targetX += ((canvas.width - 105) - ai.targetX) * 0.12 * dt;
         }
     } else {
-        ai.targetX += ((canvas.width - 95) - ai.targetX) * 0.08;
-        ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.08;
+        ai.targetX += ((canvas.width - 90) - ai.targetX) * 0.09 * dt;
+        ai.targetY += ((canvas.height / 2) - ai.targetY) * 0.09 * dt;
     }
 
     ai.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, ai.targetX));
     ai.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, ai.targetY));
 }
 
-function stepBatKinematics(bat, bounds, isPlayer1) {
+function stepBatKinematics(bat, bounds, isPlayer1, dt) {
     bat.prevX = bat.x;
     bat.prevY = bat.y;
 
-    const dx = bat.targetX - bat.x;
-    const dy = bat.targetY - bat.y;
-    const maxStep = 26;
+    // 1:1 Ultra-Responsive Tracking (0.85 blend eliminates micro-jitter while feeling instantaneous)
+    const blend = Math.min(1, 0.86 * dt);
+    bat.x = Math.max(bounds.minX, Math.min(bounds.maxX, bat.x + (bat.targetX - bat.x) * blend));
+    bat.y = Math.max(bounds.minY, Math.min(bounds.maxY, bat.y + (bat.targetY - bat.y) * blend));
 
-    const stepX = Math.max(-maxStep, Math.min(maxStep, dx * 0.55));
-    const stepY = Math.max(-maxStep, Math.min(maxStep, dy * 0.55));
+    // Record instantaneous frame delta into 4-frame rolling velocity buffer
+    const instVx = (bat.x - bat.prevX) / Math.max(0.5, dt);
+    const instVy = (bat.y - bat.prevY) / Math.max(0.5, dt);
 
-    bat.x = Math.max(bounds.minX, Math.min(bounds.maxX, bat.x + stepX));
-    bat.y = Math.max(bounds.minY, Math.min(bounds.maxY, bat.y + stepY));
+    bat.velHistory.push({ vx: instVx, vy: instVy });
+    if (bat.velHistory.length > 4) bat.velHistory.shift();
 
-    bat.vx = bat.x - bat.prevX;
-    bat.vy = bat.y - bat.prevY;
+    // Compute smooth, consistent hand swing velocity from rolling buffer
+    let sumVx = 0, sumVy = 0;
+    for (let i = 0; i < bat.velHistory.length; i++) {
+        sumVx += bat.velHistory[i].vx;
+        sumVy += bat.velHistory[i].vy;
+    }
+    bat.vx = Math.max(-28, Math.min(28, sumVx / bat.velHistory.length));
+    bat.vy = Math.max(-28, Math.min(28, sumVy / bat.velHistory.length));
 
+    // Natural wrist tilt angle
     const forwardVx = isPlayer1 ? bat.vx : -bat.vx;
-    const targetAngle = Math.max(-0.36, Math.min(0.36, (bat.vy * 0.015) - (forwardVx * 0.01) * (isPlayer1 ? 1 : -1)));
-    bat.angle += (targetAngle - bat.angle) * 0.35;
+    const targetAngle = Math.max(-0.34, Math.min(0.34, (bat.vy * 0.014) - (forwardVx * 0.009) * (isPlayer1 ? 1 : -1)));
+    bat.angle += (targetAngle - bat.angle) * Math.min(1, 0.4 * dt);
 
-    if (bat.hitCooldown > 0) bat.hitCooldown--;
+    if (bat.hitCooldown > 0) bat.hitCooldown = Math.max(0, bat.hitCooldown - dt);
+    if (bat.hitFlash > 0) bat.hitFlash = Math.max(0, bat.hitFlash - 0.08 * dt);
 
-    const swingSpeed = Math.hypot(bat.vx, bat.vy);
-    if (swingSpeed > 4) {
+    // Motion blur trail on fast swings
+    if (Math.hypot(bat.vx, bat.vy) > 4.5) {
         bat.trail.push({ x: bat.x, y: bat.y, angle: bat.angle });
         if (bat.trail.length > 5) bat.trail.shift();
     } else if (bat.trail.length > 0) {
@@ -1573,14 +1688,7 @@ function stepBatKinematics(bat, bounds, isPlayer1) {
 }
 
 function checkBatCapsuleCollision(bat, isPlayer1) {
-    if (bat.hitCooldown > 0) return false;
-
-    const playerNum = isPlayer1 ? 1 : 2;
-
-    // If waiting for a serve, ONLY the designated server can strike the ball!
-    if (state.waitingForServe && state.currentServer !== playerNum) {
-        return false;
-    }
+    if (bat.hitCooldown > 0 || state.waitingForServe) return false;
 
     const b = state.ball;
     const halfL = BAT_LENGTH / 2;
@@ -1609,71 +1717,72 @@ function checkBatCapsuleCollision(bat, isPlayer1) {
     const minDist = BALL_RADIUS + BAT_RADIUS;
 
     if (distSq <= minDist * minDist) {
+        const dirSign = isPlayer1 ? 1 : -1;
+        const dist = Math.sqrt(distSq) || 0.001;
+        const ny = distY / dist;
+
+        // Place ball cleanly in front of the striking blade face
+        b.x = closestX + dirSign * (minDist + 2);
+        b.y = closestY + ny * (minDist + 1);
+
         const forwardStroke = isPlayer1 ? bat.vx : -bat.vx;
         const sliceStroke = bat.vy;
+        const bladeOffset = (t - 0.5) * 2; // -1 (top edge) to +1 (bottom edge)
 
-        // During a serve, require the player to be swinging forward toward the net
-        // (so moving backward to get behind the ball never triggers a backward serve!)
-        if (state.waitingForServe && forwardStroke < 0.4) {
-            return false;
-        }
-
-        const wasServe = state.waitingForServe;
-        state.waitingForServe = false;
-
-        const dist = Math.sqrt(distSq) || 0.001;
-        const nx = distX / dist;
-        const ny = distY / dist;
-        const dirSign = isPlayer1 ? 1 : -1;
-
-        b.x = closestX + (Math.abs(nx) > 0.2 ? nx : dirSign) * (minDist + 2);
-        b.y = closestY + ny * (minDist + 2);
-
-        const bladeHitOffset = (t - 0.5) * 2;
-        const netProximity = isPlayer1 
-            ? (bat.x - P1_BOUNDS.minX) / (P1_BOUNDS.maxX - P1_BOUNDS.minX)
-            : (P2_BOUNDS.maxX - bat.x) / (P2_BOUNDS.maxX - P2_BOUNDS.minX);
-
-        let newSpeed = Math.max(7.6, b.speed * 0.84) + (forwardStroke * 0.68);
-        let shotLabel = wasServe ? '🏓 SERVE' : 'COUNTER DRIVE';
-        let soundToPlay = wasServe ? 'serve' : 'paddle';
+        // Base return speed + forward swing momentum transfer
+        let newSpeed = Math.max(8.2, b.speed * 0.85) + (forwardStroke * 0.62);
+        let shotLabel = 'COUNTER DRIVE';
+        let soundToPlay = 'paddle';
         let particleColor = isPlayer1 ? '#00f3ff' : '#ff0055';
         let createRing = false;
 
-        if (forwardStroke > 5.2) {
-            newSpeed = Math.max(newSpeed, (wasServe ? 12.2 : 13.5) + forwardStroke * 0.45);
-            shotLabel = wasServe ? '⚡ POWER SERVE' : '💥 POWER SMASH';
+        if (forwardStroke > 5.0) {
+            newSpeed = Math.max(newSpeed, 13.8 + forwardStroke * 0.42);
+            shotLabel = '💥 POWER SMASH';
             soundToPlay = 'smash';
             particleColor = '#ff7b00';
             createRing = true;
-        } else if (!wasServe && forwardStroke < -2.2) {
-            newSpeed = Math.max(5.6, b.speed * 0.58);
+            b.z = 26;
+            b.vz = 0.8; // Steep downward arc onto opponent's table
+        } else if (forwardStroke < -2.0) {
+            newSpeed = Math.max(6.2, b.speed * 0.62);
             shotLabel = '🪶 DROP SHOT';
             soundToPlay = 'dropshot';
             particleColor = '#00ff88';
+            b.z = 16;
+            b.vz = 2.2; // High soft loft over net
         } else if (Math.abs(sliceStroke) > 4.5) {
-            newSpeed = Math.max(8.8, newSpeed);
-            shotLabel = wasServe ? '🌀 SPIN SERVE' : '🌀 CURVE SPIN';
+            newSpeed = Math.max(9.4, newSpeed);
+            shotLabel = '🌀 CURVE SPIN';
             soundToPlay = 'spin';
             particleColor = '#bc13fe';
+            b.z = 20;
+            b.vz = 1.5;
+        } else {
+            b.z = 19;
+            b.vz = 1.5;
         }
 
-        b.speed = Math.max(wasServe ? 7.8 : 5.6, Math.min(19.2, newSpeed));
+        b.speed = Math.max(6.2, Math.min(18.8, newSpeed));
 
-        const maxAngle = wasServe ? 0.48 : (0.62 + netProximity * 0.16);
-        let bounceAngle = (bladeHitOffset * 0.45) + (sliceStroke * 0.024) + (bat.angle * 0.45 * dirSign);
-        bounceAngle = Math.max(-maxAngle, Math.min(maxAngle, bounceAngle));
+        // Smart Table-Guided Aiming: Blends player's blade angle/slice with subtle cross-court table guidance
+        const targetCenterAngle = Math.atan2((canvas.height / 2) - b.y, (isPlayer1 ? canvas.width - 100 : 100) - b.x);
+        const normalizedCenterAngle = isPlayer1 ? targetCenterAngle : (targetCenterAngle > 0 ? Math.PI - targetCenterAngle : -Math.PI - targetCenterAngle);
+
+        const playerInputAngle = (bladeOffset * 0.42) + (sliceStroke * 0.022) - (bat.angle * 0.38 * dirSign);
+        let bounceAngle = (playerInputAngle * 0.78) + (normalizedCenterAngle * 0.22);
+        bounceAngle = Math.max(-0.56, Math.min(0.56, bounceAngle));
 
         b.vx = dirSign * b.speed * Math.cos(bounceAngle);
         b.vy = b.speed * Math.sin(bounceAngle);
-
-        b.spin = Math.max(-0.28, Math.min(0.28, sliceStroke * 0.022));
+        b.spin = Math.max(-0.25, Math.min(0.25, sliceStroke * 0.02));
 
         b.kmh = Math.round(b.speed * 8.6);
         b.shotType = shotLabel;
         if (b.kmh > state.topKmh) state.topKmh = b.kmh;
 
         bat.hitCooldown = 12;
+        bat.hitFlash = 1.0;
         state.rally++;
         if (state.rally > state.maxRally) state.maxRally = state.rally;
         updateTelemetryHUD();
@@ -1686,9 +1795,9 @@ function checkBatCapsuleCollision(bat, isPlayer1) {
         emitFX({
             sfx: soundToPlay,
             extra: state.rally,
-            particles: { x: b.x, y: b.y, color: particleColor, count: createRing ? 32 : 18 },
+            particles: { x: b.x, y: b.y, color: particleColor, count: createRing ? 30 : 16 },
             ring: createRing ? { x: b.x, y: b.y, color: particleColor } : null,
-            shake: createRing ? 11 : Math.min(6, 2 + Math.floor(b.speed / 4))
+            shake: createRing ? 9 : Math.min(5, 1.5 + Math.floor(b.speed / 5))
         });
 
         return true;
@@ -1696,85 +1805,87 @@ function checkBatCapsuleCollision(bat, isPlayer1) {
     return false;
 }
 
-function updatePhysics() {
-    updateKeyboardInput();
+function updatePhysics(dt) {
+    updateKeyboardInput(dt);
 
+    // --- CLIENT-SIDE PREDICTION FOR PLAYER 2 ---
     if (!isHost) {
-        stepBatKinematics(state.p2, P2_BOUNDS, false);
+        stepBatKinematics(state.p2, P2_BOUNDS, false, dt);
         if (conn && conn.open) {
             conn.send({ type: 'move', x: state.p2.targetX, y: state.p2.targetY });
         }
+
+        // If Player 2 flicks their bat forward during their serve, trigger serve!
+        if (state.waitingForServe && state.currentServer === 2) {
+            state.ball.x = state.p2.x - 28;
+            state.ball.y = state.p2.y;
+            if (-state.p2.vx > 6.5 && conn && conn.open) {
+                conn.send({ type: 'serve_strike', vx: state.p2.vx, vy: state.p2.vy });
+            }
+        } else if (!state.waitingForServe && (state.ball.vx !== 0 || state.ball.vy !== 0)) {
+            // Predict ball trajectory locally between Host sync packets for 120fps smoothness!
+            state.ball.x += state.ball.vx * dt;
+            state.ball.y += state.ball.vy * dt;
+            state.ball.vy += state.ball.spin * dt;
+            state.ball.z = Math.max(0, state.ball.z + state.ball.vz * dt);
+            state.ball.vz -= 0.18 * dt;
+            if (state.ball.z <= 0 && state.ball.vz < 0) {
+                state.ball.z = 0;
+                state.ball.vz = -state.ball.vz * 0.72;
+            }
+        }
         return;
     }
 
-    if (isAIMode) updateAIBat();
-    if (state.bannerTimer > 0) state.bannerTimer--;
+    // --- HOST AUTHORITATIVE PHYSICS ---
+    if (isAIMode) updateAIBat(dt);
+    if (state.bannerTimer > 0) state.bannerTimer -= dt;
 
     const b = state.ball;
 
-    // --- MANUAL SERVE AIMING & STRIKE PHASE ---
+    // 1. BALL-IN-HAND SERVE STATE
     if (state.waitingForServe) {
-        const prevP1X = state.p1.x, prevP1Y = state.p1.y;
-        const prevP2X = state.p2.x, prevP2Y = state.p2.y;
+        if (state.serveLockTimer > 0) state.serveLockTimer -= dt;
 
-        stepBatKinematics(state.p1, P1_BOUNDS, true);
-        stepBatKinematics(state.p2, P2_BOUNDS, false);
+        // Restrict server to baseline service zone while holding the ball
+        const p1ServeBounds = { minX: P1_BOUNDS.minX, maxX: 230, minY: 60, maxY: canvas.height - 60 };
+        const p2ServeBounds = { minX: canvas.width - 230, maxX: P2_BOUNDS.maxX, minY: 60, maxY: canvas.height - 60 };
 
-        // While the Server's bat is behind the Service Line, the ball smoothly follows their Y position so they can aim where to serve from!
-        if (state.currentServer === 1) {
-            b.x = P1_SERVE_X;
-            if (state.p1.x < P1_SERVE_X - 18) {
-                const targetBallY = Math.max(75, Math.min(canvas.height - 75, state.p1.y));
-                b.y += (targetBallY - b.y) * 0.25;
-            }
-        } else {
-            b.x = P2_SERVE_X;
-            if (state.p2.x > P2_SERVE_X + 18) {
-                const targetBallY = Math.max(75, Math.min(canvas.height - 75, state.p2.y));
-                b.y += (targetBallY - b.y) * 0.25;
-            }
+        stepBatKinematics(state.p1, state.currentServer === 1 ? p1ServeBounds : P1_BOUNDS, true, dt);
+        stepBatKinematics(state.p2, state.currentServer === 2 ? p2ServeBounds : P2_BOUNDS, false, dt);
+
+        const srvBat = state.currentServer === 1 ? state.p1 : state.p2;
+        const dir = state.currentServer === 1 ? 1 : -1;
+
+        // Ball hovers smoothly right in front of the server's blade!
+        b.x = srvBat.x + dir * 28;
+        b.y = srvBat.y;
+        b.z = 16 + Math.sin(Date.now() * 0.01) * 3;
+
+        // If the server flicks their bat forward briskly, launch the serve automatically!
+        const forwardFlick = state.currentServer === 1 ? srvBat.vx : -srvBat.vx;
+        if (state.serveLockTimer <= 0 && forwardFlick > 6.5) {
+            launchServeFromHand(state.currentServer, srvBat.vx, srvBat.vy);
         }
-
-        // Sub-step the server's bat swing so even a fast serve flick never misses the stationary serve ball!
-        const SUBSTEPS = 6;
-        const endP1X = state.p1.x, endP1Y = state.p1.y;
-        const endP2X = state.p2.x, endP2Y = state.p2.y;
-
-        for (let step = 1; step <= SUBSTEPS; step++) {
-            const frac = step / SUBSTEPS;
-            if (state.currentServer === 1) {
-                state.p1.x = prevP1X + (endP1X - prevP1X) * frac;
-                state.p1.y = prevP1Y + (endP1Y - prevP1Y) * frac;
-                if (checkBatCapsuleCollision(state.p1, true)) break;
-            } else {
-                state.p2.x = prevP2X + (endP2X - prevP2X) * frac;
-                state.p2.y = prevP2Y + (endP2Y - prevP2Y) * frac;
-                if (checkBatCapsuleCollision(state.p2, false)) break;
-            }
-        }
-
-        state.p1.x = endP1X; state.p1.y = endP1Y;
-        state.p2.x = endP2X; state.p2.y = endP2Y;
 
         syncToClient();
         return;
     }
 
-    // If between points (brief pause after someone misses), just update bats
     if (b.vx === 0 && b.vy === 0) {
-        stepBatKinematics(state.p1, P1_BOUNDS, true);
-        stepBatKinematics(state.p2, P2_BOUNDS, false);
+        stepBatKinematics(state.p1, P1_BOUNDS, true, dt);
+        stepBatKinematics(state.p2, P2_BOUNDS, false, dt);
         syncToClient();
         return;
     }
 
-    // --- 6X SUB-STEPPED RALLY PHYSICS LOOP ---
-    const SUBSTEPS = 6;
+    // 2. 12X SWEPT-CAPSULE RALLY PHYSICS LOOP
+    const SUBSTEPS = 12;
     const prevP1X = state.p1.x, prevP1Y = state.p1.y;
     const prevP2X = state.p2.x, prevP2Y = state.p2.y;
 
-    stepBatKinematics(state.p1, P1_BOUNDS, true);
-    stepBatKinematics(state.p2, P2_BOUNDS, false);
+    stepBatKinematics(state.p1, P1_BOUNDS, true, dt);
+    stepBatKinematics(state.p2, P2_BOUNDS, false, dt);
 
     const endP1X = state.p1.x, endP1Y = state.p1.y;
     const endP2X = state.p2.x, endP2Y = state.p2.y;
@@ -1787,29 +1898,41 @@ function updatePhysics() {
         state.p2.x = prevP2X + (endP2X - prevP2X) * frac;
         state.p2.y = prevP2Y + (endP2Y - prevP2Y) * frac;
 
-        b.x += b.vx / SUBSTEPS;
-        b.y += b.vy / SUBSTEPS;
-        b.vy += b.spin / SUBSTEPS;
+        b.x += (b.vx * dt) / SUBSTEPS;
+        b.y += (b.vy * dt) / SUBSTEPS;
+        b.vy += (b.spin * dt) / SUBSTEPS;
 
-        if (b.y - BALL_RADIUS < 12) {
-            b.y = 12 + BALL_RADIUS;
+        // 2.5D Height & Table Bounce Physics
+        b.z += (b.vz * dt) / SUBSTEPS;
+        b.vz -= (0.18 * dt) / SUBSTEPS;
+        if (b.z <= 0 && b.vz < 0) {
+            b.z = 0;
+            b.vz = -b.vz * 0.74;
+            if (b.vz > 0.6 && b.x > 25 && b.x < canvas.width - 25) {
+                emitFX({ sfx: 'table', bounce: { x: b.x, y: b.y } });
+            }
+        }
+
+        // Sideline Bounce
+        if (b.y - BALL_RADIUS < 14) {
+            b.y = 14 + BALL_RADIUS;
             b.vy = -b.vy;
             b.spin *= 0.6;
-            emitFX({ sfx: 'wall', particles: { x: b.x, y: 14, color: '#ffffff', count: 8 } });
-        } else if (b.y + BALL_RADIUS > canvas.height - 12) {
-            b.y = canvas.height - 12 - BALL_RADIUS;
+            emitFX({ sfx: 'wall', particles: { x: b.x, y: 14, color: '#ffffff', count: 7 } });
+        } else if (b.y + BALL_RADIUS > canvas.height - 14) {
+            b.y = canvas.height - 14 - BALL_RADIUS;
             b.vy = -b.vy;
             b.spin *= 0.6;
-            emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#ffffff', count: 8 } });
+            emitFX({ sfx: 'wall', particles: { x: b.x, y: canvas.height - 14, color: '#ffffff', count: 7 } });
         }
 
         checkBatCapsuleCollision(state.p1, true);
         checkBatCapsuleCollision(state.p2, false);
     }
 
-    b.spin *= 0.993;
+    b.spin *= Math.pow(0.992, dt);
 
-    // Check Point Scored (Someone missed the ball!)
+    // Point Scored Check
     if (b.x < -12) {
         state.score2++;
         onPointScored(2, 14, b.y, '#ff0055');
@@ -1822,16 +1945,15 @@ function updatePhysics() {
 }
 
 function onPointScored(scorer, x, y, color) {
-    // Freeze ball briefly during point explosion, then hand ball to next server
     state.ball.vx = 0;
     state.ball.vy = 0;
     state.ball.x = -100;
 
     emitFX({
         sfx: 'score',
-        particles: { x, y, color, count: 45 },
+        particles: { x, y, color, count: 42 },
         ring: { x, y, color },
-        shake: 15,
+        shake: 13,
         scoreUpdate: { s1: state.score1, s2: state.score2, scorer }
     });
 
@@ -1842,7 +1964,7 @@ function onPointScored(scorer, x, y, color) {
     } else {
         pointTransitionTimer = setTimeout(() => {
             preparePlayerServe();
-        }, 700);
+        }, 620);
     }
 }
 
@@ -1862,6 +1984,7 @@ function finishMatch(winner) {
 
 function handleGameOver(winner) {
     gameActive = false;
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
     applyConfigUI();
     recordMatchStats(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally, state.topKmh);
 
@@ -1883,6 +2006,7 @@ function emitFX(payload) {
     sfx.play(payload.sfx, payload.extra);
     if (payload.particles) spawnParticles(payload.particles.x, payload.particles.y, payload.particles.color, payload.particles.count);
     if (payload.ring) spawnShockwave(payload.ring.x, payload.ring.y, payload.ring.color);
+    if (payload.bounce) spawnBounceMark(payload.bounce.x, payload.bounce.y);
     if (payload.shake) screenShake = payload.shake;
     if (payload.scoreUpdate) updateScoreHUD(payload.scoreUpdate.scorer);
     if (conn && conn.open) conn.send({ type: 'fx', ...payload });
@@ -1938,7 +2062,7 @@ function updateTelemetryHUD() {
 }
 
 /** =========================================================================
- *  8. PRO TABLE TENNIS ARENA & SERVE GUIDE RENDERER
+ *  8. 2.5D ARENA, SHADOWS, TABLE BOUNCE MARKS & SERVE AIMING ARC RENDERER
  *  ========================================================================= */
 function spawnParticles(x, y, color, count = 16) {
     for (let i = 0; i < count; i++) {
@@ -1956,7 +2080,11 @@ function spawnParticles(x, y, color, count = 16) {
 }
 
 function spawnShockwave(x, y, color) {
-    shockwaves.push({ x, y, radius: 10, maxRadius: 75, alpha: 0.9, color });
+    shockwaves.push({ x, y, radius: 10, maxRadius: 72, alpha: 0.9, color });
+}
+
+function spawnBounceMark(x, y) {
+    bounceMarks.push({ x, y, radius: 4, alpha: 0.75 });
 }
 
 function drawBatRacket(bat, color) {
@@ -1968,7 +2096,7 @@ function drawBatRacket(bat, color) {
         ctx.save();
         ctx.translate(t.x, t.y);
         ctx.rotate(-t.angle);
-        ctx.globalAlpha = ratio * 0.25;
+        ctx.globalAlpha = ratio * 0.24;
         ctx.strokeStyle = color;
         ctx.lineWidth = BAT_RADIUS * 2;
         ctx.lineCap = 'round';
@@ -1982,14 +2110,23 @@ function drawBatRacket(bat, color) {
     ctx.translate(bat.x, bat.y);
     ctx.rotate(-bat.angle);
 
-    ctx.fillStyle = '#252b48';
+    // Bat Shadow on Table
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.beginPath();
+    ctx.roundRect(-6, -BAT_LENGTH / 2 + 10, 12, BAT_LENGTH, 6);
+    ctx.fill();
+
+    // Handle Grip
+    ctx.fillStyle = '#252c4a';
     ctx.beginPath();
     ctx.roundRect(-5, BAT_LENGTH / 2 - 4, 10, 16, 4);
     ctx.fill();
 
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = color;
-    ctx.strokeStyle = color;
+    // Glowing Rubber Blade Face (flashes bright white on ball impact)
+    const activeColor = bat.hitFlash > 0.2 ? '#ffffff' : color;
+    ctx.shadowBlur = bat.hitFlash > 0.2 ? 28 : 18;
+    ctx.shadowColor = activeColor;
+    ctx.strokeStyle = activeColor;
     ctx.lineWidth = BAT_RADIUS * 2;
     ctx.lineCap = 'round';
     ctx.beginPath();
@@ -1997,6 +2134,7 @@ function drawBatRacket(bat, color) {
     ctx.lineTo(0, BAT_LENGTH / 2);
     ctx.stroke();
 
+    // Carbon Core Stripe
     ctx.shadowBlur = 0;
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 4;
@@ -2008,53 +2146,51 @@ function drawBatRacket(bat, color) {
     ctx.restore();
 }
 
-function drawServeVisualGuide() {
+function drawServeAimingGuide() {
     if (!state.waitingForServe) return;
 
     const b = state.ball;
     const isP1Serve = state.currentServer === 1;
+    const srvBat = isP1Serve ? state.p1 : state.p2;
     const srvColor = isP1Serve ? '#00f3ff' : '#ff0055';
     const srvName = isP1Serve ? matchConfig.p1Name : matchConfig.p2Name;
     const isMyTurn = (isHost && isP1Serve) || (!isHost && !isP1Serve);
-
-    const pulse = Math.sin(Date.now() * 0.008) * 5;
+    const dir = isP1Serve ? 1 : -1;
 
     ctx.save();
 
-    // Pulsing Target Ring around the Serve Ball
-    ctx.strokeStyle = srvColor;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
+    // Live Aiming Trajectory Line extending from the ball in hand!
+    const centerBias = ((canvas.height / 2) - b.y) * 0.0012;
+    const aimAngle = Math.max(-0.45, Math.min(0.45, (srvBat.vy * 0.02) - (srvBat.angle * 0.4 * dir) + centerBias));
+    const aimLen = 175;
+    const endX = b.x + dir * Math.cos(aimAngle) * aimLen;
+    const endY = b.y + Math.sin(aimAngle) * aimLen;
+
+    const grad = ctx.createLinearGradient(b.x, b.y, endX, endY);
+    grad.addColorStop(0, srvColor);
+    grad.addColorStop(1, 'transparent');
+
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 3;
+    ctx.setLineDash([7, 7]);
     ctx.beginPath();
-    ctx.arc(b.x, b.y, 24 + pulse, 0, Math.PI * 2);
+    ctx.moveTo(b.x, b.y);
+    ctx.lineTo(endX, endY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Direction Arrow showing swing direction
-    const arrowDir = isP1Serve ? 1 : -1;
-    ctx.fillStyle = srvColor;
-    ctx.font = '700 13px "Orbitron", sans-serif';
+    // Center Prompt Banner
+    ctx.font = '900 21px "Orbitron", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(isP1Serve ? "SWING ➔" : "⬅ SWING", b.x + arrowDir * 58, b.y + 4);
-
-    // Center Prompt Banner explaining whose serve it is
-    ctx.font = '900 22px "Orbitron", sans-serif';
     ctx.fillStyle = '#ffffff';
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 14;
     ctx.shadowColor = srvColor;
 
     const topPrompt = isMyTurn 
-        ? `🏓 YOUR SERVE! (${state.servesLeft} LEFT)` 
+        ? `🏓 YOUR SERVE (${state.servesLeft} LEFT) — CLICK, SPACE, OR FLICK FORWARD!` 
         : `⏳ ${srvName.toUpperCase()} IS SERVING (${state.servesLeft} LEFT)`;
-    ctx.fillText(topPrompt, NET_X, canvas.height / 2 - 14);
-
+    ctx.fillText(topPrompt, NET_X, 46);
     ctx.shadowBlur = 0;
-    ctx.font = '700 15px "Rajdhani", sans-serif';
-    ctx.fillStyle = '#a2add4';
-    const subPrompt = isMyTurn 
-        ? "Move behind the ball & SWING FORWARD through it (or Click / Press Space)" 
-        : "Get your bat in position to return the serve!";
-    ctx.fillText(subPrompt, NET_X, canvas.height / 2 + 14);
 
     ctx.restore();
 }
@@ -2068,20 +2204,20 @@ function drawArena() {
         if (screenShake < 0.4) screenShake = 0;
     }
 
-    // 1. Court Surface
-    ctx.fillStyle = '#070a14';
+    // 1. Pro Table Tennis Court Surface
+    ctx.fillStyle = '#070b16';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'rgba(0, 243, 255, 0.025)';
-    ctx.fillRect(14, 12, NET_X - 50, canvas.height - 24);
+    ctx.fillStyle = 'rgba(0, 243, 255, 0.028)';
+    ctx.fillRect(14, 14, NET_X - 48, canvas.height - 28);
 
-    ctx.fillStyle = 'rgba(255, 0, 85, 0.025)';
-    ctx.fillRect(NET_X + 36, 12, NET_X - 50, canvas.height - 24);
+    ctx.fillStyle = 'rgba(255, 0, 85, 0.028)';
+    ctx.fillRect(NET_X + 34, 14, NET_X - 48, canvas.height - 28);
 
     // Outer Table Boundary Lines
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
     ctx.lineWidth = 3;
-    ctx.strokeRect(14, 12, canvas.width - 28, canvas.height - 24);
+    ctx.strokeRect(14, 14, canvas.width - 28, canvas.height - 28);
 
     // Center Doubles Line
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
@@ -2092,22 +2228,38 @@ function drawArena() {
     ctx.stroke();
 
     // Kitchen / Net Reach Boundary Lines
-    ctx.strokeStyle = 'rgba(0, 243, 255, 0.15)';
+    ctx.strokeStyle = 'rgba(0, 243, 255, 0.14)';
     ctx.setLineDash([6, 8]);
     ctx.beginPath();
-    ctx.moveTo(P1_BOUNDS.maxX, 12);
-    ctx.lineTo(P1_BOUNDS.maxX, canvas.height - 12);
+    ctx.moveTo(P1_BOUNDS.maxX, 14);
+    ctx.lineTo(P1_BOUNDS.maxX, canvas.height - 14);
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(255, 0, 85, 0.15)';
+    ctx.strokeStyle = 'rgba(255, 0, 85, 0.14)';
     ctx.beginPath();
-    ctx.moveTo(P2_BOUNDS.minX, 12);
-    ctx.lineTo(P2_BOUNDS.minX, canvas.height - 12);
+    ctx.moveTo(P2_BOUNDS.minX, 14);
+    ctx.lineTo(P2_BOUNDS.minX, canvas.height - 14);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Center Net
-    ctx.strokeStyle = '#333d66';
+    // 2. Table Surface Bounce Marks ("Ping!" spots)
+    for (let i = bounceMarks.length - 1; i >= 0; i--) {
+        const bm = bounceMarks[i];
+        bm.radius += 0.6;
+        bm.alpha -= 0.022;
+        if (bm.alpha <= 0) { bounceMarks.splice(i, 1); continue; }
+        ctx.save();
+        ctx.globalAlpha = bm.alpha;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(bm.x, bm.y, bm.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    // Center Net & Posts
+    ctx.strokeStyle = '#384575';
     ctx.lineWidth = 4;
     ctx.setLineDash([12, 10]);
     ctx.beginPath();
@@ -2116,7 +2268,7 @@ function drawArena() {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 2. Shockwave Rings
+    // 3. Shockwave Rings
     for (let i = shockwaves.length - 1; i >= 0; i--) {
         const sw = shockwaves[i];
         sw.radius += 4.2;
@@ -2132,14 +2284,14 @@ function drawArena() {
         ctx.restore();
     }
 
-    // 3. Serve Guide Overlay
-    drawServeVisualGuide();
+    // 4. Serve Aiming Arc & Prompt
+    drawServeAimingGuide();
 
-    // 4. Ball Motion Trail
+    // 5. Ball Motion Trail
     const b = state.ball;
-    if (b.vx !== 0 || b.vy !== 0) {
-        ballTrail.push({ x: b.x, y: b.y });
-        if (ballTrail.length > 14) ballTrail.shift();
+    if (!state.waitingForServe && (b.vx !== 0 || b.vy !== 0)) {
+        ballTrail.push({ x: b.x, y: b.y - (b.z || 0) * 0.45 });
+        if (ballTrail.length > 13) ballTrail.shift();
     } else {
         ballTrail = [];
     }
@@ -2157,23 +2309,44 @@ function drawArena() {
         ctx.fill();
     }
 
-    // 5. Draw Both 2D Bats
+    // 6. Draw Both 2D Bats
     drawBatRacket(state.p1, '#00f3ff');
     drawBatRacket(state.p2, '#ff0055');
 
-    // 6. Draw Ball (with gentle bounce animation while waiting to be served)
+    // 7. Draw 2.5D Ball + Dynamic Table Shadow
     if (b.x > 0) {
-        const serveBounceOffset = state.waitingForServe ? Math.sin(Date.now() * 0.01) * 3.5 : 0;
+        const zHeight = Math.max(0, b.z || 0);
+        const visualY = b.y - zHeight * 0.45;
+        const visualRadius = BALL_RADIUS * (1 + zHeight * 0.007);
+
+        // Ground Shadow on Table Surface
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.beginPath();
+        ctx.ellipse(b.x, b.y + 6, BALL_RADIUS * 0.9, BALL_RADIUS * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Glowing Ball
         ctx.fillStyle = '#ffffff';
         ctx.shadowBlur = 18;
         ctx.shadowColor = b.shotType && b.shotType.includes('SMASH') ? '#ff7b00' : '#ffffff';
         ctx.beginPath();
-        ctx.arc(b.x, b.y + serveBounceOffset, BALL_RADIUS, 0, Math.PI * 2);
+        ctx.arc(b.x, visualY, visualRadius, 0, Math.PI * 2);
         ctx.fill();
         ctx.shadowBlur = 0;
     }
 
-    // 7. Sparks / Particles
+    // 8. Subtle Cursor Guide Dot (if unlocked mouse moves past the net boundary)
+    if (gameActive && rawPointer.active && document.pointerLockElement !== canvas) {
+        const myBat = isHost ? state.p1 : state.p2;
+        if (Math.hypot(rawPointer.x - myBat.x, rawPointer.y - myBat.y) > 24) {
+            ctx.fillStyle = isHost ? 'rgba(0, 243, 255, 0.45)' : 'rgba(255, 0, 85, 0.45)';
+            ctx.beginPath();
+            ctx.arc(rawPointer.x, rawPointer.y, 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // 9. Sparks / Particles
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
@@ -2186,103 +2359,76 @@ function drawArena() {
     }
     ctx.globalAlpha = 1;
 
-    // 8. Dynamic Callout Banner (DEUCE, MATCH POINT, RALLY)
+    // 10. Dynamic Callout Banner (DEUCE, MATCH POINT, RALLY)
     const banner = isHost ? (state.bannerTimer > 0 ? state.bannerText : '') : state.bannerText;
-    if (banner) {
+    if (banner && !state.waitingForServe) {
         ctx.font = '900 24px "Orbitron", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ffcc00';
         ctx.shadowBlur = 14;
         ctx.shadowColor = '#ffcc00';
-        ctx.fillText(banner, NET_X, 50);
+        ctx.fillText(banner, NET_X, 48);
         ctx.shadowBlur = 0;
     }
 
     ctx.restore();
 }
 
-function gameLoop() {
+function gameLoop(now) {
     if (!gameActive) return;
-    updatePhysics();
+    // Normalize delta-time to 60Hz (16.667ms) so 60Hz, 120Hz, and 144Hz monitors play at identical speed
+    const elapsed = now - lastFrameTime;
+    lastFrameTime = now;
+    const dt = Math.max(0.25, Math.min(2.2, elapsed / 16.667));
+
+    updatePhysics(dt);
     drawArena();
     animationId = requestAnimationFrame(gameLoop);
 }
 
 /** =========================================================================
- *  9. 2D POINTER (MOUSE, TOUCH) & QUICK-SERVE INPUT HANDLERS
+ *  9. ZERO-LAG MOUSE, POINTER LOCK, TOUCH & KEYBOARD INPUT HANDLERS
  *  ========================================================================= */
-function handlePointer2D(clientX, clientY) {
+function handleMouseMove(e) {
     if (!gameActive) return;
+    const myBat = isHost ? state.p1 : state.p2;
+    const bounds = isHost ? P1_BOUNDS : P2_BOUNDS;
+
+    if (document.pointerLockElement === canvas) {
+        // 1:1 Raw Hardware Delta (Impossible to desync at screen/net edges!)
+        myBat.targetX = Math.max(bounds.minX, Math.min(bounds.maxX, myBat.targetX + e.movementX));
+        myBat.targetY = Math.max(bounds.minY, Math.min(bounds.maxY, myBat.targetY + e.movementY));
+        return;
+    }
+
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    const canvasX = (clientX - rect.left) * scaleX;
-    const canvasY = (clientY - rect.top) * scaleY;
+    const canvasX = (e.clientX - rect.left) * scaleX;
+    const canvasY = (e.clientY - rect.top) * scaleY;
 
-    if (isHost) {
-        state.p1.targetX = Math.max(P1_BOUNDS.minX, Math.min(P1_BOUNDS.maxX, canvasX));
-        state.p1.targetY = Math.max(P1_BOUNDS.minY, Math.min(P1_BOUNDS.maxY, canvasY));
-    } else {
-        state.p2.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, canvasX));
-        state.p2.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, canvasY));
-    }
+    rawPointer.x = canvasX;
+    rawPointer.y = canvasY;
+    rawPointer.active = true;
+
+    myBat.targetX = Math.max(bounds.minX, Math.min(bounds.maxX, canvasX));
+    myBat.targetY = Math.max(bounds.minY, Math.min(bounds.maxY, canvasY));
 }
 
-window.addEventListener('mousemove', (e) => handlePointer2D(e.clientX, e.clientY));
+window.addEventListener('mousemove', handleMouseMove);
 
-canvas.addEventListener('mousedown', () => {
-    triggerManualQuickServe();
+canvas.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+        triggerManualServeAction();
+    }
 });
 
-canvas.addEventListener('touchmove', (e) => {
+canvas.addEventListener('dblclick', () => {
+    if (gameActive && document.pointerLockElement !== canvas) {
+        canvas.requestPointerLock();
+    }
+});
+
+canvas.addEventListener('touchstart', (e) => {
     e.preventDefault();
-    if (e.touches.length > 0) {
-        handlePointer2D(e.touches[0].clientX, e.touches[0].clientY);
-    }
-}, { passive: false });
-
-window.addEventListener('keydown', (e) => {
-    if (keys.hasOwnProperty(e.key)) keys[e.key] = true;
-    if (e.code === 'Space') {
-        e.preventDefault();
-        triggerManualQuickServe();
-    }
-});
-window.addEventListener('keyup', (e) => {
-    if (keys.hasOwnProperty(e.key)) keys[e.key] = false;
-});
-
-function showOverlay(id) {
-    const list = ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay'];
-    list.forEach(o => document.getElementById(o).classList.add('hidden'));
-    const container = document.getElementById('game-container');
-    if (id !== 'none') {
-        document.getElementById(id).classList.remove('hidden');
-        container.classList.add('menu-open');
-    } else {
-        container.classList.remove('menu-open');
-    }
-}
-
-function copyLink() {
-    sfx.play('ui');
-    const input = document.getElementById('invite-link-input');
-    input.select();
-    input.setSelectionRange(0, 99999);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(input.value);
-    } else {
-        document.execCommand('copy');
-    }
-    const btn = document.getElementById('copy-btn');
-    btn.innerText = "COPIED!";
-    btn.style.background = "#00ff88";
-    setTimeout(() => {
-        btn.innerText = "COPY LINK";
-        btn.style.background = "var(--p1-color)";
-    }, 2000);
-}
-</script>
-</body>
-</html>
