@@ -339,13 +339,12 @@
         .aim-btn:active { background: rgba(0,243,255,0.3); }
 
         /* ===== visual / UX polish ===== */
-        .overlay:not(.hidden) { animation: ovIn 0.22s ease-out; }
+        .overlay:not(.hidden) { animation: ovIn 0.14s ease-out; }
+        @media (pointer: coarse), (max-width: 820px) { .overlay { backdrop-filter: none !important; } }   /* full-screen blur is very slow on phones */
         @keyframes ovIn { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
         #menu-overlay { background: radial-gradient(ellipse at 50% 40%, rgba(3,5,12,0.78), rgba(3,5,12,0.93)); backdrop-filter: none; }
         body:not(.in-match) #top-bar { visibility: hidden; }   /* scoreboard is meaningless on the menu */
         :focus-visible { outline: 2px solid var(--hyper); outline-offset: 2px; border-radius: 8px; }
-        h1.game-title { background-size: 220% 100%; animation: titleShift 7s ease-in-out infinite alternate; }
-        @keyframes titleShift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
         .v-tag { font-size: 0.5em; vertical-align: super; letter-spacing: 1px; -webkit-text-fill-color: var(--hyper); color: var(--hyper); border: 1px solid var(--hyper); border-radius: 6px; padding: 0 5px; margin-left: 4px; }
         .btn { transition: transform 0.12s, background 0.15s, color 0.15s, box-shadow 0.15s; }
         .btn:hover { transform: translateY(-2px); } .btn:active { transform: scale(0.97); }
@@ -361,7 +360,7 @@
         .speed-readout.spd-mid { color: #ffe600; } .speed-readout.spd-hi { color: #ff7b00; text-shadow: 0 0 10px rgba(255,123,0,0.6); }
         .speed-readout.spd-max { color: #ff4d6d; text-shadow: 0 0 14px rgba(255,77,109,0.8); }
         .od-fill.od-ready { animation: odPulse 0.7s ease-in-out infinite alternate; }
-        @keyframes odPulse { from { filter: brightness(1); } to { filter: brightness(1.7) drop-shadow(0 0 6px currentColor); } }
+        @keyframes odPulse { from { opacity: 0.7; } to { opacity: 1; } }
         .nudge { position: relative; } .nudge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); animation: nudgePulse 1.3s infinite; }
         @keyframes nudgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
         .emote-wrap { position: relative; }
@@ -1965,31 +1964,35 @@ function applyEmote(playerNum, idx) {
     sfx.play('emote', idx);
 }
 
+const hudCache = {};
+function hudSet(id, prop, val) {   // guests call updateHUD ~60x/s from sync packets: skip every DOM write that would not change anything
+    const k = id + prop;
+    if (hudCache[k] === val) return;
+    hudCache[k] = val;
+    const el = document.getElementById(id);
+    if (prop === 'text') el.innerText = val; else if (prop === 'w') el.style.width = val; else if (prop === 'cls') el.className = val;
+    else if (prop === 'ready') el.classList.toggle('od-ready', val);
+    else if (prop === 'fire') el.classList.toggle('on-fire', val);
+    else if (prop === 'show') el.classList.toggle('hidden', !val);
+}
 function updateHUD() {
-    document.getElementById('rally-count').innerText = state.rally;
-    const kmhNow = state.ball.kmh || 0, spEl = document.getElementById('speed-kmh');
-    spEl.innerText = `${kmhNow} KM/H`;
-    spEl.className = 'speed-readout ' + (kmhNow >= 220 ? 'spd-max' : kmhNow >= 170 ? 'spd-hi' : kmhNow >= 120 ? 'spd-mid' : '');
-    document.getElementById('shot-type-badge').innerText = state.ball.shotType || 'READY';
+    hudSet('rally-count', 'text', String(state.rally));
+    const kmhNow = state.ball.kmh || 0;
+    hudSet('speed-kmh', 'text', `${kmhNow} KM/H`);
+    hudSet('speed-kmh', 'cls', 'speed-readout ' + (kmhNow >= 220 ? 'spd-max' : kmhNow >= 170 ? 'spd-hi' : kmhNow >= 120 ? 'spd-mid' : ''));
+    hudSet('shot-type-badge', 'text', state.ball.shotType || 'READY');
 
-    const od1 = Math.min(100, Math.round(state.p1.overdrive));
-    const od2 = Math.min(100, Math.round(state.p2.overdrive));
-    const bar1 = document.getElementById('od-p1'), bar2 = document.getElementById('od-p2');
-    bar1.style.width = `${od1}%`; bar2.style.width = `${od2}%`;
-    bar1.classList.toggle('od-ready', od1 >= 100);
-    bar2.classList.toggle('od-ready', od2 >= 100);
-    const r1 = RACKETS[state.p1.racket] || RACKETS.pro;
-    const r2 = RACKETS[state.p2.racket] || RACKETS.pro;
-    document.getElementById('od-text-p1').innerText = od1 >= 100 ? `🔥 ${r1.ult}!` : `OD: ${od1}%`;
-    document.getElementById('od-text-p2').innerText = od2 >= 100 ? `🔥 ${r2.ult}!` : `OD: ${od2}%`;
+    const od1 = Math.min(100, Math.round(state.p1.overdrive)), od2 = Math.min(100, Math.round(state.p2.overdrive));
+    hudSet('od-p1', 'w', `${od1}%`); hudSet('od-p2', 'w', `${od2}%`);
+    hudSet('od-p1', 'ready', od1 >= 100); hudSet('od-p2', 'ready', od2 >= 100);
+    const r1 = RACKETS[state.p1.racket] || RACKETS.pro, r2 = RACKETS[state.p2.racket] || RACKETS.pro;
+    hudSet('od-text-p1', 'text', od1 >= 100 ? `🔥 ${r1.ult}!` : `OD: ${od1}%`);
+    hudSet('od-text-p2', 'text', od2 >= 100 ? `🔥 ${r2.ult}!` : `OD: ${od2}%`);
+    hudSet('score-p1', 'fire', state.p1.streak >= 3); hudSet('score-p2', 'fire', state.p2.streak >= 3);
 
-    document.getElementById('score-p1').classList.toggle('on-fire', state.p1.streak >= 3);
-    document.getElementById('score-p2').classList.toggle('on-fire', state.p2.streak >= 3);
-
-    const p1Pill = document.getElementById('serve-pill-p1'), p2Pill = document.getElementById('serve-pill-p2');
     const lbl = `🏓 ${state.servesLeft} SERVE${state.servesLeft > 1 ? 'S' : ''}`;
-    if (state.currentServer === 1) { p1Pill.innerText = lbl; p1Pill.classList.remove('hidden'); p2Pill.classList.add('hidden'); }
-    else { p2Pill.innerText = lbl; p2Pill.classList.remove('hidden'); p1Pill.classList.add('hidden'); }
+    hudSet('serve-pill-p1', 'text', lbl); hudSet('serve-pill-p2', 'text', lbl);
+    hudSet('serve-pill-p1', 'show', state.currentServer === 1); hudSet('serve-pill-p2', 'show', state.currentServer !== 1);
 }
 
 function startAIGame() {
@@ -2294,7 +2297,7 @@ function startMatch() {
     state.p2 = createBat(W - 95, H / 2, matchConfig.p2Racket);
     state.p1.skin = matchConfig.p1Skin; state.p2.skin = matchConfig.p2Skin;
     setupPowers();
-    state.lastPointSlow = false; finishing = false;
+    state.lastPointSlow = false; finishing = false; for (const k in hudCache) delete hudCache[k];
     if (!isAIMode && matchConfig.ante > 0) showBanner(`💰 STAKES: 🪙${matchConfig.ante} EACH`, '#ffe600');
     updateScoreBox(0); applyNamesUI();
     gameActive = true; lastTime = performance.now();
@@ -2992,12 +2995,10 @@ function onPointScored(scorer, x, y, color, pts = 1) {
 const H2H_KEY = 'neon_pong_h2h';
 function readH2H() { try { const o = JSON.parse(store.get(H2H_KEY)); return (o && typeof o === 'object') ? o : {}; } catch { return {}; } }
 // The last point gets a moment: slow-mo "GAME!" banner and a big flash before the result screen.
-function finishMatchSoon(w) {
-    if (finishing) return;
-    finishing = true;
-    triggerLocalFX({ sfx: 'fever', banner: { txt: '🏆 GAME!', color: '#ffe600' }, flash: 0.5, shake: 18 });
-    slowMoTimer = 40;
-    setTimeout(() => { if (!finishing) return; finishing = false; if (gameActive) handleGameOver(w); }, 1250);
+function finishMatchSoon(w) {   // kept by name; the result screen now appears instantly so players can hit Rematch right away
+    finishing = false;
+    triggerLocalFX({ sfx: 'fever', flash: 0.4, shake: 14 });
+    handleGameOver(w);
 }
 function handleGameOver(winner) {
     gameActive = false; applyNamesUI(); updatePowerBar();
@@ -3136,10 +3137,13 @@ function drawBatRacket(bat, color) {
     ctx.fillStyle = '#252c4a';
     ctx.beginPath(); ctx.roundRect(-5, len / 2 - 4, 10, 16, 4); ctx.fill();
 
-    ctx.shadowBlur = isOverdrive ? 32 : 18;
-    ctx.shadowColor = bladeColor;
-    ctx.strokeStyle = bladeColor;
-    ctx.lineWidth = BAT_RADIUS * 2; ctx.lineCap = 'round';
+    ctx.strokeStyle = bladeColor; ctx.lineCap = 'round';
+    if (!view.lowFx) {   // glow = two wide translucent strokes (blur filters were the single biggest cost per frame)
+        ctx.globalAlpha = isOverdrive ? 0.26 : 0.15; ctx.lineWidth = BAT_RADIUS * 2 + (isOverdrive ? 22 : 15);
+        ctx.beginPath(); ctx.moveTo(0, -len / 2); ctx.lineTo(0, len / 2); ctx.stroke();
+        ctx.globalAlpha = 0.28; ctx.lineWidth = BAT_RADIUS * 2 + 7; ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    ctx.lineWidth = BAT_RADIUS * 2;
     ctx.beginPath(); ctx.moveTo(0, -len / 2); ctx.lineTo(0, len / 2); ctx.stroke();
 
     ctx.shadowBlur = 0;
@@ -3254,9 +3258,12 @@ function drawBall(b, vy, vr) {
     else if (skin === 'plasma') { const h = 100 + Math.sin(t * 0.0022) * 95; fill = `hsl(${h}, 100%, 78%)`; glow = `hsl(${h}, 100%, 55%)`; blur = 26; }
     if (b.isHyper) { fill = '#ffe600'; glow = '#ffe600'; blur = 28; }
     ctx.save();
-    ctx.fillStyle = fill; ctx.shadowBlur = blur; ctx.shadowColor = glow;
+    if (!view.lowFx) {
+        ctx.fillStyle = glow; ctx.globalAlpha = 0.16; ctx.beginPath(); ctx.arc(b.x, vy, vr * (blur > 22 ? 2.5 : 2.1), 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 0.3; ctx.beginPath(); ctx.arc(b.x, vy, vr * 1.5, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = fill;
     ctx.beginPath(); ctx.arc(b.x, vy, vr, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
     if (skin === 'solar') {
         ctx.strokeStyle = '#ffb300'; ctx.lineWidth = 2;
         for (let i = 0; i < 8; i++) { const a = t * 0.004 + i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(b.x + Math.cos(a) * (vr + 2), vy + Math.sin(a) * (vr + 2)); ctx.lineTo(b.x + Math.cos(a) * (vr + 7), vy + Math.sin(a) * (vr + 7)); ctx.stroke(); }
@@ -3331,10 +3338,6 @@ function getVignette() {
     return vigCache;
 }
 function drawAtmosphere() {
-    if (gameActive && state.rally >= 3 && !view.lowFx) {   // big faint rally counter behind the action
-        ctx.save(); ctx.globalAlpha = Math.min(0.1, 0.025 + state.rally * 0.004); ctx.fillStyle = '#ffffff'; ctx.font = '900 150px "Orbitron", sans-serif'; ctx.textAlign = 'center';
-        screenText(String(state.rally), view.dispW / 2, view.dispH / 2 + 52); ctx.restore();
-    }
     const slow = slowMoTimer > 0 || guestSlow;
     if (state.fogT > 0) {   // mist over the fogged player's half
         const mine = state.fogTo === (isHost ? 1 : 2);
@@ -3522,7 +3525,7 @@ function drawArena() {
         ctx.font = '900 18px "Orbitron", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = ft.color;
-        ctx.shadowBlur = 10; ctx.shadowColor = '#000';
+        ctx.shadowBlur = 4; ctx.shadowColor = '#000';
         textAt(ft.txt, ft.x, ft.y, ft.dy);
         ctx.restore();
     }
@@ -3822,7 +3825,7 @@ function setLowFx(on) {
 // Glow (shadowBlur) is the most expensive thing on weak phones: LITE mode switches it off.
 try {
     const sb = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
-    if (sb && sb.set) Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return sb.get.call(this); }, set(v) { sb.set.call(this, view.lowFx ? 0 : v); } });
+    if (sb && sb.set) Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return sb.get.call(this); }, set(v) { sb.set.call(this, view.lowFx ? 0 : Math.min(v, 8)); } });
 } catch {}
 const perf = { n: 0, acc: 0 };
 function perfSample(ms) {
@@ -4061,7 +4064,7 @@ function loadPrefs() {
 ['selectRacket', 'setTargetScore', 'setWinByTwo', 'setAIDifficulty', 'setAnte'].forEach(n => { const f = window[n]; window[n] = function (...a) { const r = f.apply(this, a); savePrefs(); return r; }; });
 
 // Title-screen demo: a lazy rally plays on the court behind the menu (stops the moment a match starts).
-let attractId = 0;
+let attractId = 0, attractFlip = false;
 function startAttract() { if (attractId || gameActive) return; if (reduceMotion) { demoFrame(0); drawArena(); return; } attractId = requestAnimationFrame(attractLoop); }
 function demoFrame(t) {
     const b = state.ball, k = t / 1000;
@@ -4076,7 +4079,8 @@ function demoFrame(t) {
 function attractLoop(now) {
     attractId = 0;
     if (gameActive || document.hidden || !isOpen('menu-overlay')) return;
-    try { demoFrame(now); drawArena(); } catch {}
+    attractFlip = !attractFlip;
+    if (attractFlip) { try { demoFrame(now); drawArena(); } catch {} }   // 30 fps is plenty behind a menu
     attractId = requestAnimationFrame(attractLoop);
 }
 

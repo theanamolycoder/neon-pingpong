@@ -1,5 +1,11 @@
 # Changelog
 
+## v9.0.1 (performance hotfix)
+- Game-over screen now appears instantly (a 1.25 s "GAME!" delay was removed) so Rematch / Play again can be hit straight away.
+- Drawing is ~7x cheaper per frame: bat and ball glows are layered strokes instead of blur filters; remaining blurs are capped.
+- Online guests no longer touch the page for every network packet (HUD only updates when a value changes).
+- Removed repainting animations (title shimmer, overdrive filter pulse), the big rally ghost number and full-screen blur on phones; title-screen demo runs at 30 fps.
+
 ## v9.0.0
 
 ### Gameplay
