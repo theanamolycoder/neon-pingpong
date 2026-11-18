@@ -13,14 +13,22 @@ service cloud.firestore {
     // ---------- Private cloud save: only the owner can read or write it ----------
     function validProfile(d) {
       return d.keys().hasOnly(['name', 'rp', 'coins', 'unlocked', 'trail', 'themeBg', 'themeNet',
-                               'bountyIdx', 'bountyProg', 'updatedAt'])
+                               'ball', 'netFx', 'skin', 'lastDay', 'streak', 'powers', 'loadout', 'bountyIdx', 'bountyProg', 'updatedAt'])
         && validName(d.name)
         && isInt(d.rp, 0, 100000)
         && isInt(d.coins, 0, 10000000)
-        && d.unlocked is list && d.unlocked.size() <= 50
+        && d.unlocked is list && d.unlocked.size() <= 60
         && d.trail is string && d.trail.size() <= 20
         && d.themeBg is string && d.themeBg.size() <= 9
         && d.themeNet is string && d.themeNet.size() <= 9
+        // Fields added in v9 are optional, so saves from older cached copies of the game keep working during a rollout.
+        && (!('ball' in d) || (d.ball is string && d.ball.size() <= 20))
+        && (!('netFx' in d) || (d.netFx is string && d.netFx.size() <= 20))
+        && (!('skin' in d) || (d.skin is string && d.skin.size() <= 20))
+        && (!('lastDay' in d) || (d.lastDay is string && d.lastDay.size() <= 10))
+        && (!('streak' in d) || isInt(d.streak, 0, 100000))
+        && (!('powers' in d) || (d.powers is map && d.powers.size() <= 12))
+        && (!('loadout' in d) || (d.loadout is list && d.loadout.size() <= 2))
         && isInt(d.bountyIdx, 0, 50)
         && isInt(d.bountyProg, 0, 999)
         && d.updatedAt == request.time;

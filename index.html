@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEON PONG V8 // Cross-Play Apex Arena</title>
+    <title>NEON PONG V9 // Cross-Play Apex Arena</title>
     <meta name="theme-color" content="#030408">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,7 +18,7 @@
         :root {
             --bg-dark: #030408; --bg-panel: rgba(10, 14, 26, 0.94);
             --p1: #00f3ff; --p2: #ff0055; --smash: #ff7b00; --hyper: #ffe600;
-            --spin: #bc13fe; --success: #00ff88; --text: #ffffff; --muted: #8b95b8;
+            --spin: #00e5c0; --success: #00ff88; --text: #ffffff; --muted: #8b95b8;
             --border: rgba(255, 255, 255, 0.14);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
@@ -130,7 +130,7 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .subtitle { color: var(--muted); font-size: 0.78rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
-        .racket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; width: 100%; max-width: 720px; margin-bottom: 8px; }
+        .racket-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; width: 100%; max-width: 720px; margin-bottom: 8px; }
         .racket-card {
             background: rgba(255,255,255,0.03); border: 2px solid var(--border); border-radius: 10px;
             padding: 7px; cursor: pointer; transition: 0.18s; text-align: left;
@@ -332,6 +332,106 @@
             .score-box { font-size: 1.1rem; }
             #mobile-deck { height: 62px; }
         }
+
+        #aim-pad { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); z-index: 25; display: flex; gap: 10px; }
+        .aim-btn { background: rgba(0,0,0,0.7); color: #fff; border: 2px solid var(--p1); border-radius: 12px; min-width: 64px; height: 46px; font-size: 1.2rem; font-weight: 800; cursor: pointer; touch-action: manipulation; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; box-shadow: 0 0 14px rgba(0,243,255,.35); }
+        .aim-btn small { font-size: 0.55rem; letter-spacing: 1px; color: var(--muted); }
+        .aim-btn:active { background: rgba(0,243,255,0.3); }
+
+        /* ===== visual / UX polish ===== */
+        .overlay:not(.hidden) { animation: ovIn 0.22s ease-out; }
+        @keyframes ovIn { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+        #menu-overlay { background: radial-gradient(ellipse at 50% 40%, rgba(3,5,12,0.78), rgba(3,5,12,0.93)); backdrop-filter: none; }
+        body:not(.in-match) #top-bar { visibility: hidden; }   /* scoreboard is meaningless on the menu */
+        :focus-visible { outline: 2px solid var(--hyper); outline-offset: 2px; border-radius: 8px; }
+        h1.game-title { background-size: 220% 100%; animation: titleShift 7s ease-in-out infinite alternate; }
+        @keyframes titleShift { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+        .v-tag { font-size: 0.5em; vertical-align: super; letter-spacing: 1px; -webkit-text-fill-color: var(--hyper); color: var(--hyper); border: 1px solid var(--hyper); border-radius: 6px; padding: 0 5px; margin-left: 4px; }
+        .btn { transition: transform 0.12s, background 0.15s, color 0.15s, box-shadow 0.15s; }
+        .btn:hover { transform: translateY(-2px); } .btn:active { transform: scale(0.97); }
+        .icon-btn:hover { transform: translateY(-1px); } .icon-btn:active { transform: scale(0.95); }
+        .racket-card { --rc: var(--p1); position: relative; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+        .racket-card:hover { transform: translateY(-2px); }
+        .racket-card.selected { border-color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, rgba(0,0,0,0.5)); box-shadow: 0 0 16px color-mix(in srgb, var(--rc) 40%, transparent); }
+        .racket-card .r-desc { display: none; margin-top: 3px; } .racket-card.selected .r-desc { display: block !important; }
+        .r-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-top: 5px; }
+        .r-stats div { font-size: 0.5rem; color: var(--muted); letter-spacing: 0.5px; text-align: left; }
+        .r-stats i { display: block; height: 4px; border-radius: 3px; background: rgba(255,255,255,0.1); margin-top: 2px; overflow: hidden; }
+        .r-stats i b { display: block; height: 100%; border-radius: 3px; background: var(--rc); }
+        .speed-readout.spd-mid { color: #ffe600; } .speed-readout.spd-hi { color: #ff7b00; text-shadow: 0 0 10px rgba(255,123,0,0.6); }
+        .speed-readout.spd-max { color: #ff4d6d; text-shadow: 0 0 14px rgba(255,77,109,0.8); }
+        .od-fill.od-ready { animation: odPulse 0.7s ease-in-out infinite alternate; }
+        @keyframes odPulse { from { filter: brightness(1); } to { filter: brightness(1.7) drop-shadow(0 0 6px currentColor); } }
+        .nudge { position: relative; } .nudge::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); animation: nudgePulse 1.3s infinite; }
+        @keyframes nudgePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+        .emote-wrap { position: relative; }
+        #emote-pop { position: fixed; z-index: 90;   /* fixed: the header bar scrolls, so an absolute popover would be clipped */ display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: rgba(5,8,16,0.97); border: 1px solid var(--border); border-radius: 14px; padding: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); animation: ovIn 0.15s ease-out; }
+        .em-btn { position: relative; width: 44px; height: 44px; font-size: 1.4rem; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: transform 0.1s; }
+        .em-btn:hover { transform: scale(1.12); border-color: var(--p1); } .em-btn small { position: absolute; right: 3px; bottom: 1px; font-size: 0.5rem; color: var(--muted); font-family: 'Orbitron', sans-serif; }
+        .cf { position: absolute; top: -12px; width: 8px; height: 14px; opacity: 0; z-index: 1; pointer-events: none; animation: cfFall linear forwards; }
+        @keyframes cfFall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); } 100% { opacity: 0; transform: translateY(105vh) rotate(720deg); } }
+        #toast { animation: toastIn 0.2s ease-out; backdrop-filter: none; }
+        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @media (prefers-reduced-motion: reduce) { .overlay:not(.hidden), h1.game-title, .nudge::after, .od-fill.od-ready, #toast { animation: none !important; } .cf { display: none; } }
+        /* keyboard shortcuts */
+        kbd, .kbd { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; font-weight: 700; color: #fff; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.28); border-bottom-width: 2px; border-radius: 5px; padding: 1px 5px; margin: 0 1px; }
+        .icon-btn .kbd { margin-left: 3px; opacity: 0.8; }
+        .keys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 640px; margin: 6px 0; }
+        .keys-col { background: rgba(0,0,0,0.55); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; text-align: left; }
+        .keys-col h3 { font-family: 'Orbitron', sans-serif; font-size: 0.72rem; color: var(--p1); margin-bottom: 4px; }
+        .keys-col > div { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.78rem; color: var(--muted); border-top: 1px solid rgba(255,255,255,0.05); }
+        .keys-col > div > span { color: #fff; white-space: nowrap; }
+        #key-hint { position: absolute; left: 8px; bottom: 5px; z-index: 12; font-size: 0.62rem; color: var(--muted); opacity: 0.8; pointer-events: none; display: none; }
+        body.in-match #key-hint { display: block; }
+        #pause-badge { position: absolute; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: var(--hyper); background: rgba(0,0,0,0.45); pointer-events: none; text-shadow: 0 0 18px rgba(255,230,0,0.6); }
+        #pause-badge small { font-size: 0.8rem; color: #fff; margin-top: 6px; }
+        @media (pointer: coarse) { .kbd, #key-hint { display: none !important; } #aim-pad { bottom: 10px; } }
+        @media (max-width: 560px) { .keys-grid { grid-template-columns: 1fr; } .icon-btn .kbd { display: none; } }
+        /* daily streak */
+        .daily-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: 100%; max-width: 560px; margin: 8px 0; }
+        .dday { position: relative; background: rgba(0,0,0,0.55); border: 1px solid var(--border); border-radius: 10px; padding: 6px 2px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .dday .dnum { font-family: 'Orbitron', sans-serif; font-size: 0.55rem; color: var(--muted); }
+        .dday .dico { font-size: 1.15rem; } .dday .damt { font-size: 0.7rem; font-weight: 800; color: var(--hyper); line-height: 1.1; }
+        .dday .damt small { font-size: 0.5rem; color: var(--success); }
+        .dday.done { opacity: 0.55; border-color: var(--success); } .dday .dtick { position: absolute; top: 2px; right: 4px; color: var(--success); font-size: 0.7rem; font-weight: 900; }
+        .dday.today { border-color: var(--hyper); box-shadow: 0 0 16px rgba(255,230,0,.55); animation: dailyPulse 1.2s infinite alternate; }
+        .dday.big { background: linear-gradient(160deg, rgba(255,230,0,.14), rgba(0,0,0,.6)); }
+        @keyframes dailyPulse { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+        @media (max-width: 520px) { .daily-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (prefers-reduced-motion: reduce) { .dday.today { animation: none; } }
+        /* packs + locker */
+        .pw-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        #power-bar { position: absolute; left: 8px; bottom: 24px; z-index: 14; display: flex; gap: 6px; align-items: center; }
+        .pw-btn { background: rgba(0,0,0,0.72); color: #fff; border: 2px solid var(--pc, var(--p1)); border-radius: 12px; min-width: 52px; height: 46px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; touch-action: manipulation; box-shadow: 0 0 12px color-mix(in srgb, var(--pc, #00f3ff) 35%, transparent); }
+        .pw-btn .pi { font-size: 1.25rem; } .pw-btn .pc { font-size: 0.62rem; color: var(--muted); display: flex; flex-direction: column; line-height: 1.1; align-items: center; }
+        .pw-btn.used { opacity: 0.35; filter: grayscale(1); } .pw-btn:active { background: rgba(255,255,255,0.18); }
+        #pw-opp { font-size: 0.62rem; color: var(--muted); background: rgba(0,0,0,0.5); border-radius: 8px; padding: 2px 6px; }
+        .pack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 560px; margin: 6px 0; }
+        .pack-card { background: linear-gradient(160deg, rgba(0,0,0,0.6), rgba(255,255,255,0.04)); border: 1px solid var(--pc, var(--border)); border-radius: 12px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 3px; box-shadow: 0 0 14px color-mix(in srgb, var(--pc) 28%, transparent); }
+        .pack-card.poor { opacity: 0.6; }
+        .pack-ico { font-size: 1.9rem; line-height: 1; }
+        .pack-name { font-family: 'Orbitron', sans-serif; font-size: 0.72rem; color: var(--pc); }
+        .pack-blurb { font-size: 0.64rem; color: var(--muted); text-align: center; min-height: 2.2em; }
+        .locker-tabs { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 4px; }
+        .icon-btn.tab-on { background: rgba(0,243,255,0.22); border-color: var(--p1); }
+        .shop-item.locked { opacity: 0.78; }
+        .icon-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .pack-cards { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 10px 0; perspective: 900px; }
+        .pcard { width: 140px; height: 190px; }
+        .pcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(180deg); animation: pcardFlip 0.7s var(--d, 0.4s) forwards cubic-bezier(.2,.8,.2,1); }
+        .pcard-back, .pcard-front { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; border: 2px solid var(--rc); }
+        .pcard-back { background: repeating-linear-gradient(45deg, #0a1020, #0a1020 8px, #101a33 8px, #101a33 16px); font-size: 2.4rem; color: var(--rc); transform: rotateY(0deg); }
+        .pcard-front { background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--rc) 30%, #060a14), #060a14 75%); transform: rotateY(180deg); box-shadow: 0 0 24px color-mix(in srgb, var(--rc) 55%, transparent); text-align: center; }
+        .pcard-rar { font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 2px; color: var(--rc); }
+        .pcard-name { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; color: #fff; }
+        .pcard-type { font-size: 0.66rem; color: var(--muted); text-transform: uppercase; }
+        .pcard-tag { font-size: 0.68rem; font-weight: 800; }
+        .pcard-tag.new { color: var(--success); } .pcard-tag.dupe { color: var(--hyper); }
+        .rar-legendary .pcard-inner { animation: pcardFlip 0.7s var(--d, 0.4s) forwards cubic-bezier(.2,.8,.2,1), pcardGlow 1.6s calc(var(--d, 0.4s) + 0.7s) infinite alternate; }
+        @keyframes pcardFlip { from { transform: rotateY(0deg) scale(0.9); } to { transform: rotateY(180deg) scale(1); } }
+        @keyframes pcardGlow { from { filter: brightness(1); } to { filter: brightness(1.35) drop-shadow(0 0 10px var(--rc)); } }
+        @media (prefers-reduced-motion: reduce) { .pcard-inner { animation-duration: 0.01s; animation-delay: 0s; } }
+        @media (max-width: 560px) { .pack-grid { grid-template-columns: 1fr; } .pack-card { flex-direction: row; justify-content: space-between; padding: 6px 10px; } .pack-blurb { min-height: 0; } .pcard { width: 118px; height: 170px; } }
     </style>
 </head>
 <body>
@@ -340,20 +440,18 @@
     <div class="utility-bar">
         <div class="btn-group">
             <button class="icon-btn" id="account-btn" onclick="openAccount()" title="Account">👤<span id="account-btn-label" class="lbl"> Sign in</span></button>
-            <button class="icon-btn" onclick="openLeaderboard()">🏆 Ranks</button>
-            <button class="icon-btn" onclick="openLocker()">🎨 Locker</button>
-            <div class="profile-pill" id="rank-coin-pill">🥉 BRONZE • 🪙 50</div>
+            <button class="icon-btn" onclick="openLeaderboard()" title="Ranks (T)">🏆 Ranks<span class="kbd">T</span></button>
+            <button class="icon-btn" id="locker-btn" onclick="openLocker()" title="Packs &amp; Locker (L)">🎨 Locker<span class="kbd">L</span></button>
+            <button class="icon-btn" onclick="toggleKeys()" title="Keyboard shortcuts (H or ?)">⌨<span class="lbl"> Keys</span><span class="kbd">H</span></button>
+            <div class="profile-pill" id="rank-coin-pill" onclick="openDaily()" style="cursor:pointer" title="Daily streak">🥉 BRONZE • 🪙 50</div>
             <div class="bounty-pill" id="bounty-pill">🎯 Bounty: Hit 2 Smashes (0/2) ➔ +100 🪙</div>
         </div>
         <div class="btn-group">
-            <button class="icon-btn" onclick="sendEmote(0)" title="EZ">🔥<span class="lbl"> EZ</span></button>
-            <button class="icon-btn" onclick="sendEmote(1)" title="SAVE">😱<span class="lbl"> SAVE</span></button>
-            <button class="icon-btn" onclick="sendEmote(2)" title="CALC">📐<span class="lbl"> CALC</span></button>
-            <button class="icon-btn" onclick="sendEmote(3)" title="RIP">💀<span class="lbl"> RIP</span></button>
-            <button class="icon-btn" onclick="openControls()" title="Controls">🎮<span class="lbl"> Controls</span></button>
+            <div class="emote-wrap"><button class="icon-btn" id="emote-btn" onclick="toggleEmotes()" title="Emotes (keys 1-8)">😎<span class="lbl"> Emotes</span></button><div id="emote-pop" class="hidden"><button class="em-btn" onclick="sendEmote(0);closeEmotes()" title="EZ"><span>🔥</span><small>1</small></button><button class="em-btn" onclick="sendEmote(1);closeEmotes()" title="SAVE"><span>😱</span><small>2</small></button><button class="em-btn" onclick="sendEmote(2);closeEmotes()" title="CALC"><span>📐</span><small>3</small></button><button class="em-btn" onclick="sendEmote(3);closeEmotes()" title="RIP"><span>💀</span><small>4</small></button><button class="em-btn" onclick="sendEmote(4);closeEmotes()" title="GG"><span>👏</span><small>5</small></button><button class="em-btn" onclick="sendEmote(5);closeEmotes()" title="LOL"><span>😂</span><small>6</small></button><button class="em-btn" onclick="sendEmote(6);closeEmotes()" title="NICE"><span>🎯</span><small>7</small></button><button class="em-btn" onclick="sendEmote(7);closeEmotes()" title="REMATCH"><span>🤝</span><small>8</small></button></div></div>
+            <button class="icon-btn" onclick="openControls()" title="Controls (C)">🎮<span class="lbl"> Controls</span><span class="kbd">C</span></button>
             <button class="icon-btn" onclick="toggleMobileDeck()" title="Show/hide touch controls">📱<span class="lbl"> Pad</span></button>
-            <button class="icon-btn" onclick="toggleFullscreen()" title="Full screen">⛶</button>
-            <button class="icon-btn" onclick="toggleMute()"><span id="sound-icon">🔊</span></button>
+            <button class="icon-btn" onclick="toggleFullscreen()" title="Full screen (F)">⛶<span class="kbd">F</span></button>
+            <button class="icon-btn" onclick="toggleMute()" title="Sound (M)"><span id="sound-icon">🔊</span><span class="kbd">M</span></button>
             <button class="icon-btn" id="leave-match-btn" style="display:none;border-color:var(--p2);" onclick="returnToMenu()">✖</button>
         </div>
     </div>
@@ -409,29 +507,39 @@
 
         <!-- 1. MAIN MENU OVERLAY -->
         <div id="menu-overlay" class="overlay">
-            <h1 class="game-title">NEON PONG // V7 CROSS-PLAY</h1>
-            <p class="subtitle">Phone, Tablet & Laptop Cross-Play • Mirage Multi-Ball • Parry Clashes</p>
+            <h1 class="game-title">NEON PONG <span class="v-tag">V9</span></h1>
+            <p class="subtitle">Cross-play • 6 rackets • Superpowers • Daily rewards</p>
 
             <div class="racket-grid">
-                <div class="racket-card selected" onclick="selectRacket('pro', this)">
+                <div class="racket-card selected" data-r="pro" onclick="selectRacket('pro', this)">
                     <div class="r-title">⚖️ Neon Pro</div>
                     <div class="r-ult">ULT: ⚡ Hyper Comet</div>
-                    <div class="r-desc">Balanced 94px blade, speed & sweetspot magnet.</div>
+                    <div class="r-desc">All-rounder. Biggest-bonus <b>sweetspot</b>: hit dead-centre for +12% speed.</div>
                 </div>
-                <div class="racket-card" onclick="selectRacket('katana', this)">
+                <div class="racket-card" data-r="katana" onclick="selectRacket('katana', this)">
                     <div class="r-title">🗡️ Cyber-Katana</div>
                     <div class="r-ult">ULT: 🔦 Railgun Laser</div>
-                    <div class="r-desc">+16% Smash Speed! Fires a 255 KM/H straight laser.</div>
+                    <div class="r-desc">Feather-light, longest lunge, wider parry window. Tiny sweetspot.</div>
                 </div>
-                <div class="racket-card" onclick="selectRacket('vortex', this)">
+                <div class="racket-card" data-r="vortex" onclick="selectRacket('vortex', this)">
                     <div class="r-title">🌀 Vortex Blade</div>
                     <div class="r-ult">ULT: 🐍 Snake Shot</div>
-                    <div class="r-desc">+45% Curve Spin! Ult slithers left & right mid-air!</div>
+                    <div class="r-desc"><b>Spin catch</b>: steals the spin of incoming balls and sends it back bigger.</div>
                 </div>
-                <div class="racket-card" onclick="selectRacket('titan', this)">
+                <div class="racket-card" data-r="titan" onclick="selectRacket('titan', this)">
                     <div class="r-title">🛡️ Titan Aegis</div>
                     <div class="r-ult">ULT: 💥 Gravity Quake</div>
-                    <div class="r-desc">Giant 112px shield! Ult knocks opponent backward!</div>
+                    <div class="r-desc">Heavy 112px shield: hits harder, moves slower. <b>Blocks</b> fast balls back.</div>
+                </div>
+                <div class="racket-card" data-r="phantom" onclick="selectRacket('phantom', this)">
+                    <div class="r-title">👻 Phantom Edge</div>
+                    <div class="r-ult">ULT: 👻 Ghost Shot</div>
+                    <div class="r-desc">Chrono Dash costs only 35 OD. Ult vanishes mid-court!</div>
+                </div>
+                <div class="racket-card" data-r="volt" onclick="selectRacket('volt', this)">
+                    <div class="r-title">⚡ Volt Striker</div>
+                    <div class="r-ult">ULT: ⚡ Zigzag Bolt</div>
+                    <div class="r-desc"><b>Chain</b>: every 3rd hit in a rally charges extra speed. Ult zigzags!</div>
                 </div>
             </div>
 
@@ -453,6 +561,15 @@
                     <div class="pill-selector">
                         <button class="pill-btn active" id="wb2-on" onclick="setWinByTwo(true)">ON</button>
                         <button class="pill-btn" id="wb2-off" onclick="setWinByTwo(false)">OFF</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Friend Stakes (online, both pay)</label>
+                    <div class="pill-selector" id="ante-selector">
+                        <button class="pill-btn active" onclick="setAnte(0, this)">NONE</button>
+                        <button class="pill-btn" onclick="setAnte(25, this)">🪙25</button>
+                        <button class="pill-btn" onclick="setAnte(50, this)">🪙50</button>
+                        <button class="pill-btn" onclick="setAnte(100, this)">🪙100</button>
                     </div>
                 </div>
                 <div class="settings-row">
@@ -482,10 +599,10 @@
             <p class="subtitle">Pick Your Racket Class & Join Cross-Play Arena</p>
 
             <div class="racket-grid">
-                <div class="racket-card selected" onclick="selectRacket('pro', this)"><div class="r-title">⚖️ Neon Pro</div><div class="r-ult">⚡ Hyper Comet</div></div>
-                <div class="racket-card" onclick="selectRacket('katana', this)"><div class="r-title">🗡️ Katana</div><div class="r-ult">🔦 Railgun Laser</div></div>
-                <div class="racket-card" onclick="selectRacket('vortex', this)"><div class="r-title">🌀 Vortex</div><div class="r-ult">🐍 Snake Shot</div></div>
-                <div class="racket-card" onclick="selectRacket('titan', this)"><div class="r-title">🛡️ Titan</div><div class="r-ult">💥 Gravity Quake</div></div>
+                <div class="racket-card selected" data-r="pro" onclick="selectRacket('pro', this)"><div class="r-title">⚖️ Neon Pro</div><div class="r-ult">⚡ Hyper Comet</div></div>
+                <div class="racket-card" data-r="katana" onclick="selectRacket('katana', this)"><div class="r-title">🗡️ Katana</div><div class="r-ult">🔦 Railgun Laser</div></div>
+                <div class="racket-card" data-r="vortex" onclick="selectRacket('vortex', this)"><div class="r-title">🌀 Vortex</div><div class="r-ult">🐍 Snake Shot</div></div>
+                <div class="racket-card" data-r="titan" onclick="selectRacket('titan', this)"><div class="r-title">🛡️ Titan</div><div class="r-ult">💥 Gravity Quake</div></div>
             </div>
 
             <div class="panel-card">
@@ -541,12 +658,68 @@
             </div>
         </div>
 
+        <div id="aim-pad" class="hidden"><button class="aim-btn" id="btn-aim-a">▲<small>AIM</small></button><button class="aim-btn" id="btn-aim-b">▼<small>AIM</small></button></div>
+
+        <div id="power-bar" class="hidden"></div>
+        <div id="key-hint"><kbd>Space</kbd> strike <kbd>Shift</kbd> dash <kbd>Q</kbd><kbd>E</kbd> aim <kbd>1-8</kbd> emotes <kbd>Z</kbd><kbd>X</kbd> powers <kbd>P</kbd> pause <kbd>M</kbd> mute <kbd>H</kbd> all keys</div>
+        <div id="pause-badge" class="hidden">⏸ PAUSED<small>Press P or Esc to resume</small></div>
+
+        <!-- 5a. KEYBOARD SHORTCUTS -->
+        <div id="keys-overlay" class="overlay hidden">
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--hyper);">⌨ KEYBOARD SHORTCUTS</h2>
+            <div class="keys-grid">
+                <div class="keys-col"><h3>PLAY</h3>
+                    <div><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></span>Move bat</div>
+                    <div><span><kbd>Space</kbd></span>Strike / serve / parry</div>
+                    <div><span><kbd>Shift</kbd></span>Chrono Dash (50 OD)</div>
+                    <div><span><kbd>Q</kbd> <kbd>E</kbd> or <kbd>[</kbd> <kbd>]</kbd></span>Aim your serve</div>
+                    <div><span>Mouse wheel</span>Aim your serve</div>
+                    <div><span>Click / Right-click</span>Strike / Chrono</div>
+                    <div><span><kbd>1</kbd>…<kbd>8</kbd></span>Emotes</div>
+                    <div><span><kbd>Z</kbd> <kbd>X</kbd></span>Superpower slots</div>
+                    <div><span>🎮 Controller</span>Stick move • A strike • X dash • LB/RB aim • LT/RT powers • Start pause</div>
+                </div>
+                <div class="keys-col"><h3>GAME</h3>
+                    <div><span><kbd>P</kbd> / <kbd>Esc</kbd></span>Pause (vs AI)</div>
+                    <div><span><kbd>R</kbd> / <kbd>Enter</kbd></span>Rematch (after a match)</div>
+                    <div><span><kbd>Enter</kbd></span>Quick play vs AI (menu)</div>
+                    <div><span><kbd>M</kbd></span>Mute / unmute</div>
+                    <div><span><kbd>F</kbd></span>Full screen</div>
+                    <div><span><kbd>L</kbd></span>Packs &amp; locker</div>
+                    <div><span><kbd>T</kbd></span>Ranks / leaderboard</div>
+                    <div><span><kbd>C</kbd></span>Controls</div>
+                    <div><span><kbd>H</kbd> / <kbd>?</kbd></span>This list</div>
+                    <div><span><kbd>Esc</kbd></span>Close any window</div>
+                </div>
+            </div>
+            <button class="btn" onclick="closeKeys()">Got it</button>
+        </div>
+
+        <!-- 5b. DAILY STREAK -->
+        <div id="daily-overlay" class="overlay hidden">
+            <h2 id="daily-title" style="font-family:'Orbitron',sans-serif; color:var(--hyper);">🔥 DAILY REWARD</h2>
+            <p id="daily-sub" style="color:var(--muted); font-size:0.85rem; text-align:center; max-width:460px;"></p>
+            <div class="daily-grid" id="daily-grid"></div>
+            <button class="btn" id="daily-btn">CLAIM</button>
+        </div>
+
         <!-- 6. LOCKER & SHOP OVERLAY -->
         <div id="locker-overlay" class="overlay hidden">
-            <h2 style="font-family:'Orbitron',sans-serif; color:var(--hyper);">🎨 NEON LOCKER & SHOP</h2>
-            <p style="color:var(--muted); font-size:0.82rem; margin-bottom:4px;">Complete Bounties, Fever Rings & Wins! (<span id="locker-coins" style="color:var(--hyper);font-weight:700;">0</span> 🪙 Available)</p>
+            <h2 style="font-family:'Orbitron',sans-serif; color:var(--hyper);">🎁 PACKS, LOCKER & SHOP</h2>
+            <p style="color:var(--muted); font-size:0.82rem; margin-bottom:4px;">Earn coins from wins, bounties and 💰 pickups over the net. (<span id="locker-coins" style="color:var(--hyper);font-weight:700;">0</span> 🪙 available)</p>
+            <div class="pack-grid" id="pack-grid"></div>
+            <div class="locker-tabs" id="locker-tabs"></div>
+            <p id="locker-progress" style="color:var(--muted); font-size:0.74rem;"></p>
             <div class="locker-grid" id="locker-items-grid"></div>
             <button class="btn" style="margin-top:6px;" onclick="closeLocker()">Done</button>
+        </div>
+
+        <!-- 6b. PACK REVEAL -->
+        <div id="pack-overlay" class="overlay hidden" style="z-index:60;">
+            <h2 id="pack-title" style="font-family:'Orbitron',sans-serif; color:var(--hyper);"></h2>
+            <div class="pack-cards" id="pack-cards"></div>
+            <p id="pack-note" style="color:var(--muted); font-size:0.8rem;"></p>
+            <button class="btn" onclick="closePack()">Awesome!</button>
         </div>
 
         <!-- 7. LEADERBOARD OVERLAY -->
@@ -735,30 +908,105 @@ function cleanName(s, fallback = 'Player') {
 function cleanDev(s) { return ['💻', '📱', '🤖'].includes(s) ? s : '📱'; }
 const num = (v, def = 0) => (typeof v === 'number' && Number.isFinite(v)) ? v : def;
 
+// follow = how quickly the bat catches up with your hand (low = heavy, inertia). lunge/cd = strike distance / cooldown.
+// sweet = half-width of the sweetspot (0..1 along the blade). power scales your swing speed. dash = Overdrive cost of Chrono Dash.
 const RACKETS = {
-    pro:    { id: 'pro',    name: '⚖️ Neon Pro',     len: 94,  spd: 1.0,  spin: 1.0,  odRate: 1.0, ult: '⚡ HYPER COMET',   col: '#ffe600' },
-    katana: { id: 'katana', name: '🗡️ Cyber-Katana', len: 82,  spd: 1.16, spin: 0.85, odRate: 1.1, ult: '🔦 RAILGUN LASER', col: '#00f3ff' },
-    vortex: { id: 'vortex', name: '🌀 Vortex Blade', len: 92,  spd: 0.96, spin: 1.45, odRate: 1.1, ult: '🐍 SNAKE SHOT',    col: '#bc13fe' },
-    titan:  { id: 'titan',  name: '🛡️ Titan Aegis',  len: 112, spd: 0.95, spin: 0.9,  odRate: 1.3, ult: '💥 GRAVITY QUAKE', col: '#ff7b00' }
+    pro:     { id: 'pro',     name: '⚖️ Neon Pro',      len: 94,  spd: 1.0,  spin: 1.0,  odRate: 1.0, ult: '⚡ HYPER COMET',   col: '#ffe600', follow: 0.80, lunge: 19, cd: 22, sweet: 0.28, power: 1.0,  dash: 50 },
+    katana:  { id: 'katana',  name: '🗡️ Cyber-Katana',  len: 82,  spd: 1.16, spin: 0.85, odRate: 1.1, ult: '🔦 RAILGUN LASER', col: '#00f3ff', follow: 0.96, lunge: 25, cd: 17, sweet: 0.20, power: 0.95, dash: 50 },
+    vortex:  { id: 'vortex',  name: '🌀 Vortex Blade',  len: 92,  spd: 0.96, spin: 1.45, odRate: 1.1, ult: '🐍 SNAKE SHOT',    col: '#00e5c0', follow: 0.74, lunge: 18, cd: 22, sweet: 0.24, power: 1.0,  dash: 50 },
+    titan:   { id: 'titan',   name: '🛡️ Titan Aegis',   len: 112, spd: 0.95, spin: 0.9,  odRate: 1.3, ult: '💥 GRAVITY QUAKE', col: '#ff7b00', follow: 0.50, lunge: 15, cd: 26, sweet: 0.32, power: 1.2,  dash: 50 },
+    phantom: { id: 'phantom', name: '👻 Phantom Edge',  len: 88,  spd: 1.04, spin: 1.1,  odRate: 1.2, ult: '👻 GHOST SHOT',    col: '#9ff7ff', follow: 0.86, lunge: 20, cd: 20, sweet: 0.22, power: 1.0,  dash: 35 },
+    volt:    { id: 'volt',    name: '⚡ Volt Striker',  len: 86,  spd: 1.1,  spin: 0.95, odRate: 1.15,ult: '⚡ ZIGZAG BOLT',   col: '#7dff3a', follow: 0.88, lunge: 21, cd: 19, sweet: 0.22, power: 1.05, dash: 50 }
 };
 const rk = k => (RACKETS[k] ? k : 'pro');
 
+// rar = rarity. Items with `pack: true` can only be won from packs; the rest can also be bought in the locker.
+const RARITY = {
+    common:    { n: 'COMMON',    c: '#8fa0c8', refund: 10 },
+    rare:      { n: 'RARE',      c: '#00f3ff', refund: 35 },
+    epic:      { n: 'EPIC',      c: '#ff7b00', refund: 80 },
+    legendary: { n: 'LEGENDARY', c: '#ffe600', refund: 170 }
+};
 const COSMETICS = [
-    { id: 'trail_plasma',  type: 'trail', name: 'Cyan Plasma Trail',   cost: 0,   val: 'default' },
-    { id: 'trail_rainbow', type: 'trail', name: 'Rainbow Synth Trail', cost: 80,  val: 'rainbow' },
-    { id: 'trail_fire',    type: 'trail', name: 'Hellfire Blaze Trail',cost: 150, val: 'fire' },
-    { id: 'trail_gold',    type: 'trail', name: 'Golden Sovereign',    cost: 250, val: 'gold' },
-    { id: 'theme_cyber',   type: 'theme', name: 'Cyber Obsidian Court',cost: 0,   bg: '#050811', net: '#3b4a7a' },
-    { id: 'theme_tokyo',   type: 'theme', name: 'Tokyo Midnight Court',cost: 100, bg: '#0c0418', net: '#7928a8' },
-    { id: 'theme_molten',  type: 'theme', name: 'Molten Lava Arena',   cost: 180, bg: '#140604', net: '#963210' },
-    { id: 'theme_matrix',  type: 'theme', name: 'Emerald Matrix Grid', cost: 240, bg: '#031008', net: '#1b7a3d' }
+    { id: 'trail_plasma',  type: 'trail', name: 'Cyan Plasma Trail',   cost: 0,   val: 'default',  rar: 'common' },
+    { id: 'trail_rainbow', type: 'trail', name: 'Rainbow Synth Trail', cost: 80,  val: 'rainbow',  rar: 'rare' },
+    { id: 'trail_fire',    type: 'trail', name: 'Hellfire Blaze Trail',cost: 150, val: 'fire',     rar: 'rare' },
+    { id: 'trail_gold',    type: 'trail', name: 'Golden Sovereign',    cost: 250, val: 'gold',     rar: 'epic' },
+    { id: 'trail_ice',     type: 'trail', name: 'Glacier Frost Trail', cost: 0,   val: 'ice',      rar: 'rare',      pack: true },
+    { id: 'trail_stardust',type: 'trail', name: 'Stardust Sparkle',    cost: 0,   val: 'stardust', rar: 'epic',      pack: true },
+    { id: 'trail_glitch',  type: 'trail', name: 'Glitch Signal Trail', cost: 0,   val: 'glitch',   rar: 'legendary', pack: true },
+
+    { id: 'theme_cyber',   type: 'theme', name: 'Cyber Obsidian Court',cost: 0,   bg: '#050811', net: '#3b4a7a', rar: 'common' },
+    { id: 'theme_tokyo',   type: 'theme', name: 'Tokyo Midnight Court',cost: 100, bg: '#0a0a1c', net: '#2d6bff', rar: 'rare' },
+    { id: 'theme_molten',  type: 'theme', name: 'Molten Lava Arena',   cost: 180, bg: '#140604', net: '#963210', rar: 'rare' },
+    { id: 'theme_matrix',  type: 'theme', name: 'Emerald Matrix Grid', cost: 240, bg: '#031008', net: '#1b7a3d', rar: 'epic' },
+    { id: 'theme_sunset',  type: 'theme', name: 'Sunset Boulevard',    cost: 0,   bg: '#1a0a0a', net: '#ff5e3a', rar: 'rare',      pack: true },
+    { id: 'theme_arctic',  type: 'theme', name: 'Arctic Aurora Rink',  cost: 0,   bg: '#04141f', net: '#5ad1ff', rar: 'rare',      pack: true },
+    { id: 'theme_void',    type: 'theme', name: 'Pure Void Arena',     cost: 0,   bg: '#000000', net: '#e6e6e6', rar: 'epic',      pack: true },
+
+    { id: 'ball_classic',  type: 'ball',  name: 'Classic Neon Ball',   cost: 0,   val: 'default',  rar: 'common' },
+    { id: 'ball_ember',    type: 'ball',  name: 'Ember Core Ball',     cost: 0,   val: 'ember',    rar: 'rare',      pack: true },
+    { id: 'ball_frost',    type: 'ball',  name: 'Frostbite Ball',      cost: 0,   val: 'frost',    rar: 'rare',      pack: true },
+    { id: 'ball_solar',    type: 'ball',  name: 'Solar Flare Ball',    cost: 0,   val: 'solar',    rar: 'epic',      pack: true },
+    { id: 'ball_plasma',   type: 'ball',  name: 'Prism Plasma Ball',   cost: 0,   val: 'plasma',   rar: 'legendary', pack: true },
+
+    { id: 'skin_default',  type: 'skin',  name: 'Standard Blade',      cost: 0,   val: 'default',  rar: 'common' },
+    { id: 'skin_chrome',   type: 'skin',  name: 'Liquid Chrome Blade', cost: 0,   val: 'chrome',   rar: 'rare',      pack: true },
+    { id: 'skin_inferno',  type: 'skin',  name: 'Inferno Blade',       cost: 0,   val: 'inferno',  rar: 'rare',      pack: true },
+    { id: 'skin_frost',    type: 'skin',  name: 'Permafrost Blade',    cost: 0,   val: 'frost',    rar: 'rare',      pack: true },
+    { id: 'skin_gold',     type: 'skin',  name: 'Midas Gold Blade',    cost: 0,   val: 'gold',     rar: 'epic',      pack: true },
+    { id: 'skin_glitch',   type: 'skin',  name: 'Glitch Blade',        cost: 0,   val: 'glitch',   rar: 'epic',      pack: true },
+    { id: 'skin_aurora',   type: 'skin',  name: 'Aurora Prism Blade',  cost: 0,   val: 'aurora',   rar: 'legendary', pack: true },
+
+    { id: 'net_dash',      type: 'net',   name: 'Classic Dashed Net',  cost: 0,   val: 'dash',     rar: 'common' },
+    { id: 'net_laser',     type: 'net',   name: 'Laser Beam Net',      cost: 0,   val: 'laser',    rar: 'rare',      pack: true },
+    { id: 'net_electric',  type: 'net',   name: 'Lightning Arc Net',   cost: 0,   val: 'electric', rar: 'epic',      pack: true },
+    { id: 'net_orbit',     type: 'net',   name: 'Orbit Drone Net',     cost: 0,   val: 'orbit',    rar: 'legendary', pack: true }
 ];
+const isEquipped = c => (c.type === 'trail' && profile.trail === c.val) || (c.type === 'theme' && profile.themeBg === c.bg)
+    || (c.type === 'ball' && profile.ball === c.val) || (c.type === 'net' && profile.netFx === c.val) || (c.type === 'skin' && profile.skin === c.val);
+const SKIN_VALS = COSMETICS.filter(c => c.type === 'skin').map(c => c.val);
+const cleanSkin = v => SKIN_VALS.includes(v) ? v : 'default';
+
+// Packs spend Neon Coins on random cosmetics. A pack always prefers items you do not own yet;
+// once you own everything of a rarity the duplicate turns into coins.
+const PACKS = [
+    { id: 'rookie', icon: '🥉', name: 'ROOKIE PACK', cost: 90,  n: 1, odds: { rare: 0.72, epic: 0.24, legendary: 0.04 }, blurb: '1 item • Rare or better' },
+    { id: 'pro',    icon: '🥈', name: 'PRO PACK',    cost: 220, n: 2, odds: { rare: 0.45, epic: 0.45, legendary: 0.10 }, guar: 'epic', blurb: '2 items • 1 Epic+ guaranteed' },
+    { id: 'legend', icon: '🏆', name: 'LEGEND PACK', cost: 520, n: 3, odds: { epic: 0.70, legendary: 0.30 },             guar: 'legendary', blurb: '3 items • Epic+ • 1 in 2 chance of Legendary' }
+];
+const RAR_ORDER = ['common', 'rare', 'epic', 'legendary'];
+
+// Things that float over the net. Hit one with the ball to trigger it.
+const PICKUPS = {
+    fever:  { col: '#ffe600', icon: '🎰', label: '2X FEVER' },
+    mirage: { col: '#ff4d6d', icon: '🪞', label: 'MIRAGE' },
+    coin:   { col: '#00ff88', icon: '💰', label: 'COIN BURST' },
+    warp:   { col: '#00f3ff', icon: '⏱️', label: 'TIME WARP' }
+};
+// Superpowers: bought with coins (consumable charges), 2 loadout slots (keys Z / X), each slot usable once per match.
+// The host applies them, so they behave identically for both players. Disabled in ranked matches to keep the ladder fair.
+const POWERS = {
+    shield:   { icon: '🛡️', name: 'Goal Guard',   cost: 60, col: '#00ff88', desc: 'Saves ONE point: the next ball that gets past you bounces back.' },
+    freeze:   { icon: '🧊', name: 'Ice Lock',     cost: 70, col: '#8fe3ff', desc: "Your opponent's bat moves in slow motion for 2.5 seconds." },
+    magnet:   { icon: '🧲', name: 'Magnet Hand',  cost: 50, col: '#ffe600', desc: 'Your bat pulls the ball in for 5 seconds: very hard to miss.' },
+    overload: { icon: '⚡', name: 'Overload',     cost: 80, col: '#ff7b00', desc: 'Instantly fills your Overdrive: your next swing is an ULTIMATE.' },
+    clone:    { icon: '🪞', name: 'Mirage Clone', cost: 45, col: '#ff4d6d', desc: 'Launches a decoy ball to fool your opponent.' },
+    fog:      { icon: '🌫️', name: 'Fog of War',   cost: 65, col: '#b5c2e0', desc: 'Your opponent can barely see the ball on their side for 4 seconds.' }
+};
+const POWER_IDS = Object.keys(POWERS), POWER_MAX = 9;
+const cleanPows = a => (Array.isArray(a) ? a : []).filter((x, i, arr) => POWERS[x] && arr.indexOf(x) === i).slice(0, 2);
+function rollPickup() { const r = Math.random() * 100; return r < 32 ? 'fever' : r < 56 ? 'mirage' : r < 80 ? 'coin' : 'warp'; }
 
 const EMOTES = [
     { txt: '🔥 TOO EASY!',    col: '#ff7b00', f1: 520, f2: 880 },
     { txt: '😱 WHAT A SAVE!', col: '#00f3ff', f1: 880, f2: 1240 },
     { txt: '📐 CALCULATED!',  col: '#00ff88', f1: 600, f2: 750 },
-    { txt: '💀 RIP BRO!',     col: '#ff0055', f1: 320, f2: 140 }
+    { txt: '💀 RIP BRO!',     col: '#ff0055', f1: 320, f2: 140 },
+    { txt: '👏 GG!',          col: '#00ff88', f1: 700, f2: 1000 },
+    { txt: '😂 LOL',          col: '#ffe600', f1: 500, f2: 900 },
+    { txt: '🎯 NICE SHOT!',   col: '#00f3ff', f1: 760, f2: 1100 },
+    { txt: '🤝 REMATCH?',     col: '#ff7b00', f1: 440, f2: 660 }
 ];
 
 const BOUNTY_POOL = [
@@ -784,7 +1032,7 @@ class SoundEngine {
         if (this.ctx.state === 'suspended') this.ctx.resume();
     }
     play(type, extra = 0) {
-        if (this.muted) return;
+        if (this.muted || (typeof quietUI !== 'undefined' && quietUI)) return;
         extra = num(extra, 0);
         try {
             this.init();
@@ -845,7 +1093,7 @@ function toggleMute() {
 
 const PROF_KEY = 'neon_pong_v7_profile';
 const LB_KEY = 'neon_pong_v7_leaderboard';
-const DEFAULT_PROFILE = () => ({ rp: 100, coins: 50, unlocked: ['trail_plasma', 'theme_cyber'], trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a', bountyIdx: 0, bountyProg: 0 });
+const DEFAULT_PROFILE = () => ({ rp: 100, coins: 50, unlocked: ['trail_plasma', 'theme_cyber', 'ball_classic', 'net_dash', 'skin_default'], trail: 'default', themeBg: '#050811', themeNet: '#3b4a7a', ball: 'default', netFx: 'dash', skin: 'default', lastDay: '', streak: 0, powers: { shield: 1, overload: 1 }, loadout: ['shield', 'overload'], bountyIdx: 0, bountyProg: 0 });
 let profile = DEFAULT_PROFILE();
 const clampInt = (v, lo, hi, def) => (typeof v === 'number' && Number.isFinite(v)) ? Math.max(lo, Math.min(hi, Math.floor(v))) : def;
 
@@ -859,6 +1107,18 @@ function sanitizeProfile(s) {
     if (Array.isArray(s.unlocked)) d.unlocked = [...new Set([...d.unlocked, ...s.unlocked.filter(x => typeof x === 'string' && ids.has(x))])];
     const trail = COSMETICS.find(c => c.type === 'trail' && c.val === s.trail && d.unlocked.includes(c.id));
     if (trail) d.trail = trail.val;
+    const ball = COSMETICS.find(c => c.type === 'ball' && c.val === s.ball && d.unlocked.includes(c.id));
+    if (ball) d.ball = ball.val;
+    const netFx = COSMETICS.find(c => c.type === 'net' && c.val === s.netFx && d.unlocked.includes(c.id));
+    if (netFx) d.netFx = netFx.val;
+    const skin = COSMETICS.find(c => c.type === 'skin' && c.val === s.skin && d.unlocked.includes(c.id));
+    if (skin) d.skin = skin.val;
+    d.lastDay = (typeof s.lastDay === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.lastDay)) ? s.lastDay : '';
+    d.streak = clampInt(s.streak, 0, 100000, 0);
+    if (s.powers && typeof s.powers === 'object' && !Array.isArray(s.powers)) {
+        d.powers = {}; for (const id of POWER_IDS) { const n = clampInt(s.powers[id], 0, POWER_MAX, 0); if (n) d.powers[id] = n; }
+    }
+    if (Array.isArray(s.loadout)) { const l = s.loadout.slice(0, 2).map(x => POWERS[x] ? x : ''); while (l.length < 2) l.push(''); if (l[0] && l[0] === l[1]) l[1] = ''; d.loadout = l; }
     const theme = COSMETICS.find(c => c.type === 'theme' && c.bg === s.themeBg && d.unlocked.includes(c.id));
     if (theme) { d.themeBg = theme.bg; d.themeNet = theme.net; }
     d.bountyIdx = clampInt(s.bountyIdx, 0, BOUNTY_POOL.length - 1, 0);
@@ -871,6 +1131,7 @@ function applyProfile(p) {
     profile = sanitizeProfile(p);
     updateProfileBadge(); updateBountyUI();
     try { drawArena(); } catch {}
+    setTimeout(checkDaily, 450);
 }
 function loadProfile() { applyProfile(readLocalProfile(PROF_KEY)); }
 function saveProfile() { store.set(profileKey(), JSON.stringify(profile)); updateProfileBadge(); scheduleCloudSync(); }
@@ -882,7 +1143,8 @@ function getRankTitle(rp) {
     return '🥉 BRONZE';
 }
 function updateProfileBadge() {
-    document.getElementById('rank-coin-pill').innerText = `${getRankTitle(profile.rp)} (${profile.rp} RP) • 🪙 ${profile.coins}`;
+    try { updateNudges(); } catch {}
+    document.getElementById('rank-coin-pill').innerText = `${getRankTitle(profile.rp)} (${profile.rp} RP) • 🪙 ${profile.coins}${profile.streak > 0 ? ` • 🔥${profile.streak}d` : ''}`;
 }
 
 function advanceBounty(type, amount = 1, isSet = false) {
@@ -905,6 +1167,16 @@ function awardBounty(playerNum, type, amount = 1, isSet = false) {
     if (playerNum === mine) advanceBounty(type, amount, isSet);
     else if (!isAIMode) sendCtl({ type: 'bounty', kind: type, n: amount, set: isSet });
 }
+// In-match coin pickups. Host decides; the remote player is told over the control channel.
+function grantCoins(n) {
+    n = clampInt(n, 0, 60, 0); if (!n) return;
+    profile.coins += n; saveProfile();
+}
+function awardCoins(playerNum, n) {
+    const mine = isHost ? 1 : 2;
+    if (playerNum === mine) grantCoins(n);
+    else if (!isAIMode) sendCtl({ type: 'coins', n });
+}
 function updateBountyUI() {
     const b = BOUNTY_POOL[profile.bountyIdx % BOUNTY_POOL.length];
     document.getElementById('bounty-pill').innerText = `🎯 ${b.desc} (${profile.bountyProg}/${b.goal}) ➔ +${b.reward} 🪙`;
@@ -914,30 +1186,196 @@ let paused = false;
 function pauseIfAI() { paused = gameActive && isAIMode; }
 function resumeFromPause() { if (paused) { paused = false; lastTime = performance.now(); } }
 
+// ---------- Daily login streak ----------
+// 7-day cycle. Miss a day and the streak restarts. Every full week adds a growing bonus; day 7 also gives a free Rookie Pack.
+const DAILY = [25, 35, 45, 60, 80, 100, 150];
+const todayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function dayDiff(a, b) {
+    const pa = a.split('-').map(Number), pb = b.split('-').map(Number);
+    return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 864e5);
+}
+function dailyStatus() {
+    const t = todayKey();
+    if (!profile.lastDay) return { claimable: true, next: 1, broken: false };
+    const diff = dayDiff(profile.lastDay, t);
+    if (diff <= 0) return { claimable: false, next: profile.streak, broken: false };   // already claimed (or the clock went backwards)
+    return { claimable: true, next: diff === 1 ? profile.streak + 1 : 1, broken: diff > 1 && profile.streak > 0 };
+}
+const dailyReward = n => DAILY[(n - 1) % 7] + Math.min(50, 10 * Math.floor((n - 1) / 7));
+function checkDaily() {
+    if (gameActive || !dailyStatus().claimable) return;
+    const open = id => !document.getElementById(id).classList.contains('hidden');
+    if (!open('menu-overlay') || open('howto-overlay') || open('daily-overlay') || open('locker-overlay') || open('account-overlay')) return;
+    openDaily();
+}
+function openDaily() {
+    if (gameActive && !isAIMode) return;
+    const st = dailyStatus(), n = st.next, pos = ((Math.max(1, n) - 1) % 7) + 1;
+    document.getElementById('daily-title').innerText = st.claimable ? '🔥 DAILY REWARD' : '🔥 YOUR STREAK';
+    document.getElementById('daily-sub').innerText = st.claimable
+        ? (st.broken ? `Your ${profile.streak}-day streak ended. Starting fresh: come back every day!` : `Day ${n} of your streak. Keep it going!`)
+        : `${profile.streak}-day streak. Come back tomorrow for +${dailyReward(profile.streak + 1)} 🪙${(profile.streak % 7) === 6 ? ' and a free pack' : ''}!`;
+    const cur = st.claimable ? pos : ((profile.streak - 1) % 7) + 1;
+    document.getElementById('daily-grid').innerHTML = DAILY.map((c, i) => {
+        const d = i + 1, done = st.claimable ? d < pos : d <= cur, today = st.claimable && d === pos;
+        const amt = dailyReward(Math.floor((Math.max(1, n) - 1) / 7) * 7 + d);
+        return `<div class="dday ${done ? 'done' : ''} ${today ? 'today' : ''} ${d === 7 ? 'big' : ''}"><div class="dnum">DAY ${d}</div><div class="dico">${d === 7 ? '🎁' : '🪙'}</div><div class="damt">${d === 7 ? `+${amt}<br><small>+ FREE PACK</small>` : '+' + amt}</div>${done ? '<div class="dtick">✓</div>' : ''}</div>`;
+    }).join('');
+    const btn = document.getElementById('daily-btn');
+    btn.innerText = st.claimable ? `CLAIM +${dailyReward(n)} 🪙` : 'NICE!';
+    btn.onclick = st.claimable ? claimDaily : closeDaily;
+    pauseIfAI();
+    document.getElementById('daily-overlay').classList.remove('hidden');
+}
+function claimDaily() {
+    const st = dailyStatus(); if (!st.claimable) { closeDaily(); return; }
+    const amt = dailyReward(st.next), pos = ((st.next - 1) % 7) + 1;
+    profile.coins += amt; profile.streak = st.next; profile.lastDay = todayKey();
+    saveProfile(); flushCloud(true); sfx.play('fever');
+    closeDaily();
+    toast(`🔥 Day ${profile.streak} streak! +${amt} 🪙`);
+    if (pos === 7) setTimeout(() => { openLocker(); openPack('rookie', true); }, 350);   // week bonus: a free pack
+}
+function closeDaily() { sfx.play('ui'); document.getElementById('daily-overlay').classList.add('hidden'); resumeFromPause(); }
+
+let lockerTab = 'all', packBusy = false;
 function openLocker() {
     sfx.play('ui'); pauseIfAI();
+    renderLocker();
+    document.getElementById('locker-overlay').classList.remove('hidden');
+}
+function setLockerTab(t) { sfx.play('ui'); lockerTab = t; renderLocker(); }
+function renderLocker() {
     document.getElementById('locker-coins').innerText = profile.coins;
-    document.getElementById('locker-items-grid').innerHTML = COSMETICS.map(item => {
-        const owned = profile.unlocked.includes(item.id);
-        const eq = (item.type === 'trail' && profile.trail === item.val) || (item.type === 'theme' && profile.themeBg === item.bg);
-        return `<div class="shop-item ${eq ? 'equipped' : ''}">
-            <div style="text-align:left;"><div style="font-family:'Orbitron';font-size:0.78rem;color:#fff;">${item.name}</div><div style="font-size:0.68rem;color:var(--muted);text-transform:uppercase;">${item.type}</div></div>
-            <button class="icon-btn" onclick="buyOrEquip('${item.id}')">${eq ? 'EQUIPPED' : (owned ? 'EQUIP' : `BUY 🪙${item.cost}`)}</button>
+    document.getElementById('pack-grid').innerHTML = PACKS.map(p => {
+        const can = profile.coins >= p.cost;
+        return `<div class="pack-card ${can ? '' : 'poor'}" style="--pc:${p.id === 'legend' ? '#ffe600' : p.id === 'pro' ? '#00f3ff' : '#ff7b00'}">
+            <div class="pack-ico">${p.icon}</div>
+            <div class="pack-name">${p.name}</div>
+            <div class="pack-blurb">${p.blurb}</div>
+            <button class="icon-btn" onclick="openPack('${p.id}')">OPEN 🪙${p.cost}</button>
         </div>`;
     }).join('');
-    document.getElementById('locker-overlay').classList.remove('hidden');
+    const tabs = [['all', 'ALL'], ['skin', 'RACKETS'], ['trail', 'TRAILS'], ['theme', 'COURTS'], ['ball', 'BALLS'], ['net', 'NETS'], ['powers', '⚡ POWERS']];
+    document.getElementById('locker-tabs').innerHTML = tabs.map(([k, n]) => `<button class="icon-btn ${lockerTab === k ? 'tab-on' : ''}" onclick="setLockerTab('${k}')">${n}</button>`).join('');
+    if (lockerTab === 'powers') { renderPowers(); return; }
+    const owned = COSMETICS.filter(c => profile.unlocked.includes(c.id)).length;
+    document.getElementById('locker-progress').innerText = `Collection: ${owned}/${COSMETICS.length}`;
+    const list = COSMETICS.filter(c => lockerTab === 'all' || c.type === lockerTab)
+        .sort((x, y) => RAR_ORDER.indexOf(x.rar) - RAR_ORDER.indexOf(y.rar));
+    document.getElementById('locker-items-grid').innerHTML = list.map(item => {
+        const own = profile.unlocked.includes(item.id), eq = isEquipped(item), R = RARITY[item.rar] || RARITY.common;
+        const btn = eq ? 'EQUIPPED' : own ? 'EQUIP' : item.pack ? '🔒 PACKS' : `BUY 🪙${item.cost}`;
+        const dis = (!own && item.pack) ? 'disabled' : '';
+        return `<div class="shop-item ${eq ? 'equipped' : ''} ${own ? '' : 'locked'}" style="border-left:3px solid ${R.c}">
+            <div style="text-align:left;"><div style="font-family:'Orbitron';font-size:0.74rem;color:#fff;">${esc(item.name)}</div><div style="font-size:0.66rem;color:${R.c};text-transform:uppercase;">${R.n} • ${item.type === 'theme' ? 'court' : item.type}</div></div>
+            <button class="icon-btn" ${dis} onclick="buyOrEquip('${item.id}')">${btn}</button>
+        </div>`;
+    }).join('');
+}
+function renderPowers() {
+    const lo = profile.loadout;
+    const slotTxt = i => lo[i] ? `${POWERS[lo[i]].icon} ${POWERS[lo[i]].name}` : 'empty';
+    document.getElementById('locker-progress').innerHTML = `Loadout: <b style="color:#fff">[Z]</b> ${slotTxt(0)} • <b style="color:#fff">[X]</b> ${slotTxt(1)}. Each slot works once per match (not in ranked).`;
+    document.getElementById('locker-items-grid').innerHTML = POWER_IDS.map(id => {
+        const P = POWERS[id], n = profile.powers[id] || 0, sl = lo.indexOf(id);
+        return `<div class="shop-item" style="grid-column:1/-1;border-left:3px solid ${P.col}"><div style="text-align:left;flex:1"><div style="font-family:'Orbitron';font-size:0.76rem;color:#fff;">${P.icon} ${P.name} <span style="color:${P.col}">×${n}</span></div><div style="font-size:0.68rem;color:var(--muted);">${P.desc}</div></div>
+            <div class="pw-actions"><button class="icon-btn" onclick="buyPower('${id}')">BUY 🪙${P.cost}</button>
+            <button class="icon-btn ${sl === 0 ? 'tab-on' : ''}" onclick="equipPower('${id}',0)">${sl === 0 ? '✓ ' : ''}Z</button>
+            <button class="icon-btn ${sl === 1 ? 'tab-on' : ''}" onclick="equipPower('${id}',1)">${sl === 1 ? '✓ ' : ''}X</button></div></div>`;
+    }).join('');
+}
+function buyPower(id) {
+    const P = POWERS[id]; if (!P) return;
+    if ((profile.powers[id] || 0) >= POWER_MAX) { toast(`You can hold at most ${POWER_MAX} charges of each power.`); return; }
+    if (profile.coins < P.cost) { toast('Not enough coins yet. Win matches, claim your daily reward and grab 💰 pickups!'); return; }
+    profile.coins -= P.cost; profile.powers[id] = (profile.powers[id] || 0) + 1;
+    if (!profile.loadout.includes(id)) { const e = profile.loadout.indexOf(''); if (e >= 0) profile.loadout[e] = id; }   // auto-equip into a free slot
+    sfx.play('fever'); saveProfile(); renderLocker();
+}
+function equipPower(id, slot) {
+    if (!POWERS[id]) return;
+    if (!(profile.powers[id] > 0)) { toast('Buy a charge first.'); return; }
+    const lo = profile.loadout.slice(0, 2); while (lo.length < 2) lo.push('');
+    if (lo[slot] === id) lo[slot] = ''; else { const o = lo.indexOf(id); if (o >= 0) lo[o] = ''; lo[slot] = id; }
+    profile.loadout = lo; sfx.play('ui'); saveProfile(); renderLocker();
 }
 function buyOrEquip(id) {
     const item = COSMETICS.find(c => c.id === id);
     if (!item) return;
     if (!profile.unlocked.includes(id)) {
-        if (profile.coins < item.cost) { toast("Not enough coins yet. Complete bounties, hit Fever Rings and win matches to earn more 🪙"); return; }
+        if (item.pack) { toast('This item only drops from Packs. Open one above! 🎁'); return; }
+        if (profile.coins < item.cost) { toast("Not enough coins yet. Complete bounties, grab pickups over the net and win matches to earn more 🪙"); return; }
         profile.coins -= item.cost; profile.unlocked.push(id);
     }
+    equipItem(item);
+    sfx.play('fever'); saveProfile(); renderLocker(); drawArena();
+}
+function equipItem(item) {
     if (item.type === 'trail') profile.trail = item.val;
     if (item.type === 'theme') { profile.themeBg = item.bg; profile.themeNet = item.net; }
-    sfx.play('fever'); saveProfile(); openLocker(); drawArena();
+    if (item.type === 'ball') profile.ball = item.val;
+    if (item.type === 'net') profile.netFx = item.val;
+    if (item.type === 'skin') profile.skin = item.val;
 }
+function rollRarity(odds, atLeast) {
+    let r = Math.random(), pick = null;
+    for (const k of RAR_ORDER) { if (!odds[k]) continue; pick = k; if ((r -= odds[k]) < 0) break; }
+    if (atLeast && RAR_ORDER.indexOf(pick) < RAR_ORDER.indexOf(atLeast)) pick = atLeast;
+    return pick || 'rare';
+}
+function rollPackItem(rar) {
+    const pool = COSMETICS.filter(c => c.cost > 0 || c.pack);
+    const at = pool.filter(c => c.rar === rar);
+    const fresh = at.filter(c => !profile.unlocked.includes(c.id));
+    const from = fresh.length ? fresh : at;       // nothing new at this rarity: it becomes a duplicate
+    return from[Math.floor(Math.random() * from.length)];
+}
+function openPack(id, free = false) {
+    const pack = PACKS.find(p => p.id === id);
+    if (!pack || packBusy) return;
+    if (!free) {
+        if (profile.coins < pack.cost) { toast(`You need 🪙${pack.cost} for a ${pack.name.toLowerCase()}. Win matches and grab 💰 pickups to earn more!`); return; }
+        profile.coins -= pack.cost;
+    }
+    const rolls = [];
+    for (let i = 0; i < pack.n; i++) rolls.push(rollRarity(pack.odds));
+    if (pack.guar && !rolls.some(r => RAR_ORDER.indexOf(r) >= RAR_ORDER.indexOf(pack.guar))) rolls[rolls.length - 1] = pack.guar;
+    const results = rolls.map(rar => {
+        const item = rollPackItem(rar);
+        const dupe = profile.unlocked.includes(item.id);
+        if (dupe) profile.coins += RARITY[item.rar].refund; else profile.unlocked.push(item.id);
+        return { item, dupe, refund: dupe ? RARITY[item.rar].refund : 0 };
+    });
+    saveProfile(); flushCloud(true);
+    renderLocker();
+    showPackReveal(pack, results);
+}
+function showPackReveal(pack, results) {
+    packBusy = true;
+    document.getElementById('pack-title').innerText = `${pack.icon} ${pack.name}`;
+    document.getElementById('pack-cards').innerHTML = results.map((r, i) => {
+        const R = RARITY[r.item.rar];
+        return `<div class="pcard rar-${r.item.rar}" style="--rc:${R.c};--d:${0.35 + i * 0.55}s">
+            <div class="pcard-inner"><div class="pcard-back">?</div>
+            <div class="pcard-front"><div class="pcard-rar">${R.n}</div><div class="pcard-name">${esc(r.item.name)}</div>
+            <div class="pcard-type">${r.item.type === 'theme' ? 'court' : r.item.type}</div>
+            <div class="pcard-tag ${r.dupe ? 'dupe' : 'new'}">${r.dupe ? `DUPLICATE +${r.refund} 🪙` : '✨ NEW!'}</div>
+            ${r.dupe ? '' : `<button class="icon-btn" onclick="equipFromPack('${r.item.id}', this)">EQUIP NOW</button>`}</div></div></div>`;
+    }).join('');
+    const best = results.reduce((m, r) => Math.max(m, RAR_ORDER.indexOf(r.item.rar)), 0);
+    document.getElementById('pack-overlay').classList.remove('hidden');
+    sfx.play('fever');
+    setTimeout(() => sfx.play(best >= 3 ? 'win' : best >= 2 ? 'smash' : 'spin'), 380 + (results.length - 1) * 550);
+    document.getElementById('pack-note').innerText = `🪙 ${profile.coins} left`;
+}
+function equipFromPack(id, btn) {
+    const item = COSMETICS.find(c => c.id === id);
+    if (!item || !profile.unlocked.includes(id)) return;
+    equipItem(item); sfx.play('ui'); saveProfile(); renderLocker(); drawArena();
+    if (btn) { btn.innerText = 'EQUIPPED'; btn.disabled = true; }
+}
+function closePack() { sfx.play('ui'); packBusy = false; document.getElementById('pack-overlay').classList.add('hidden'); renderLocker(); }
 function closeLocker() { sfx.play('ui'); document.getElementById('locker-overlay').classList.add('hidden'); resumeFromPause(); }
 
 function getLeaderboard() { try { return JSON.parse(store.get(LB_KEY)) || {}; } catch { return {}; } }
@@ -1103,6 +1541,7 @@ function profileDoc() {
     return {
         name: cloud.name, rp: profile.rp, coins: profile.coins, unlocked: profile.unlocked.slice(0, 50),
         trail: profile.trail, themeBg: profile.themeBg, themeNet: profile.themeNet,
+        ...(cloud.legacy ? {} : { ball: profile.ball, netFx: profile.netFx, skin: profile.skin, lastDay: profile.lastDay, streak: profile.streak, powers: profile.powers, loadout: profile.loadout }),   // legacy = Firestore rules not updated yet
         bountyIdx: profile.bountyIdx, bountyProg: profile.bountyProg,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -1134,6 +1573,8 @@ async function flushCloud(immediate = false) {
         await cloud.db.collection('users').doc(uid).set(profileDoc());
     } catch (e) {
         console.warn('[cloud] save failed, will retry:', e);
+        // Old rules reject the new ball/net fields: fall back to the old save format until the rules are republished.
+        if (e && e.code === 'permission-denied' && !cloud.legacy) cloud.legacy = true;
         if (cloud.user && cloud.user.uid === uid) cloud.dirty = true;
     } finally {
         cloud.writing = false;
@@ -1364,6 +1805,7 @@ const canvas = document.getElementById('pongCanvas');
 const ctx = canvas.getContext('2d');
 // Primary input decides the default layout (a touch-screen laptop with a mouse stays in desktop mode).
 const mq = q => { try { return window.matchMedia(q).matches; } catch { return false; } };
+const reduceMotion = (() => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } })();
 const isTouchDevice = mq('(pointer: coarse)') || (navigator.maxTouchPoints > 0 && !mq('(pointer: fine)'));
 const myDeviceIcon = isTouchDevice ? '📱' : '💻';
 
@@ -1379,11 +1821,15 @@ let peer = null, conn = null, connF = null, pingTimer = null, leaving = false;
 let isHost = true, isAIMode = false, aiSkill = 0.95;
 let gameActive = false, animationId = null, lastTime = performance.now(), pendingRoomId = null, pointTimer = null;
 let mySelectedRacket = 'pro';
+let finishing = false, aiPow = null, powersOn = true, lastPowerAt = 0;
+const myPow = { slots: ['', ''], used: [false, false] }, usedPow = { 1: new Set(), 2: new Set() };
+const ownedLoadout = () => cleanPows(profile.loadout.filter(id => id && (profile.powers[id] || 0) > 0));
+let lastInputAt = 0, netRipple = null, prevBallX = -100, serveAim = 0, aimP2 = 0;   // serveAim = my chosen serve angle (radians)
 let hitStopTimer = 0, slowMoTimer = 0, cameraZoom = 1.0, screenShake = 0, screenFlash = 0, guestSlow = false;
 
 function sendCtl(m) { if (conn && conn.open) { try { conn.send(m); } catch {} } }
 function sendFast(m) { if (connF && connF.open) { try { connF.send(m); } catch {} } }
-const NET_VERSION = 8;   // bump whenever the network messages change; mismatched players get a "refresh" message
+const NET_VERSION = 14;   // bump whenever the network messages change; mismatched players get a "refresh" message
 let lastRecvAt = 0, lastSyncSent = 0, lastMoveSent = 0, lastMoveX = -1, lastMoveY = -1;
 let remoteAway = false, localAway = false, countdownUntil = 0, countdownKind = 'start', guestFlickSent = false;
 let watchdogTimer = null, joinTimer = null;
@@ -1393,13 +1839,15 @@ let matchConfig = {
     targetScore: 5, winByTwo: true,
     p1Name: 'Player 1', p2Name: 'Player 2',
     p1Dev: '💻', p2Dev: '🤖',
-    p1Racket: 'pro', p2Racket: 'pro', initialServer: 1
+    p1Racket: 'pro', p2Racket: 'pro', p1Skin: 'default', p2Skin: 'default', p1Pow: [], p2Pow: [], ante: 0, initialServer: 1
 };
+let anteChoice = 0, oppCoins = 0;
+function setAnte(v, btn) { sfx.play('ui'); anteChoice = v; document.querySelectorAll('#ante-selector .pill-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
 let seriesWins = { p1: 0, p2: 0 };
 
 function createBat(x, y, rKey = 'pro') {
     return {
-        x, y, targetX: x, targetY: y, prevX: x, prevY: y,
+        x, y, targetX: x, targetY: y, prevX: x, prevY: y, sx: x, sy: y, combo: 0, swing: 0, shield: false, freeze: 0, magnetT: 0,
         vx: 0, vy: 0, velHistory: [],
         angle: 0, hitCooldown: 0, hitFlash: 0, strikeCd: 0,
         lungeOffset: 0, lungeVel: 0,
@@ -1420,7 +1868,7 @@ const state = {
     decoyBall: { active: false, x: 0, y: 0, vx: 0, vy: 0 },
     feverRing: { active: false, x: NET_X, y: 250, vy: 2.3, radius: 34, mode: 'fever' },
     pointIsFever: false,
-    score1: 0, score2: 0, rally: 0, maxRally: 0, topKmh: 0,
+    fogTo: 0, fogT: 0, score1: 0, score2: 0, rally: 0, maxRally: 0, topKmh: 0,
     pointsPlayed: 0, deuceStart: -1,
     waitingForServe: true, serveLockTimer: 0, currentServer: 1, servesLeft: 2, aiServeTimer: 0
 };
@@ -1443,6 +1891,8 @@ window.onload = () => {
     updateAccountUI();
     initCloud();
     if (!store.get(HOWTO_KEY)) openHowTo();
+    setTimeout(checkDaily, 700);
+    buildRacketCards(); loadPrefs(); startAttract();
 };
 
 function setDeck(on) {
@@ -1517,7 +1967,9 @@ function applyEmote(playerNum, idx) {
 
 function updateHUD() {
     document.getElementById('rally-count').innerText = state.rally;
-    document.getElementById('speed-kmh').innerText = `${state.ball.kmh || 0} KM/H`;
+    const kmhNow = state.ball.kmh || 0, spEl = document.getElementById('speed-kmh');
+    spEl.innerText = `${kmhNow} KM/H`;
+    spEl.className = 'speed-readout ' + (kmhNow >= 220 ? 'spd-max' : kmhNow >= 170 ? 'spd-hi' : kmhNow >= 120 ? 'spd-mid' : '');
     document.getElementById('shot-type-badge').innerText = state.ball.shotType || 'READY';
 
     const od1 = Math.min(100, Math.round(state.p1.overdrive));
@@ -1546,8 +1998,10 @@ function startAIGame() {
     matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p2Name = 'PRO AI BOT';
     matchConfig.p1Dev = myDeviceIcon; matchConfig.p2Dev = '🤖';
+    matchConfig.p1Skin = profile.skin; matchConfig.p2Skin = SKIN_VALS[Math.floor(Math.random() * SKIN_VALS.length)]; matchConfig.ante = 0;
+    aiPow = { id: POWER_IDS[Math.floor(Math.random() * POWER_IDS.length)], used: false };
     matchConfig.p1Racket = mySelectedRacket;
-    const aiKeys = ['pro', 'katana', 'vortex', 'titan'];
+    const aiKeys = Object.keys(RACKETS);
     matchConfig.p2Racket = aiKeys[Math.floor(Math.random() * aiKeys.length)];
     store.set('neon_pong_nickname', matchConfig.p1Name);
     seriesWins = { p1: 0, p2: 0 };
@@ -1561,6 +2015,7 @@ function createOnlineGame() {
     isHost = true; isAIMode = false; leaving = false;
     matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p1Dev = myDeviceIcon;
+    matchConfig.p1Skin = profile.skin; matchConfig.ante = 0;
     matchConfig.p1Racket = mySelectedRacket;
     store.set('neon_pong_nickname', matchConfig.p1Name);
     document.getElementById('create-btn').disabled = true;
@@ -1573,7 +2028,7 @@ function confirmJoinGame() {
     isAIMode = false; leaving = false;
     matchConfig.p2Name = cleanName(document.getElementById('guest-name-input').value, 'Player 2');
     matchConfig.p2Dev = myDeviceIcon;
-    matchConfig.p2Racket = mySelectedRacket;
+    matchConfig.p2Racket = mySelectedRacket; matchConfig.p2Skin = profile.skin;
     store.set('neon_pong_nickname', matchConfig.p2Name);
     showOverlay('connecting-overlay');
     initPeer(null, pendingRoomId);
@@ -1638,6 +2093,12 @@ function initPeer(customId = null, targetId = null) {
     });
 }
 
+let pingWarned = 0;
+function setPing(rtt) {
+    const el = document.getElementById('ping-display'); el.innerText = `${rtt} ms`;
+    el.style.color = rtt < 90 ? '#00ff88' : rtt < 180 ? '#ffe600' : '#ff4d6d';
+    if (rtt > 260 && Date.now() - pingWarned > 60000) { pingWarned = Date.now(); toast('📶 Slow connection. Wi-Fi (not mobile data) and closing other apps help.'); }
+}
 function handleNetData(d) {
     if (!d || typeof d !== 'object') return;
     lastRecvAt = performance.now();
@@ -1646,7 +2107,10 @@ function handleNetData(d) {
     if (d.type === 'config' && !isHost && d.v !== NET_VERSION) { sendCtl({ type: 'version', v: NET_VERSION }); setTimeout(showVersionMismatch, 150); return; }
     if (d.type === 'hello' && isHost) {
         matchConfig.p2Name = cleanName(d.name, 'Player 2');
-        matchConfig.p2Racket = rk(d.racket);
+        matchConfig.p2Racket = rk(d.racket); matchConfig.p2Skin = cleanSkin(d.skin); matchConfig.p2Pow = cleanPows(d.pow);
+        { const off = isRankedMatch(); matchConfig.p1Pow = off ? [] : ownedLoadout(); if (off) matchConfig.p2Pow = []; }
+        oppCoins = clampInt(d.coins, 0, 10000000, 0);
+        matchConfig.ante = Math.min(anteChoice, profile.coins, oppCoins);   // both players must be able to pay
         matchConfig.p2Dev = cleanDev(d.dev);
         setOppRankedRp(d.rrp);
         sendCtl({ type: 'config', v: NET_VERSION, config: matchConfig, series: seriesWins, rrp: myRankedRp() });
@@ -1658,7 +2122,8 @@ function handleNetData(d) {
             winByTwo: !!c.winByTwo,
             p1Name: cleanName(c.p1Name, 'Player 1'), p2Name: cleanName(c.p2Name, 'Player 2'),
             p1Dev: cleanDev(c.p1Dev), p2Dev: cleanDev(c.p2Dev),
-            p1Racket: rk(c.p1Racket), p2Racket: rk(c.p2Racket),
+            p1Racket: rk(c.p1Racket), p2Racket: rk(c.p2Racket), p1Skin: cleanSkin(c.p1Skin), p2Skin: cleanSkin(c.p2Skin), p1Pow: cleanPows(c.p1Pow), p2Pow: cleanPows(c.p2Pow),
+            ante: Math.min(clampInt(c.ante, 0, 100, 0), profile.coins),
             initialServer: c.initialServer === 2 ? 2 : 1
         };
         seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
@@ -1668,6 +2133,9 @@ function handleNetData(d) {
         const s = d.s; if (!s || !s.p1 || !s.ball) return;
         for (const k of ['x', 'y', 'vx', 'vy', 'angle', 'overdrive', 'streak', 'hitFlash']) if (Number.isFinite(s.p1[k])) state.p1[k] = s.p1[k];
         if (RACKETS[s.p1.racket]) state.p1.racket = s.p1.racket;
+        state.p1.shield = !!s.p1.sh; state.p1.freeze = num(s.p1.fz); state.p1.magnetT = num(s.p1.mg);
+        const q = s.p2Pw || {}; state.p2.shield = !!q.sh; state.p2.freeze = num(q.fz); state.p2.magnetT = num(q.mg);
+        state.fogTo = num(s.fog); state.fogT = s.fog ? 1 : 0;
         state.p2.overdrive = num(s.p2Od); state.p2.streak = num(s.p2St);
         state.p2.hitFlash = Math.max(state.p2.hitFlash, num(s.p2Flash));
         state.feverRing = s.ring; state.decoyBall = s.decoy;
@@ -1688,6 +2156,11 @@ function handleNetData(d) {
             state.p2.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, d.x));
             state.p2.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, d.y));
         }
+    } else if (d.type === 'aim' && isHost) {
+        aimP2 = Math.max(-SERVE_MAX, Math.min(SERVE_MAX, num(d.v, 0)));
+    } else if (d.type === 'power' && isHost) {
+        const id = d.id;
+        if (powersOn && POWERS[id] && (matchConfig.p2Pow || []).includes(id) && !usedPow[2].has(id) && !state.waitingForServe && gameActive) { usedPow[2].add(id); applyPower(2, id); }
     } else if (d.type === 'whip' && isHost) {
         triggerWhipStrike(2);
     } else if (d.type === 'chrono' && isHost) {
@@ -1697,15 +2170,22 @@ function handleNetData(d) {
         if ((isHost && p === 2) || (!isHost && p === 1)) applyEmote(p, d.idx | 0);
     } else if (d.type === 'bounty' && !isHost) {
         if (BOUNTY_TYPES.includes(d.kind)) advanceBounty(d.kind, num(d.n, 1), !!d.set);
+    } else if (d.type === 'coins' && !isHost) {
+        grantCoins(d.n);
     } else if (d.type === 'fx' && !isHost) {
         triggerLocalFX(d);
     } else if (d.type === 'gameover' && !isHost) {
         seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
         state.score1 = num(d.s1, state.score1); state.score2 = num(d.s2, state.score2);
         updateScoreBox(0);
-        handleGameOver(d.winner === 2 ? 2 : 1);
+        finishMatchSoon(d.winner === 2 ? 2 : 1);
     } else if (d.type === 'rematch' && !isHost) {
-        matchConfig.initialServer = d.initialServer === 2 ? 2 : 1; resetMatch();
+        matchConfig.initialServer = d.initialServer === 2 ? 2 : 1;
+        matchConfig.ante = Math.min(clampInt(d.ante, 0, 100, 0), profile.coins);   // coins changed since the last match
+        matchConfig.p1Pow = cleanPows(d.p1Pow); matchConfig.p2Pow = ownedLoadout();
+        resetMatch();
+    } else if (d.type === 'prof' && isHost) {
+        oppCoins = clampInt(d.coins, 0, 10000000, 0); matchConfig.p2Pow = isRankedMatch() ? [] : cleanPows(d.pow);
     } else if (d.type === 'rematch_req' && isHost) {
         if (!gameActive) requestRematch();
     } else if (d.type === 'away') {
@@ -1716,9 +2196,9 @@ function handleNetData(d) {
     else if (d.type === 'pong' && !isHost) { /* keep-alive only */ }
     else if (d.type === 'pong' && isHost) {
         const rtt = Date.now() - num(d.t);
-        document.getElementById('ping-display').innerText = `${rtt} ms`;
+        setPing(rtt);
         sendCtl({ type: 'ping_val', rtt });
-    } else if (d.type === 'ping_val') document.getElementById('ping-display').innerText = `${num(d.rtt)} ms`;
+    } else if (d.type === 'ping_val') setPing(num(d.rtt));
 }
 
 function setupConnEvents(c, isControl) {
@@ -1727,7 +2207,7 @@ function setupConnEvents(c, isControl) {
         document.getElementById('leave-match-btn').style.display = 'flex';
         clearTimeout(joinTimer);
         lastRecvAt = performance.now(); remoteAway = false;
-        if (!isHost) c.send({ type: 'hello', v: NET_VERSION, name: matchConfig.p2Name, racket: matchConfig.p2Racket, dev: myDeviceIcon, rrp: myRankedRp() });
+        if (!isHost) c.send({ type: 'hello', v: NET_VERSION, name: matchConfig.p2Name, racket: matchConfig.p2Racket, skin: matchConfig.p2Skin, coins: profile.coins, pow: ownedLoadout(), dev: myDeviceIcon, rrp: myRankedRp() });
         clearInterval(pingTimer); pingTimer = setInterval(() => sendCtl({ type: 'ping', t: Date.now() }), 2000);
         startWatchdog();
     });
@@ -1735,6 +2215,7 @@ function setupConnEvents(c, isControl) {
     if (isControl) c.on('close', () => {
         clearInterval(pingTimer); pingTimer = null;
         if (leaving) return;
+        if (gameActive && !matchCounted && matchConfig.ante > 0) { profile.coins += matchConfig.ante; saveProfile(); toast(`🏆 Your opponent left: you win the 🪙${matchConfig.ante} stake`); matchCounted = true; }
         showNetIssue('Opponent disconnected', 'Your opponent closed the game or lost their internet connection.');
     });
     c.on('error', () => {});
@@ -1783,7 +2264,9 @@ function startWatchdog() {
 }
 
 function returnToMenu() {
-    sfx.play('ui'); gameActive = false; paused = false; leaving = true; clearTimeout(pointTimer);
+    if (gameActive && !isAIMode && !matchCounted && matchConfig.ante > 0 && conn && conn.open) { profile.coins = Math.max(0, profile.coins - matchConfig.ante); saveProfile(); toast(`You left mid-match: 🪙${matchConfig.ante} stake forfeited`); }
+    sfx.play('ui'); gameActive = false; finishing = false; paused = false; leaving = true; clearTimeout(pointTimer);
+    document.getElementById('pause-badge').classList.add('hidden'); document.getElementById('power-bar').classList.add('hidden'); updateAimPad();
     clearInterval(pingTimer); pingTimer = null;
     clearInterval(watchdogTimer); watchdogTimer = null; clearTimeout(joinTimer);
     document.body.classList.remove('in-match');
@@ -1809,8 +2292,13 @@ function startMatch() {
     matchCounted = false;
     state.p1 = createBat(95, H / 2, matchConfig.p1Racket);
     state.p2 = createBat(W - 95, H / 2, matchConfig.p2Racket);
+    state.p1.skin = matchConfig.p1Skin; state.p2.skin = matchConfig.p2Skin;
+    setupPowers();
+    state.lastPointSlow = false; finishing = false;
+    if (!isAIMode && matchConfig.ante > 0) showBanner(`💰 STAKES: 🪙${matchConfig.ante} EACH`, '#ffe600');
     updateScoreBox(0); applyNamesUI();
     gameActive = true; lastTime = performance.now();
+    updatePowerBar();
     if (animationId) cancelAnimationFrame(animationId);
     if (isHost) preparePlayerServe();
     gameLoop(lastTime);
@@ -1825,7 +2313,12 @@ function requestRematch() {
     }
     matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
     if (isAIMode) resetMatch();
-    else if (conn && conn.open) { sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer }); resetMatch(); }
+    else if (conn && conn.open) {
+        const off = isRankedMatch();
+        matchConfig.p1Pow = off ? [] : ownedLoadout();
+        matchConfig.ante = Math.min(anteChoice, profile.coins, oppCoins);
+        sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer, ante: matchConfig.ante, p1Pow: matchConfig.p1Pow }); resetMatch();
+    }
 }
 
 function preparePlayerServe() {
@@ -1833,7 +2326,7 @@ function preparePlayerServe() {
     clearTimeout(pointTimer);
     const rot = computeServiceRotation();
     state.currentServer = rot.server; state.servesLeft = rot.servesLeft;
-    state.waitingForServe = true; state.serveLockTimer = 15; state.rally = 0;
+    state.waitingForServe = true; state.serveLockTimer = 15; state.rally = 0; state.lastPointSlow = false; state.p1.combo = 0; state.p2.combo = 0;
     announcePressure();
     state.pointIsFever = false; state.feverRing.active = false; state.decoyBall.active = false;
 
@@ -1851,11 +2344,12 @@ function preparePlayerServe() {
 function triggerChronoDash(playerNum) {
     if (!isHost || state.waitingForServe) return;
     const bat = playerNum === 1 ? state.p1 : state.p2;
-    if (bat.overdrive < 50) return;
-    bat.overdrive -= 50;
+    const dashCost = (RACKETS[bat.racket] || RACKETS.pro).dash;
+    if (bat.overdrive < dashCost) return;
+    bat.overdrive -= dashCost;
     slowMoTimer = 45;
     const b = state.ball;
-    if (b.y) { bat.targetY = b.y; bat.y += (b.y - bat.y) * 0.72; }
+    if (b.y) { bat.targetY = b.y; bat.y += (b.y - bat.y) * 0.72; bat.sy = bat.y; }
     updateHUD();
     emitFX({
         sfx: 'chrono',
@@ -1876,19 +2370,39 @@ function triggerWhipStrike(playerNum) {
 
     // Strike cooldown: prevents button-mashing from keeping a permanent parry window open.
     if (bat.strikeCd > 0) return;
-    bat.strikeCd = 22;
+    bat.strikeCd = rStats.cd;
+    bat.swing = 1;
 
-    bat.lungeVel = dir * 19;
+    bat.lungeVel = dir * rStats.lunge;
     sfx.play('whip');
 
     const b = state.ball;
     const approaching = (playerNum === 1 && b.vx < 0 && b.x < NET_X) || (playerNum === 2 && b.vx > 0 && b.x > NET_X);
     if (approaching && Math.abs(b.x - bat.x) < 135 && Math.abs(b.y - bat.y) < rStats.len * 1.05) {
         bat.targetY += (b.y - bat.targetY) * 0.7;
-        bat.y += (b.y - bat.y) * 0.6;
+        bat.y += (b.y - bat.y) * 0.6; bat.sy = bat.y;
     }
 }
 
+// Serve direction. A human server chooses the angle (Q/E, mouse wheel or the AIM buttons); the flick only adds a little spin on top.
+const SERVE_MAX = 0.44;
+const SERVE_WOBBLE = 0.05;   // ~±3 degrees of random error: serves stay a little unpredictable
+function serveAngle(pn, bat, slice, human, wobble = false) {
+    const dir = pn === 1 ? 1 : -1;
+    const base = (slice * 0.022) - (bat.angle * 0.35 * dir);
+    if (!human) return Math.max(-SERVE_MAX, Math.min(SERVE_MAX, base + ((H / 2) - state.ball.y) * 0.0014));
+    const aim = pn === 1 ? serveAim : aimP2;
+    return Math.max(-SERVE_MAX, Math.min(SERVE_MAX, aim + base * 0.2 + (wobble ? (Math.random() * 2 - 1) * SERVE_WOBBLE : 0)));
+}
+const isHumanServer = pn => !(isAIMode && pn === 2);
+function aimNudge(dir) {   // dir: +1 = right / down on YOUR screen, -1 = left / up
+    if (!state.waitingForServe || state.currentServer !== (isHost ? 1 : 2)) return;
+    const k = view.portrait ? view.c : view.d;                  // screen direction -> court-y direction
+    const delta = (k >= 0 ? 1 : -1) * dir * 0.045;
+    serveAim = Math.max(-SERVE_MAX, Math.min(SERVE_MAX, serveAim + delta));
+    if (!isHost) { aimP2 = serveAim; sendCtl({ type: 'aim', v: serveAim }); }
+    sfx.play('ui');
+}
 function launchServe(playerNum, customVx, customVy) {
     if (!isHost || !state.waitingForServe || state.currentServer !== playerNum) return;
     const bat = playerNum === 1 ? state.p1 : state.p2;
@@ -1903,8 +2417,7 @@ function launchServe(playerNum, customVx, customVy) {
     const slice = customVy || bat.vy;
     const spd = Math.max(9.8, Math.min(16.0, (8.8 + fwd * 0.42) * rStats.spd));
 
-    const centerBias = ((H / 2) - b.y) * 0.0014;
-    const angle = Math.max(-0.44, Math.min(0.44, (slice * 0.022) - (bat.angle * 0.35 * dir) + centerBias));
+    const angle = serveAngle(playerNum, bat, slice, isHumanServer(playerNum), true);
 
     b.speed = spd;
     b.vx = dir * spd * Math.cos(angle);
@@ -1939,15 +2452,22 @@ function stepBatKinematics(bat, bounds, isP1, dt) {
     bat.lungeVel *= Math.pow(0.72, dt);
     if (Math.abs(bat.lungeOffset) < 0.2 && Math.abs(bat.lungeVel) < 0.2) { bat.lungeOffset = 0; bat.lungeVel = 0; }
 
-    const desiredX = Math.max(bounds.minX, Math.min(bounds.maxX, bat.targetX + bat.lungeOffset));
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
+    // Inertia: the bat chases your hand. Light rackets (Katana) follow almost instantly, the Titan feels heavy.
+    if (bat.freeze > 0) bat.freeze -= dt;
+    if (bat.magnetT > 0) bat.magnetT -= dt;
+    const fol = 1 - Math.pow(1 - rStats.follow * (bat.freeze > 0 ? 0.22 : 1), dt);   // Ice Lock = molasses
+    bat.sx += (bat.targetX - bat.sx) * fol; bat.sy += (bat.targetY - bat.sy) * fol;
+    const desiredX = Math.max(bounds.minX, Math.min(bounds.maxX, bat.sx + bat.lungeOffset));
     const yMin = Math.max(bounds.minY, rStats.len / 2 + 24), yMax = Math.min(bounds.maxY, H - rStats.len / 2 - 24);
-    const desiredY = Math.max(yMin, Math.min(yMax, bat.targetY));
+    const desiredY = Math.max(yMin, Math.min(yMax, bat.sy));
     const b = state.ball;
     const incoming = (isP1 && b.vx < 0 && b.x < NET_X) || (!isP1 && b.vx > 0 && b.x > NET_X);
     let magnetY = desiredY;
-    if (!state.waitingForServe && incoming && Math.abs(b.x - desiredX) < 70 && Math.abs(b.y - desiredY) < rStats.len * 0.78) {
-        magnetY += (b.y - desiredY) * 0.32;
+    const steeringNow = performance.now() - lastInputAt < 200;
+    const mag = bat.magnetT > 0;   // Magnet Hand: much wider reach and a firm pull
+    if (!state.waitingForServe && incoming && Math.abs(b.x - desiredX) < (mag ? 130 : 70) && Math.abs(b.y - desiredY) < rStats.len * (mag ? 1.5 : 0.78)) {
+        magnetY += (b.y - desiredY) * (mag ? 0.7 : (steeringNow ? 0.12 : 0.32) * ((isAIMode && !isP1) ? 0.3 : 1));   // normal magnet yields while you steer; the bot gets only a sliver
     }
 
     bat.x = desiredX; bat.y = magnetY;
@@ -2006,7 +2526,7 @@ function checkBatCapsuleCollision(bat, isP1) {
 
         // Only a *forward* lunge counts toward strokes/parries (the quake knock-back must not).
         const lungeFwd = Math.max(0, dir * bat.lungeVel);
-        const fwdStroke = (isP1 ? bat.vx : -bat.vx) + lungeFwd * 0.6;
+        const fwdStroke = ((isP1 ? bat.vx : -bat.vx) + lungeFwd * 0.6) * rStats.power;
         const sliceStroke = bat.vy;
         const bladeOffset = (t - 0.5) * 2;
 
@@ -2018,9 +2538,12 @@ function checkBatCapsuleCollision(bat, isP1) {
         let callout = '';
 
         const wasIncomingFast = b.speed >= 15.0 || b.isHyper;
+        const inSpin = b.spin, inSpeed = b.speed, wasGhost = b.ultType === 'ghost';
         b.isHyper = false; b.ultType = '';
+        bat.combo++;
+        const sweetHit = Math.abs(bladeOffset) <= rStats.sweet, edgeHit = Math.abs(bladeOffset) >= 0.86;
 
-        if (wasIncomingFast && lungeFwd > 6.0) {
+        if (wasIncomingFast && lungeFwd > (bat.racket === 'katana' ? 4.6 : 6.0)) {
             newSpeed = Math.min(26.5, b.speed * 1.18);
             shotLabel = '⚔️ PARRY CLASH!'; sfxName = 'parry'; pColor = '#00ff88';
             freezeFrames = 5.0; b.isHyper = true; b.z = 24; b.vz = 1.0;
@@ -2034,7 +2557,9 @@ function checkBatCapsuleCollision(bat, isP1) {
             if (bat.racket === 'katana') { newSpeed = 25.5; b.ultType = 'laser'; b.z = 18; b.vz = 0.2; }
             else if (bat.racket === 'vortex') { newSpeed = 19.5; b.ultType = 'snake'; b.z = 22; b.vz = 1.2; }
             else if (bat.racket === 'titan') { newSpeed = 22.0; b.ultType = 'quake'; b.z = 26; b.vz = 0.8; }
-            else { newSpeed = 23.8; b.ultType = 'comet'; b.z = 26; b.vz = 0.7; }
+            else if (bat.racket === 'phantom') { newSpeed = 21.5; b.ultType = 'ghost'; b.z = 20; b.vz = 0.6; }
+            else if (bat.racket === 'volt') { newSpeed = 22.5; b.ultType = 'zig'; b.z = 20; b.vz = 0.7; }
+            else { newSpeed = 23.8; b.ultType = 'comet'; b.z = 26; b.vz = 0.8 - 0.1; }
             awardBounty(pn, 'smash', 1);
         }
         else if (fwdStroke > 4.6) {
@@ -2050,14 +2575,31 @@ function checkBatCapsuleCollision(bat, isP1) {
             bat.overdrive = Math.min(100, bat.overdrive + 15 * rStats.odRate);
         } else if (Math.abs(sliceStroke) > 4.2) {
             newSpeed = Math.max(10.5, newSpeed);
-            shotLabel = '🌀 WICKED SPIN'; sfxName = 'spin'; pColor = '#bc13fe';
+            shotLabel = '🌀 WICKED SPIN'; sfxName = 'spin'; pColor = '#00e5c0';
             b.z = 20; b.vz = 1.4; callout = '🌀 CURVE!';
             bat.overdrive = Math.min(100, bat.overdrive + 20 * rStats.odRate);
             awardBounty(pn, 'spin', 1);
         } else {
             b.z = 19; b.vz = 1.45;
             bat.overdrive = Math.min(100, bat.overdrive + 16 * rStats.odRate);
+            // --- bat physics on ordinary hits: where the ball meets the blade matters ---
+            if (bat.racket === 'titan' && wasIncomingFast) {      // brick wall: a fast ball is blocked straight back
+                newSpeed = Math.max(newSpeed, inSpeed * 0.97); shotLabel = '🛡️ BLOCK'; callout = '🛡️ BLOCK!'; sfxName = 'parry'; pColor = '#ff7b00';
+                bat.overdrive = Math.min(100, bat.overdrive + 18); freezeFrames = 1.6;
+            } else if (sweetHit) {
+                newSpeed *= bat.racket === 'pro' ? 1.12 : 1.07; shotLabel = '🎯 SWEETSPOT'; callout = '🎯 SWEETSPOT'; pColor = '#00ff88'; sfxName = 'smash';
+                bat.overdrive = Math.min(100, bat.overdrive + 6);
+            } else if (edgeHit) {
+                newSpeed *= 0.86; shotLabel = '🔪 EDGE CUT'; callout = '🔪 EDGE CUT'; pColor = '#ff4d6d'; sfxName = 'spin';
+            }
         }
+        // racket passives
+        let extraSpin = 0;
+        if (bat.racket === 'vortex' && Math.abs(inSpin) > 0.06) { extraSpin = -inSpin * 0.9; if (!callout) { callout = '🌀 SPIN CATCH'; pColor = '#00e5c0'; } }
+        if (bat.racket === 'volt' && bat.combo % 3 === 0) {
+            const lvl = Math.min(5, bat.combo / 3); newSpeed *= 1 + 0.04 * lvl; if (!b.isHyper) { callout = `⚡ CHAIN x${lvl}`; pColor = '#7dff3a'; }
+        }
+        if (edgeHit) extraSpin += Math.sign(bladeOffset) * 0.16 * (isP1 ? 1 : -1);   // clipping the tip puts spin on the ball
 
         b.speed = Math.max(6.8, Math.min(26.5, newSpeed));
 
@@ -2065,11 +2607,13 @@ function checkBatCapsuleCollision(bat, isP1) {
         const clampedTargetY = Math.max(55, Math.min(H - 55, targetY));
         const targetX = isP1 ? (W - 90) : 90;
         const idealAngle = Math.atan2(clampedTargetY - b.y, Math.abs(targetX - b.x));
-        const bounceAngle = b.ultType === 'laser' ? (idealAngle * 0.35) : Math.max(-0.52, Math.min(0.52, idealAngle));
+        // A tilted blade angles the return (moving your bat up/down tilts it): another way to steer shots.
+        const tilt = Math.max(-0.18, Math.min(0.18, -dir * bat.angle * 0.35));
+        const bounceAngle = b.ultType === 'laser' ? (idealAngle * 0.35) : Math.max(-0.56, Math.min(0.56, idealAngle + tilt));
 
         b.vx = dir * b.speed * Math.cos(bounceAngle);
         b.vy = b.speed * Math.sin(bounceAngle);
-        b.spin = b.ultType === 'laser' ? 0 : Math.max(-0.32, Math.min(0.32, sliceStroke * 0.022 * rStats.spin));
+        b.spin = b.ultType === 'laser' ? 0 : Math.max(-0.4, Math.min(0.4, sliceStroke * 0.022 * rStats.spin + extraSpin));
 
         b.kmh = Math.round(b.speed * 9.6);
         b.shotType = shotLabel;
@@ -2080,10 +2624,12 @@ function checkBatCapsuleCollision(bat, isP1) {
         awardBounty(1, 'rally', state.rally, true);
         awardBounty(2, 'rally', state.rally, true);
 
-        if (state.rally === 3 && !state.feverRing.active && !state.pointIsFever) {
+        if ((state.rally === 3 || state.rally === 9 || state.rally === 16) && !state.feverRing.active && !state.pointIsFever) {
             state.feverRing.active = true;
             state.feverRing.y = H / 2;
-            state.feverRing.mode = Math.random() > 0.42 ? 'fever' : 'mirage';
+            state.feverRing.vy = (Math.random() < 0.5 ? -1 : 1) * (2.1 + Math.min(1.6, state.rally * 0.08));   // later spawns drift faster
+            state.feverRing.mode = rollPickup();
+            emitFX({ sfx: 'ui', text: { x: NET_X, y: H / 2 - 50, txt: `${PICKUPS[state.feverRing.mode].icon} ${PICKUPS[state.feverRing.mode].label} APPEARED`, color: PICKUPS[state.feverRing.mode].col } });
         }
 
         updateHUD();
@@ -2105,10 +2651,30 @@ function checkBatCapsuleCollision(bat, isP1) {
     return false;
 }
 
+// A human-like opponent: it sees the ball a moment late, can only move so fast, mis-reads some shots and
+// sometimes swings late. Skill 0.7 / 0.95 / 1.25 = CASUAL / PRO / GODLIKE.
+const aiMem = { buf: [], seen: null, err: 0, dirIn: false, strikeGap: 60, willStrike: true };
+// Tuned by simulation against a mid-skill player: the bot wins roughly 26% / 47% / 64% on CASUAL / PRO / GODLIKE.
+const AI_TIERS = [
+    [0.7,  { delay: 16, maxStep: 4.6, err: 52, slip: 0.18, strike: 0.5, follow: 0.12 }],
+    [0.95, { delay: 10, maxStep: 7.4, err: 22, slip: 0.06, strike: 0.8, follow: 0.2 }],
+    [1.25, { delay: 3,  maxStep: 14,  err: 4,  slip: 0.005, strike: 1,  follow: 0.4 }]
+];
+function aiParams() {
+    const k = Math.max(0.7, Math.min(1.25, aiSkill)), i = k <= 0.95 ? 0 : 1;
+    const [k0, a] = AI_TIERS[i], [k1, b] = AI_TIERS[i + 1], t = (k - k0) / (k1 - k0), o = {};
+    for (const key in a) o[key] = a[key] + (b[key] - a[key]) * t;
+    o.delay = Math.round(o.delay);
+    return o;
+}
+function aiReset() { aiMem.buf.length = 0; aiMem.seen = null; aiMem.err = 0; aiMem.dirIn = false; }
+const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.75;   // roughly -2..2, bell-shaped
 function updateAIBat(dt) {
     if (!isAIMode) return;
-    const ai = state.p2, b = state.ball;
+    const ai = state.p2, b = state.ball, P = aiParams();
+    const stepTo = (cur, want, k, max) => cur + Math.max(-max, Math.min(max, (want - cur) * k)) * dt;
     if (state.waitingForServe) {
+        aiReset();
         if (state.currentServer === 2) {
             state.aiServeTimer -= dt;
             ai.targetX += ((W - 95) - ai.targetX) * 0.15 * dt;
@@ -2120,25 +2686,107 @@ function updateAIBat(dt) {
         }
         return;
     }
-    if (b.vx > 0) {
-        const tReach = Math.max(1, (ai.x - b.x) / Math.max(4, b.vx));
-        const trackY = (state.decoyBall.active && b.x < NET_X + 140) ? state.decoyBall.y : b.y;
-        const predY = trackY + (b.vy + b.spin * 10) * tReach * 0.88;
-        ai.targetY += (predY - ai.targetY) * (0.21 * aiSkill) * dt;
-        if (b.x > NET_X + 70 && b.x < ai.x - 10 && Math.abs(b.y - ai.y) < 55 && ai.lungeOffset === 0) {
+    if (aiPow && !aiPow.used && powersOn && state.rally >= 4 && Math.random() < 0.006 * dt) { aiPow.used = true; applyPower(2, aiPow.id); }
+    // Reaction time: the AI works from a snapshot of the ball that is P.delay frames old.
+    aiMem.clock = (aiMem.clock || 0) + dt;   // measured in 60 Hz frames, so the reaction time is the same on every refresh rate
+    aiMem.buf.push({ t: aiMem.clock, x: b.x, y: b.y, vx: b.vx, vy: b.vy, spin: b.spin, decoy: state.decoyBall.active ? { y: state.decoyBall.y } : null });
+    while (aiMem.buf.length > 1 && aiMem.clock - aiMem.buf[1].t >= P.delay) aiMem.buf.shift();
+    aiMem.seen = aiMem.buf[0];
+    const sn = aiMem.seen;
+    const incoming = sn.vx > 0;
+    if (incoming && !aiMem.dirIn) {
+        // New shot coming at me: decide how well I read it. Faster balls are harder to read.
+        const fast = Math.max(0, (b.speed - 11) / 14);
+        aiMem.err = gauss() * P.err * (1 + fast * 0.9);
+        if (Math.random() < P.slip * (1 + fast)) aiMem.err += (Math.random() < 0.5 ? -1 : 1) * (55 + Math.random() * 40);   // misread
+        aiMem.willStrike = Math.random() < P.strike;
+        aiMem.strikeGap = 25 + Math.random() * 70;
+    }
+    aiMem.dirIn = incoming;
+
+    if (incoming) {
+        const tReach = Math.max(1, (ai.x - sn.x) / Math.max(4, sn.vx));
+        const trackY = (sn.decoy && sn.x < NET_X + 140) ? sn.decoy.y : sn.y;
+        let pred = trackY + (sn.vy + sn.spin * 10) * tReach * 0.88;
+        const lo = 28, hi = H - 28;
+        for (let i = 0; i < 3 && (pred < lo || pred > hi); i++) pred = pred < lo ? 2 * lo - pred : 2 * hi - pred;   // wall bounces
+        // Far away it only drifts roughly toward the ball; the error melts away as the shot gets close.
+        const near = Math.max(0.25, Math.min(1, 1.25 - tReach / 60));
+        const want = pred + aiMem.err * near;
+        ai.targetY = stepTo(ai.targetY, want, P.follow * (0.6 + 0.4 * near), P.maxStep);
+        if (aiMem.willStrike && b.x > NET_X + 70 && ai.x - b.x < aiMem.strikeGap && b.x < ai.x - 10 && Math.abs(b.y - ai.y) < 55 && ai.lungeOffset === 0) {
             triggerWhipStrike(2);
         }
-        ai.targetX += ((b.speed < 13 ? NET_X + 140 : W - 95) - ai.targetX) * 0.12 * dt;
+        ai.targetX = stepTo(ai.targetX, (b.speed < 13 ? NET_X + 140 : W - 95), 0.1, 6);
     } else {
-        ai.targetX += ((W - 95) - ai.targetX) * 0.1 * dt;
-        ai.targetY += ((H / 2) - ai.targetY) * 0.1 * dt;
+        ai.targetX = stepTo(ai.targetX, W - 95, 0.08, 5);
+        ai.targetY = stepTo(ai.targetY, H / 2, 0.06, P.maxStep * 0.5);   // drifts back to the middle, not instantly
     }
 }
 
+// ---------- Superpowers ----------
+function setupPowers() {
+    usedPow[1].clear(); usedPow[2].clear(); lastPowerAt = 0;
+    state.fogTo = 0; state.fogT = 0;
+    powersOn = !(typeof isRankedMatch === 'function' && isRankedMatch());
+    if (isHost) {
+        matchConfig.p1Pow = powersOn ? ownedLoadout() : [];
+        if (isAIMode) matchConfig.p2Pow = powersOn && aiPow ? [aiPow.id] : [];
+        else if (!powersOn) matchConfig.p2Pow = [];
+        if (aiPow) aiPow.used = false;
+    }
+    const mine = (isHost ? matchConfig.p1Pow : matchConfig.p2Pow) || [];
+    // Slots keep the loadout positions (Z / X); only owned ones are usable.
+    myPow.slots = powersOn ? profile.loadout.map(id => mine.includes(id) ? id : '') : ['', ''];
+    myPow.used = [false, false];
+    updatePowerBar();
+}
+function updatePowerBar() {
+    const bar = document.getElementById('power-bar');
+    const opp = (isHost ? matchConfig.p2Pow : matchConfig.p1Pow) || [];
+    const any = myPow.slots.some(Boolean);
+    bar.classList.toggle('hidden', !gameActive || (!any && !opp.length) || !powersOn);
+    bar.innerHTML = myPow.slots.map((id, i) => id ? `<button class="pw-btn ${myPow.used[i] ? 'used' : ''}" style="--pc:${POWERS[id].col}" title="${POWERS[id].name}: ${POWERS[id].desc}" onclick="usePower(${i})"><span class="pi">${POWERS[id].icon}</span><span class="pc"><b>${i ? 'X' : 'Z'}</b>×${Math.max(0, profile.powers[id] || 0)}</span></button>` : '').join('')
+        + (opp.length ? `<span id="pw-opp">RIVAL: ${opp.map(id => POWERS[id].icon).join(' ')}</span>` : '');
+}
+function usePower(idx) {
+    if (!gameActive || paused || !powersOn || finishing) return;
+    const id = myPow.slots[idx];
+    if (!id || myPow.used[idx] || !(profile.powers[id] > 0)) return;
+    if (state.waitingForServe || performance.now() < countdownUntil) { toast('⏳ Powers work once the rally is live'); return; }
+    if (performance.now() - lastPowerAt < 4000) { toast('⏱ Power is recharging…'); return; }
+    myPow.used[idx] = true; lastPowerAt = performance.now();
+    profile.powers[id]--; saveProfile();
+    updatePowerBar();
+    if (isHost) applyPower(1, id); else sendCtl({ type: 'power', id });
+}
+function applyPower(pn, id) {   // host only: both players see the result through normal sync + FX
+    if (!isHost) return;
+    const P = POWERS[id]; if (!P) return;
+    const me = pn === 1 ? state.p1 : state.p2, opp = pn === 1 ? state.p2 : state.p1, b = state.ball;
+    if (id === 'shield') me.shield = true;
+    else if (id === 'freeze') opp.freeze = 150;
+    else if (id === 'magnet') me.magnetT = 300;
+    else if (id === 'overload') me.overdrive = 100;
+    else if (id === 'clone' && (b.vx || b.vy)) state.decoyBall = { active: true, x: b.x, y: b.y, vx: b.vx * 0.96, vy: -b.vy - 4.5 };
+    else if (id === 'fog') { state.fogTo = pn === 1 ? 2 : 1; state.fogT = 240; }
+    const name = pn === 1 ? matchConfig.p1Name : matchConfig.p2Name;
+    updateHUD();
+    emitFX({ sfx: 'fever', ring: { x: me.x, y: me.y, color: P.col }, particles: { x: me.x, y: me.y, color: P.col, count: 26 },
+        text: { x: NET_X, y: H / 2 - 90, txt: `${P.icon} ${name.toUpperCase()}: ${P.name.toUpperCase()}!`, color: P.col }, shake: 5, flash: 0.15 });
+}
+
+// Can this player win the match with their very next point?
+function hasMatchPoint(pn) {
+    const t = matchConfig.targetScore, a = pn === 1 ? state.score1 : state.score2, o = pn === 1 ? state.score2 : state.score1;
+    return state.pointsPlayed > 0 && a + 1 >= t && (!matchConfig.winByTwo || a + 1 - o >= 2);
+}
 function updatePhysics(rawDt) {
     if (hitStopTimer > 0) {
         hitStopTimer -= rawDt;
         cameraZoom += (1.035 - cameraZoom) * 0.35;
+        // The freeze is only visual: keep reading input so the bat never "sticks" during fast parry rallies.
+        applyLocalInput(isHost ? state.p1 : state.p2, isHost ? P1_BOUNDS : P2_BOUNDS, isHost, rawDt * 0.5);
         return;
     }
     cameraZoom += (1.0 - cameraZoom) * 0.18 * rawDt;
@@ -2170,6 +2818,7 @@ function updatePhysics(rawDt) {
     }
 
     if (isAIMode) updateAIBat(rawDt);
+    if (state.fogT > 0) state.fogT -= rawDt;
     const b = state.ball;
 
     if (state.feverRing.active) {
@@ -2206,6 +2855,14 @@ function updatePhysics(rawDt) {
         return;
     }
 
+    // LAST POINT: when the shot that could end the match flies at the defender, time slows down.
+    if (!state.lastPointSlow && state.rally >= 1 && b.speed >= 11 && !finishing) {
+        const toP1 = b.vx < 0 && b.x < NET_X + 20 && b.x < 330, toP2 = b.vx > 0 && b.x > NET_X - 20 && b.x > W - 330;
+        if ((toP1 && hasMatchPoint(2)) || (toP2 && hasMatchPoint(1))) {
+            state.lastPointSlow = true; slowMoTimer = 55;
+            emitFX({ sfx: 'chrono', text: { x: NET_X, y: H / 2 - 70, txt: '🎬 LAST POINT', color: '#ffe600' }, flash: 0.15 });
+        }
+    }
     const SUBSTEPS = 12;
     const p1x0 = state.p1.x, p1y0 = state.p1.y, p2x0 = state.p2.x, p2y0 = state.p2.y;
     stepBatKinematics(state.p1, P1_BOUNDS, true, rawDt);
@@ -2223,6 +2880,7 @@ function updatePhysics(rawDt) {
         b.vy += (b.spin * dt) / SUBSTEPS;
 
         if (b.ultType === 'snake') b.y += Math.cos(b.x * 0.045) * 6.5 * (dt / SUBSTEPS);
+        else if (b.ultType === 'zig') b.y += (Math.sin(b.x * 0.032) > 0 ? 1 : -1) * 7.5 * (dt / SUBSTEPS);
 
         if (!b.netClipped && state.rally > 1 && ((prevBX < NET_X && b.x >= NET_X) || (prevBX > NET_X && b.x <= NET_X))) {
             if (b.z < 9.5) {
@@ -2233,31 +2891,33 @@ function updatePhysics(rawDt) {
         }
 
         if (state.feverRing.active && Math.hypot(b.x - state.feverRing.x, b.y - state.feverRing.y) < state.feverRing.radius + BALL_RADIUS) {
-            const isMirage = state.feverRing.mode === 'mirage';
+            const mode = state.feverRing.mode, P = PICKUPS[mode] || PICKUPS.fever, ry = state.feverRing.y;
             state.feverRing.active = false;
             const hitterNum = b.vx > 0 ? 1 : 2;
             const hitter = hitterNum === 1 ? state.p1 : state.p2;
-            hitter.overdrive = 100;
             awardBounty(hitterNum, 'ring', 1);
-            updateHUD();
-
-            if (isMirage) {
+            const fx = (txt, extra = {}) => emitFX({
+                sfx: 'fever', particles: { x: NET_X, y: ry, color: P.col, count: 40 }, ring: { x: NET_X, y: ry, color: P.col },
+                text: { x: NET_X, y: ry - 25, txt, color: P.col }, shake: 6, ...extra
+            });
+            if (mode === 'mirage') {
+                hitter.overdrive = 100;
                 state.decoyBall = { active: true, x: b.x, y: b.y, vx: b.vx * 0.96, vy: -b.vy - 4.5 };
-                emitFX({
-                    sfx: 'fever',
-                    particles: { x: NET_X, y: state.feverRing.y, color: '#bc13fe', count: 38 },
-                    ring: { x: NET_X, y: state.feverRing.y, color: '#bc13fe' },
-                    text: { x: NET_X, y: state.feverRing.y - 25, txt: '🟣 MIRAGE SPLIT + MAX OD!', color: '#e082ff' }
-                });
+                fx('🪞 MIRAGE SPLIT + MAX OD!');
+            } else if (mode === 'coin') {
+                hitter.overdrive = Math.min(100, hitter.overdrive + 35);
+                awardCoins(hitterNum, 30);
+                fx('💰 COIN BURST! +30 🪙 +35 OD');
+            } else if (mode === 'warp') {
+                hitter.overdrive = Math.min(100, hitter.overdrive + 60);
+                slowMoTimer = 55;
+                fx('⏱️ TIME WARP! +60 OD', { flash: 0.25 });
             } else {
+                hitter.overdrive = 100;
                 state.pointIsFever = true;
-                emitFX({
-                    sfx: 'fever',
-                    particles: { x: NET_X, y: state.feverRing.y, color: '#ffe600', count: 40 },
-                    ring: { x: NET_X, y: state.feverRing.y, color: '#ffe600' },
-                    text: { x: NET_X, y: state.feverRing.y - 25, txt: '🎰 2X FEVER POINT + MAX OD!', color: '#ffe600' }
-                });
+                fx('🎰 2X FEVER POINT + MAX OD!');
             }
+            updateHUD();
         }
 
         b.z += (b.vz * dt) / SUBSTEPS;
@@ -2290,6 +2950,9 @@ function updatePhysics(rawDt) {
     state.p1.x = p1x1; state.p1.y = p1y1; state.p2.x = p2x1; state.p2.y = p2y1;
     b.spin *= Math.pow(0.992, dt);
 
+    // Goal Guard: the ball that would score bounces back instead.
+    if (b.x < -15 && state.p1.shield) { state.p1.shield = false; b.x = 34; b.vx = Math.abs(b.vx) * 0.85; b.speed *= 0.85; b.vy *= 0.9; emitFX({ sfx: 'parry', ring: { x: 20, y: b.y, color: '#00ff88' }, particles: { x: 20, y: b.y, color: '#00ff88', count: 30 }, text: { x: 120, y: b.y - 20, txt: '🛡️ GUARDED!', color: '#00ff88' }, shake: 10 }); }
+    else if (b.x > W + 15 && state.p2.shield) { state.p2.shield = false; b.x = W - 34; b.vx = -Math.abs(b.vx) * 0.85; b.speed *= 0.85; b.vy *= 0.9; emitFX({ sfx: 'parry', ring: { x: W - 20, y: b.y, color: '#00ff88' }, particles: { x: W - 20, y: b.y, color: '#00ff88', count: 30 }, text: { x: W - 120, y: b.y - 20, txt: '🛡️ GUARDED!', color: '#00ff88' }, shake: 10 }); }
     const pts = state.pointIsFever ? 2 : 1;
     if (b.x < -15) { state.score2 += pts; state.p2.streak++; state.p1.streak = 0; onPointScored(2, 16, b.y, '#ff0055', pts); }
     else if (b.x > W + 15) { state.score1 += pts; state.p1.streak++; state.p2.streak = 0; onPointScored(1, W - 16, b.y, '#00f3ff', pts); }
@@ -2320,19 +2983,31 @@ function onPointScored(scorer, x, y, color, pts = 1) {
         const w = p1Won ? 1 : 2;
         if (w === 1) seriesWins.p1++; else seriesWins.p2++;
         sendCtl({ type: 'gameover', winner: w, series: seriesWins, s1: state.score1, s2: state.score2 });
-        handleGameOver(w);
+        finishMatchSoon(w);
     } else {
         pointTimer = setTimeout(() => preparePlayerServe(), 650);
     }
 }
 
+const H2H_KEY = 'neon_pong_h2h';
+function readH2H() { try { const o = JSON.parse(store.get(H2H_KEY)); return (o && typeof o === 'object') ? o : {}; } catch { return {}; } }
+// The last point gets a moment: slow-mo "GAME!" banner and a big flash before the result screen.
+function finishMatchSoon(w) {
+    if (finishing) return;
+    finishing = true;
+    triggerLocalFX({ sfx: 'fever', banner: { txt: '🏆 GAME!', color: '#ffe600' }, flash: 0.5, shake: 18 });
+    slowMoTimer = 40;
+    setTimeout(() => { if (!finishing) return; finishing = false; if (gameActive) handleGameOver(w); }, 1250);
+}
 function handleGameOver(winner) {
-    gameActive = false; applyNamesUI();
+    gameActive = false; applyNamesUI(); updatePowerBar();
     if (matchCounted) return;   // a duplicate 'gameover' message must not pay out twice
     matchCounted = true;
     recordMatchStats(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally, state.topKmh);
     const iWon = (isHost && winner === 1) || (!isHost && winner === 2);
     sfx.play(iWon ? 'win' : 'lose');
+    if (iWon) setTimeout(launchConfetti, 150);
+    updateAimPad();
 
     const rpDelta = iWon ? 30 : -12;
     const coinsEarned = (iWon ? 55 : 25) + Math.floor(state.maxRally * 1.5);
@@ -2343,12 +3018,25 @@ function handleGameOver(winner) {
         const d = applyRankedResult(iWon, state.topKmh, state.maxRally);
         rankedTxt = ` • 🌍 ${d >= 0 ? '+' : ''}${d} RANKED`;
     }
+    let stakeTxt = '', rivalTxt = '';
+    if (!isAIMode) {
+        const ante = clampInt(matchConfig.ante, 0, 100, 0);
+        if (ante > 0) { profile.coins = iWon ? profile.coins + ante : Math.max(0, profile.coins - ante); stakeTxt = ` • 🪙${iWon ? '+' : '-'}${ante} STAKES`; }
+        const opp = cleanName(isHost ? matchConfig.p2Name : matchConfig.p1Name, 'Friend');
+        const h2h = readH2H(); const rec = h2h[opp] || { w: 0, l: 0 };
+        if (iWon) rec.w++; else rec.l++;
+        h2h[opp] = rec;
+        const names = Object.keys(h2h); if (names.length > 40) delete h2h[names[0]];
+        store.set(H2H_KEY, JSON.stringify(h2h));
+        rivalTxt = ` • ⚔️ vs ${esc(opp)}: ${rec.w}-${rec.l}`;
+    }
     saveProfile();
     flushCloud(true);
+    if (!isAIMode && !isHost) sendCtl({ type: 'prof', coins: profile.coins, pow: ownedLoadout() });
 
     const wName = winner === 1 ? matchConfig.p1Name : matchConfig.p2Name;
     document.getElementById('winner-text').innerText = `${wName.toUpperCase()} WINS!`;
-    document.getElementById('match-subtitle').innerText = `${iWon ? '+' + rpDelta : rpDelta} RP • +${coinsEarned} 🪙 NEON COINS EARNED!${rankedTxt}`;
+    document.getElementById('match-subtitle').innerText = `${iWon ? '+' + rpDelta : rpDelta} RP • +${coinsEarned} 🪙 NEON COINS EARNED!${rankedTxt}${stakeTxt}${rivalTxt}`;
     document.getElementById('end-score-val').innerText = `${state.score1} - ${state.score2}`;
     document.getElementById('end-speed-val').innerText = `${state.topKmh} KM/H`;
     document.getElementById('end-rally-val').innerText = state.maxRally;
@@ -2357,6 +3045,7 @@ function handleGameOver(winner) {
 }
 
 function triggerLocalFX(d) {
+    if (particles.length > 260) particles.splice(0, particles.length - 200);   // never let effects pile up
     sfx.play(d.sfx, d.extra);
     const me = isHost ? 1 : 2;
     if (d.by === me) buzz(d.hitStop ? 32 : 14);
@@ -2372,9 +3061,9 @@ function triggerLocalFX(d) {
     if (d.ring) shockwaves.push({ x: num(d.ring.x), y: num(d.ring.y), radius: 10, alpha: 0.95, color: String(d.ring.color || '#fff').slice(0, 20) });
     if (d.bounce) bounceMarks.push({ x: num(d.bounce.x), y: num(d.bounce.y), radius: 4, alpha: 0.75 });
     if (d.text) floatingTexts.push({ x: num(d.text.x), y: num(d.text.y), txt: String(d.text.txt || '').slice(0, 60), color: String(d.text.color || '#fff').slice(0, 20), alpha: 1.0 });
-    if (d.shake) screenShake = num(d.shake);
-    if (d.hitStop) hitStopTimer = Math.min(8, num(d.hitStop));
-    if (d.flash) screenFlash = Math.min(1, num(d.flash));
+    if (d.shake && !reduceMotion) screenShake = num(d.shake);
+    if (d.hitStop) hitStopTimer = Math.min(2.6, num(d.hitStop) * 0.55);   // short freeze: long ones made fast rallies feel stuck
+    if (d.flash && !reduceMotion) screenFlash = Math.min(1, num(d.flash));
     if (d.scoreUpdate) {
         state.score1 = num(d.scoreUpdate.s1); state.score2 = num(d.scoreUpdate.s2);
         updateScoreBox(d.scoreUpdate.scorer);
@@ -2401,7 +3090,8 @@ function syncToClient() {
         connF.send({
             type: 'sync',
             s: {
-                p1: { x: state.p1.x, y: state.p1.y, vx: state.p1.vx, vy: state.p1.vy, angle: state.p1.angle, overdrive: state.p1.overdrive, racket: state.p1.racket, streak: state.p1.streak, hitFlash: state.p1.hitFlash },
+                p1: { x: state.p1.x, y: state.p1.y, vx: state.p1.vx, vy: state.p1.vy, angle: state.p1.angle, overdrive: state.p1.overdrive, racket: state.p1.racket, streak: state.p1.streak, hitFlash: state.p1.hitFlash, sh: state.p1.shield ? 1 : 0, fz: Math.round(state.p1.freeze), mg: Math.round(state.p1.magnetT) },
+                p2Pw: { sh: state.p2.shield ? 1 : 0, fz: Math.round(state.p2.freeze), mg: Math.round(state.p2.magnetT) }, fog: state.fogT > 0 ? state.fogTo : 0,
                 p2Od: state.p2.overdrive, p2St: state.p2.streak, p2Flash: state.p2.hitFlash,
                 ring: state.feverRing, decoy: state.decoyBall, slow: slowMoTimer > 0,
                 ball: state.ball, rally: state.rally, maxRally: state.maxRally, topKmh: state.topKmh,
@@ -2416,7 +3106,17 @@ function drawBatRacket(bat, color) {
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
     const len = rStats.len;
     const isOverdrive = bat.overdrive >= 100;
-    const bladeColor = bat.hitFlash > 0.2 ? '#ffffff' : (isOverdrive ? rStats.col : (bat.streak >= 3 ? '#ff7b00' : color));
+    const skin = bat.skin || 'default', tt = Date.now();
+    let skinCol = null;
+    if (skin === 'chrome') skinCol = '#dfe9ff';
+    else if (skin === 'inferno') skinCol = '#ff6a00';
+    else if (skin === 'frost') skinCol = '#8fe3ff';
+    else if (skin === 'gold') skinCol = '#ffd23a';
+    else if (skin === 'glitch') skinCol = (Math.floor(tt / 110) % 2) ? '#00f3ff' : '#ff3d6e';
+    else if (skin === 'aurora') skinCol = `hsl(${185 + Math.sin(tt * 0.0016) * 45}, 95%, 62%)`;
+    const bladeColor = bat.hitFlash > 0.2 ? '#ffffff' : (bat.freeze > 0 ? '#bfefff' : (isOverdrive ? rStats.col : (skinCol || (bat.streak >= 3 ? '#ff7b00' : color))));
+    if (skin === 'inferno' && !view.lowFx && Math.random() < 0.3) particles.push({ x: bat.x + (Math.random() - 0.5) * 10, y: bat.y + (Math.random() - 0.5) * len, vx: (Math.random() - 0.5) * 1.2, vy: -1 - Math.random() * 1.5, size: 2 + Math.random() * 3, alpha: 0.8, color: Math.random() < 0.5 ? '#ff9d00' : '#ff3d00' });
+    if (skin === 'frost' && !view.lowFx && Math.random() < 0.15) particles.push({ x: bat.x + (Math.random() - 0.5) * 12, y: bat.y + (Math.random() - 0.5) * len, vx: 0, vy: 0.4, size: 2, alpha: 0.9, color: '#e8fbff' });
 
     for (let i = 0; i < bat.trail.length; i++) {
         const t = bat.trail[i], r = (i + 1) / (bat.trail.length + 1);
@@ -2429,8 +3129,9 @@ function drawBatRacket(bat, color) {
         ctx.restore();
     }
 
+    if (bat.swing > 0) bat.swing = Math.max(0, bat.swing - 0.08);
     ctx.translate(bat.x, bat.y);
-    ctx.rotate(-bat.angle);
+    ctx.rotate(-bat.angle + (bat.lungeOffset ? Math.max(-0.35, Math.min(0.35, bat.lungeOffset * 0.014)) * (bat.x > NET_X ? -1 : 1) : 0));   // follow-through swing
 
     ctx.fillStyle = '#252c4a';
     ctx.beginPath(); ctx.roundRect(-5, len / 2 - 4, 10, 16, 4); ctx.fill();
@@ -2441,10 +3142,31 @@ function drawBatRacket(bat, color) {
     ctx.lineWidth = BAT_RADIUS * 2; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(0, -len / 2); ctx.lineTo(0, len / 2); ctx.stroke();
 
-    ctx.shadowBlur = 0; ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+    ctx.shadowBlur = 0;
+    // Skins keep your team colour (cyan / rose) in the core stripe so both players stay easy to tell apart.
+    ctx.strokeStyle = skinCol && !isOverdrive ? color : '#ffffff'; ctx.lineWidth = skinCol ? 3 : 4;
     ctx.beginPath(); ctx.moveTo(0, -len / 2 + 6); ctx.lineTo(0, len / 2 - 6); ctx.stroke();
+    if (skin === 'chrome' || skin === 'gold') {   // moving shine
+        const sy = ((tt * 0.12) % (len + 30)) - len / 2 - 15;
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(-BAT_RADIUS + 3, Math.max(-len / 2 + 4, sy)); ctx.lineTo(-BAT_RADIUS + 3, Math.min(len / 2 - 4, sy + 14)); ctx.stroke();
+    } else if (skin === 'glitch') {
+        ctx.globalAlpha = 0.6; ctx.strokeStyle = (Math.floor(tt / 110) % 2) ? '#ff3d6e' : '#00f3ff'; ctx.lineWidth = BAT_RADIUS * 1.4;
+        const jx = (Math.random() - 0.5) * 6; ctx.beginPath(); ctx.moveTo(jx, -len / 2 + 14); ctx.lineTo(jx, -len / 2 + 14 + len * 0.35); ctx.stroke(); ctx.globalAlpha = 1;
+    } else if (skin === 'aurora') {
+        ctx.fillStyle = '#ffffff';
+        for (let i = 0; i < 3; i++) { const a = tt * 0.004 + i * 2.094; ctx.beginPath(); ctx.arc(Math.cos(a) * (BAT_RADIUS + 6), Math.sin(a) * (len / 2 - 4), 2.5, 0, Math.PI * 2); ctx.fill(); }
+    }
     ctx.restore();
 
+    if (bat.magnetT > 0) {
+        ctx.save(); ctx.strokeStyle = '#ffe600'; ctx.lineWidth = 2; ctx.globalAlpha = 0.35 + Math.sin(Date.now() / 120) * 0.2;
+        ctx.beginPath(); ctx.arc(bat.x, bat.y, len * 0.75 + Math.sin(Date.now() / 150) * 4, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    }
+    if (bat.freeze > 0) {
+        ctx.save(); ctx.strokeStyle = '#bfefff'; ctx.globalAlpha = 0.7; ctx.lineWidth = 2;
+        ctx.strokeRect(bat.x - 22, bat.y - len / 2 - 8, 44, len + 16); ctx.restore();
+    }
     if (bat.emoteTimer > 0 && bat.emoteTxt) {
         ctx.save();
         ctx.font = '900 15px "Orbitron", sans-serif';
@@ -2453,6 +3175,185 @@ function drawBatRacket(bat, color) {
         ctx.shadowBlur = 12; ctx.shadowColor = '#000';
         textAt(bat.emoteTxt, bat.x, bat.y, view.portrait ? -34 : -(len / 2 + 18));
         ctx.restore();
+    }
+}
+
+// ---- The net: styles from packs, a ripple whenever the ball crosses it, and the pickups floating over it ----
+function trackNetCrossing() {
+    const b = state.ball;
+    if (!state.waitingForServe && prevBallX > 0 && b.x > 0 && (b.vx !== 0 || b.vy !== 0)
+        && ((prevBallX < NET_X && b.x >= NET_X) || (prevBallX > NET_X && b.x <= NET_X))) {
+        netRipple = { y: b.y, t: 0, amp: Math.min(16, 4 + (b.speed || 8) * 0.55) };
+        if (b.speed >= 19.8) { const dir = b.vx > 0 ? 1 : -1; for (let i = 0; i < 10; i++) particles.push({ x: NET_X, y: b.y + (Math.random() - 0.5) * 16, vx: dir * (2 + Math.random() * 5), vy: (Math.random() - 0.5) * 4, size: 2 + Math.random() * 3, alpha: 0.9, color: '#ffffff' }); }
+    }
+    prevBallX = b.x;
+}
+function drawNet() {
+    const kind = profile.netFx || 'dash', col = profile.themeNet || '#3b4a7a', t = Date.now();
+    if (netRipple) { netRipple.t += 1; if (netRipple.t > 38) netRipple = null; }
+    const off = (y) => {
+        if (!netRipple) return 0;
+        const d = (y - netRipple.y) / 70, fall = Math.exp(-d * d), life = 1 - netRipple.t / 38;
+        return Math.sin(netRipple.t * 0.9 - Math.abs(y - netRipple.y) * 0.05) * netRipple.amp * fall * life;
+    };
+    const line = (jitter = 0) => {
+        ctx.beginPath(); ctx.moveTo(NET_X, 8);
+        for (let y = 8; y <= H - 8; y += 8) ctx.lineTo(NET_X + off(y) + (jitter ? (Math.random() - 0.5) * jitter : 0), y);
+        ctx.stroke();
+    };
+    ctx.save();
+    ctx.strokeStyle = col; ctx.lineCap = 'round';
+    if (kind === 'laser') {
+        ctx.globalAlpha = 0.2; ctx.lineWidth = 10; line();
+        ctx.globalAlpha = 1; ctx.lineWidth = 3 + Math.sin(t * 0.008) * 0.8; line();
+        ctx.lineWidth = 1; ctx.strokeStyle = '#ffffff'; ctx.globalAlpha = 0.7; line();
+    } else if (kind === 'electric') {
+        const seed = Math.floor(t / 60);
+        ctx.globalAlpha = 0.22; ctx.lineWidth = 8; line(6);
+        ctx.globalAlpha = 1; ctx.lineWidth = 2.4; line(7 + (seed % 3) * 3);
+    } else if (kind === 'orbit') {
+        ctx.lineWidth = 2; ctx.setLineDash([6, 12]); ctx.globalAlpha = 0.7; line(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+        ctx.fillStyle = col;
+        for (let i = 0; i < 5; i++) {
+            const ph = t * 0.0016 + i * 1.256, y = H / 2 + Math.sin(ph) * (H / 2 - 30), x = NET_X + Math.cos(ph * 2.1) * 12 + off(y);
+            ctx.globalAlpha = 0.25; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(x, y, 3.8, 0, Math.PI * 2); ctx.fill();
+        }
+    } else {
+        ctx.lineWidth = 4; ctx.setLineDash([12, 10]); line(); ctx.setLineDash([]);
+    }
+    ctx.restore();
+}
+function drawPickup(r) {
+    const P = PICKUPS[r.mode] || PICKUPS.fever, t = Date.now() / 1000, rad = num(r.radius, 34), x = num(r.x, NET_X), y = num(r.y, H / 2);
+    ctx.save();
+    const pulse = 1 + Math.sin(t * 5) * 0.06;
+    ctx.fillStyle = P.col; ctx.globalAlpha = 0.1; ctx.beginPath(); ctx.arc(x, y, rad * 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.16; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = P.col; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(x, y, rad * pulse, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 2; ctx.setLineDash([7, 9]); ctx.lineDashOffset = -t * 40;
+    ctx.beginPath(); ctx.arc(x, y, rad + 9, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = P.col;
+    for (let i = 0; i < 3; i++) { const a = t * 2.4 + i * 2.094; ctx.beginPath(); ctx.arc(x + Math.cos(a) * (rad + 9), y + Math.sin(a) * (rad + 9), 3, 0, Math.PI * 2); ctx.fill(); }
+    ctx.shadowBlur = 0; ctx.textAlign = 'center';
+    ctx.font = '26px sans-serif'; textAt(P.icon, x, y, 9);
+    ctx.font = '700 10px "Orbitron"'; ctx.fillStyle = P.col; textAt(P.label, x, y, rad + 24);
+    ctx.restore();
+}
+function drawBall(b, vy, vr) {
+    const skin = profile.ball || 'default', t = Date.now();
+    if (b.ultType === 'ghost') {   // Phantom's ghost shot fades out through the middle of the court
+        const d = Math.abs(b.x - NET_X); ctx.save(); ctx.globalAlpha = d < 230 ? 0.1 + 0.9 * (d / 230) * (d / 230) : 1;
+        ctx.fillStyle = '#9ff7ff'; ctx.beginPath(); ctx.arc(b.x, vy, vr, 0, Math.PI * 2); ctx.fill(); ctx.restore(); return;
+    }
+    let fill = '#ffffff', glow = '#00f3ff', blur = 18;
+    if (skin === 'ember') { fill = '#ffc27a'; glow = '#ff5a00'; blur = 22; }
+    else if (skin === 'frost') { fill = '#e8fbff'; glow = '#6fdcff'; blur = 22; }
+    else if (skin === 'solar') { fill = '#fff4a8'; glow = '#ffd000'; blur = 26; }
+    else if (skin === 'plasma') { const h = 100 + Math.sin(t * 0.0022) * 95; fill = `hsl(${h}, 100%, 78%)`; glow = `hsl(${h}, 100%, 55%)`; blur = 26; }
+    if (b.isHyper) { fill = '#ffe600'; glow = '#ffe600'; blur = 28; }
+    ctx.save();
+    ctx.fillStyle = fill; ctx.shadowBlur = blur; ctx.shadowColor = glow;
+    ctx.beginPath(); ctx.arc(b.x, vy, vr, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    if (skin === 'solar') {
+        ctx.strokeStyle = '#ffb300'; ctx.lineWidth = 2;
+        for (let i = 0; i < 8; i++) { const a = t * 0.004 + i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(b.x + Math.cos(a) * (vr + 2), vy + Math.sin(a) * (vr + 2)); ctx.lineTo(b.x + Math.cos(a) * (vr + 7), vy + Math.sin(a) * (vr + 7)); ctx.stroke(); }
+    } else if (skin === 'ember') {
+        ctx.fillStyle = '#ff5a00'; ctx.beginPath(); ctx.arc(b.x, vy, vr * 0.45, 0, Math.PI * 2); ctx.fill();
+    } else if (skin === 'frost') {
+        ctx.strokeStyle = '#6fdcff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(b.x, vy, vr * 0.62, 0, Math.PI * 2); ctx.stroke();
+    } else if (skin === 'plasma') {
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(b.x, vy, vr * 0.6, t * 0.01, t * 0.01 + 4); ctx.stroke();
+    }
+    ctx.restore();
+}
+// Speed streaks behind a fast ball: the faster it goes, the longer and brighter they get.
+function drawSpeedStreaks(b, vy) {
+    if (state.waitingForServe || !(b.speed >= 17.5)) return;
+    const k = Math.min(1, (b.speed - 17.5) / 9), m = Math.hypot(b.vx, b.vy) || 1, ux = -b.vx / m, uy = -b.vy / m;
+    ctx.save(); ctx.lineCap = 'round';
+    for (let i = -2; i <= 2; i++) {
+        const ox = -uy * i * 5, oy = ux * i * 5, len = (30 + k * 70) * (1 - Math.abs(i) * 0.18);
+        ctx.strokeStyle = `rgba(255,255,255,${(0.14 + k * 0.32) * (1 - Math.abs(i) * 0.25)})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(b.x + ox + ux * 14, vy + oy + uy * 14); ctx.lineTo(b.x + ox + ux * (14 + len), vy + oy + uy * (14 + len)); ctx.stroke();
+    }
+    ctx.restore();
+}
+
+// ---- Atmosphere. Everything static is painted once into an offscreen bitmap and just blitted each frame (fast on phones) ----
+const dust = Array.from({ length: 22 }, () => ({ x: Math.random() * W, y: Math.random() * H, s: 0.4 + Math.random() * 1.6, p: Math.random() * 6.28 }));
+let bgCache = null, vigCache = null;
+function getBgCache() {
+    const key = `${profile.themeNet}|${Math.round(view.k * 50)}`;
+    if (bgCache && bgCache.key === key) return bgCache.c;
+    const c = bgCache ? bgCache.c : document.createElement('canvas');
+    const k = Math.max(0.5, Math.min(2.6, view.k));
+    c.width = Math.round(W * k); c.height = Math.round(H * k);
+    const g = c.getContext('2d'); g.setTransform(k, 0, 0, k, 0, 0); g.clearRect(0, 0, W, H);
+    g.strokeStyle = profile.themeNet || '#3b4a7a'; g.lineWidth = 1; g.globalAlpha = 0.09;
+    g.beginPath();
+    for (let x = 0; x <= W; x += 40) { g.moveTo(x, 0); g.lineTo(x, H); }
+    for (let y = 0; y <= H; y += 40) { g.moveTo(0, y); g.lineTo(W, y); }
+    g.stroke();
+    g.globalAlpha = 1; g.strokeStyle = 'rgba(255,255,255,0.07)'; g.lineWidth = 2;
+    g.beginPath(); g.arc(NET_X, H / 2, 62, 0, Math.PI * 2); g.stroke();
+    g.strokeRect(14, H / 2 - 120, 150, 240); g.strokeRect(W - 164, H / 2 - 120, 150, 240);
+    bgCache = { key, c };
+    return c;
+}
+function drawBackdrop() {
+    if (view.lowFx) return;
+    ctx.drawImage(getBgCache(), 0, 0, W, H);
+    const t = Date.now() / 1000, heat = Math.min(1, state.rally / 14);
+    ctx.save(); ctx.globalAlpha = 0.35; ctx.fillStyle = profile.themeNet || '#3b4a7a';
+    for (const d of dust) {
+        d.x += d.s * (0.25 + heat * 1.4); if (d.x > W + 4) { d.x = -4; d.y = Math.random() * H; }
+        ctx.fillRect(d.x, d.y + Math.sin(t + d.p) * 6, d.s + 0.6, d.s + 0.6);
+    }
+    ctx.restore();
+}
+function drawCourtLines() {
+    const hot = Math.min(1, Math.max(0, (state.rally - 6) / 10));
+    if (hot <= 0) return;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,${Math.round(180 - hot * 110)},40,${0.12 + hot * 0.25 + Math.sin(Date.now() / 160) * 0.05})`; ctx.lineWidth = 4;
+    ctx.strokeRect(14, 14, W - 28, H - 28);
+    ctx.restore();
+}
+function getVignette() {
+    if (vigCache) return vigCache;
+    vigCache = document.createElement('canvas'); vigCache.width = W / 2; vigCache.height = H / 2;
+    const g = vigCache.getContext('2d'), gr = g.createRadialGradient(W / 4, H / 4, H * 0.17, W / 4, H / 4, W * 0.31);
+    gr.addColorStop(0, 'rgba(255,170,0,0)'); gr.addColorStop(1, 'rgba(255,120,0,1)');
+    g.fillStyle = gr; g.fillRect(0, 0, W / 2, H / 2);
+    return vigCache;
+}
+function drawAtmosphere() {
+    if (gameActive && state.rally >= 3 && !view.lowFx) {   // big faint rally counter behind the action
+        ctx.save(); ctx.globalAlpha = Math.min(0.1, 0.025 + state.rally * 0.004); ctx.fillStyle = '#ffffff'; ctx.font = '900 150px "Orbitron", sans-serif'; ctx.textAlign = 'center';
+        screenText(String(state.rally), view.dispW / 2, view.dispH / 2 + 52); ctx.restore();
+    }
+    const slow = slowMoTimer > 0 || guestSlow;
+    if (state.fogT > 0) {   // mist over the fogged player's half
+        const mine = state.fogTo === (isHost ? 1 : 2);
+        ctx.fillStyle = `rgba(181,194,224,${mine ? 0.2 : 0.07})`;
+        if (state.fogTo === 1) ctx.fillRect(14, 14, NET_X - 14, H - 28); else ctx.fillRect(NET_X, 14, NET_X - 14, H - 28);
+    }
+    for (const [bt, gx] of [[state.p1, 10], [state.p2, W - 10]]) {   // Goal Guard barriers
+        if (!bt.shield) continue;
+        ctx.save(); ctx.strokeStyle = '#00ff88'; ctx.globalAlpha = 0.25; ctx.lineWidth = 12; ctx.beginPath(); ctx.moveTo(gx, 14); ctx.lineTo(gx, H - 14); ctx.stroke();
+        ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 140) * 0.2; ctx.lineWidth = 3; ctx.stroke(); ctx.restore();
+    }
+    const mp = gameActive && (hasMatchPoint(1) || hasMatchPoint(2));
+    if (mp && !view.lowFx) {
+        ctx.save(); ctx.globalAlpha = 0.24 + Math.sin(Date.now() / 220) * 0.07;
+        ctx.drawImage(getVignette(), 0, 0, W, H); ctx.restore();
+    }
+    if (slow) {
+        ctx.fillStyle = 'rgba(40,140,255,0.07)'; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(0, 0, W, 22); ctx.fillRect(0, H - 22, W, 22);
     }
 }
 
@@ -2476,6 +3377,7 @@ function drawArena() {
     ctx.fillStyle = profile.themeBg || '#050811';
     ctx.fillRect(0, 0, W, H);
 
+    drawBackdrop();
     const rallyGlow = Math.min(0.12, state.rally * 0.008);
     ctx.fillStyle = `rgba(0, 243, 255, ${0.025 + rallyGlow})`;
     ctx.fillRect(14, 14, NET_X - 48, H - 28);
@@ -2487,6 +3389,7 @@ function drawArena() {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(14, H / 2); ctx.lineTo(W - 14, H / 2); ctx.stroke();
 
+    drawCourtLines();
     for (let i = bounceMarks.length - 1; i >= 0; i--) {
         const bm = bounceMarks[i]; bm.radius += 0.65; bm.alpha -= 0.025;
         if (bm.alpha <= 0) { bounceMarks.splice(i, 1); continue; }
@@ -2494,39 +3397,52 @@ function drawArena() {
         ctx.beginPath(); ctx.arc(bm.x, bm.y, bm.radius, 0, Math.PI * 2); ctx.stroke();
     }
 
-    ctx.strokeStyle = profile.themeNet || '#3b4a7a'; ctx.lineWidth = 4; ctx.setLineDash([12, 10]);
-    ctx.beginPath(); ctx.moveTo(NET_X, 8); ctx.lineTo(NET_X, H - 8); ctx.stroke();
-    ctx.setLineDash([]);
-
-    if (state.feverRing.active) {
-        ctx.save();
-        const isMirage = state.feverRing.mode === 'mirage';
-        const rCol = isMirage ? '#bc13fe' : '#ffe600';
-        ctx.strokeStyle = rCol; ctx.lineWidth = 4;
-        ctx.shadowBlur = 20; ctx.shadowColor = rCol;
-        ctx.beginPath(); ctx.arc(state.feverRing.x, state.feverRing.y, state.feverRing.radius, 0, Math.PI * 2); ctx.stroke();
-        ctx.font = '700 10px "Orbitron"'; ctx.fillStyle = rCol; ctx.textAlign = 'center';
-        textAt(isMirage ? '🟣 MIRAGE' : '🎰 2X FEVER', state.feverRing.x, state.feverRing.y, 4);
-        ctx.restore();
-    }
+    trackNetCrossing();
+    drawNet();
+    if (state.feverRing && state.feverRing.active) drawPickup(state.feverRing);
 
     if (state.waitingForServe) {
         const b = state.ball, isP1S = state.currentServer === 1;
         const srvBat = isP1S ? state.p1 : state.p2, dir = isP1S ? 1 : -1;
         const col = isP1S ? '#00f3ff' : '#ff0055';
-        const angle = Math.max(-0.44, Math.min(0.44, (srvBat.vy * 0.02) - (srvBat.angle * 0.35 * dir)));
+        const spn = isP1S ? 1 : 2, human = isHumanServer(spn);
+        const mineServing = (isHost && isP1S) || (!isHost && !isP1S);
+        let angle;
+        if (mineServing) angle = serveAngle(spn, srvBat, srvBat.vy, true);
+        else if (isHost && !isAIMode) angle = serveAngle(2, srvBat, srvBat.vy, true);   // host sees the guest's chosen angle
+        else angle = Math.max(-0.44, Math.min(0.44, (srvBat.vy * 0.02) - (srvBat.angle * 0.35 * dir)));
+        // Dotted aim line, bouncing off the side walls so you can plan the reflection.
+        let px = b.x, py = b.y, vx = dir * Math.cos(angle), vy = Math.sin(angle), left = 520;
+        const yTop = 14 + BALL_RADIUS, yBot = H - 14 - BALL_RADIUS;
         ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([7, 7]);
-        ctx.beginPath(); ctx.moveTo(b.x, b.y);
-        ctx.lineTo(b.x + dir * Math.cos(angle) * 190, b.y + Math.sin(angle) * 190);
+        ctx.beginPath(); ctx.moveTo(px, py);
+        for (let seg = 0; seg < 4 && left > 0; seg++) {
+            let len = left;
+            if (vy > 0.001) len = Math.min(len, (yBot - py) / vy); else if (vy < -0.001) len = Math.min(len, (yTop - py) / vy);
+            const farX = vx > 0 ? W - 30 : 30;
+            if (Math.abs(vx) > 0.001) len = Math.min(len, (farX - px) / vx);
+            len = Math.max(0, len);
+            ctx.globalAlpha = Math.max(0.25, 1 - seg * 0.28);
+            px += vx * len; py += vy * len; left -= len;
+            ctx.lineTo(px, py);
+            if (py >= yBot - 0.5 || py <= yTop + 0.5) vy = -vy; else break;
+        }
         ctx.stroke(); ctx.setLineDash([]);
+        if (mineServing || (isHost && !isAIMode)) {   // faint cone = the random wobble your serve can have
+            ctx.globalAlpha = 0.13; ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(b.x, b.y);
+            for (const sgn of [-1, 1]) { const a2 = angle + sgn * SERVE_WOBBLE; ctx.lineTo(b.x + dir * Math.cos(a2) * 230, b.y + Math.sin(a2) * 230); }
+            ctx.closePath(); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
 
         ctx.font = `900 ${isTouchDevice ? 15 : 18}px "Orbitron", sans-serif`; ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#000'; ctx.shadowBlur = 8;
         const myTurn = (isHost && isP1S) || (!isHost && !isP1S);
         const hint = !myTurn ? '⏳ WAITING FOR SERVE...'
-            : isTouchDevice ? `🏓 YOUR SERVE (${state.servesLeft}) — FLICK OR TAP STRIKE`
-            : view.portrait ? `🏓 YOUR SERVE (${state.servesLeft}) — CLICK OR FLICK`
-            : `🏓 YOUR SERVE (${state.servesLeft} LEFT) — CLICK, SPACE, OR FLICK!`;
+            : isTouchDevice ? `🏓 YOUR SERVE (${state.servesLeft}) — SET AIM, THEN STRIKE`
+            : view.portrait ? `🏓 YOUR SERVE (${state.servesLeft}) — Q/E AIM, CLICK TO SERVE`
+            : `🏓 YOUR SERVE (${state.servesLeft} LEFT) — Q/E OR WHEEL TO AIM, CLICK TO SERVE`;
         screenText(hint, view.dispW / 2, 30);
         ctx.shadowBlur = 0;
     }
@@ -2545,25 +3461,33 @@ function drawArena() {
         if (ballTrail.length > 16) ballTrail.shift();
     } else ballTrail = [];
 
+    const myNum = isHost ? 1 : 2, bxNow = state.ball.x;
+    const fogged = state.fogT > 0 && state.fogTo === myNum && (myNum === 1 ? bxNow < NET_X : bxNow > NET_X);
+    ctx.globalAlpha = fogged ? 0.07 : 1;
     for (let i = 0; i < ballTrail.length; i++) {
         const pt = ballTrail[i], r = (i + 1) / ballTrail.length;
         if (b.isHyper) ctx.fillStyle = `rgba(255, 230, 0, ${r * 0.65})`;
         else if (profile.trail === 'rainbow') ctx.fillStyle = `hsla(${(Date.now() * 0.4 + i * 22) % 360}, 100%, 58%, ${r * 0.58})`;
         else if (profile.trail === 'fire') ctx.fillStyle = `rgba(255, ${Math.floor(r * 130)}, 0, ${r * 0.6})`;
         else if (profile.trail === 'gold') ctx.fillStyle = `rgba(255, 215, 0, ${r * 0.6})`;
+        else if (profile.trail === 'ice') ctx.fillStyle = `rgba(150, 225, 255, ${r * 0.6})`;
+        else if (profile.trail === 'stardust') ctx.fillStyle = `rgba(255, 240, ${120 + (i * 37) % 135}, ${r * 0.62})`;
+        else if (profile.trail === 'glitch') ctx.fillStyle = i % 2 ? `rgba(0, 243, 255, ${r * 0.6})` : `rgba(255, 0, 85, ${r * 0.6})`;
         else {
             const st = String(b.shotType || '');
             const tCol = st.includes('SMASH') ? '255, 123, 0' : (st.includes('SPIN') ? '188, 19, 254' : '0, 243, 255');
             ctx.fillStyle = `rgba(${tCol}, ${r * 0.5})`;
         }
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, BALL_RADIUS * r * 1.1, 0, Math.PI * 2); ctx.fill();
+        const jx = profile.trail === 'glitch' && i % 3 === 0 ? (Math.random() - 0.5) * 7 : 0;
+        if (profile.trail === 'stardust') { ctx.fillRect(pt.x + Math.sin(i * 7 + Date.now() * 0.01) * 6, pt.y + Math.cos(i * 5) * 6, 3 * r + 1, 3 * r + 1); }
+        ctx.beginPath(); ctx.arc(pt.x + jx, pt.y, BALL_RADIUS * r * 1.1, 0, Math.PI * 2); ctx.fill();
     }
 
     if (state.decoyBall.active) {
         ctx.save();
         ctx.globalAlpha = 0.72;
-        ctx.fillStyle = '#e082ff';
-        ctx.shadowBlur = 18; ctx.shadowColor = '#bc13fe';
+        ctx.fillStyle = '#7dffe9';
+        ctx.shadowBlur = 18; ctx.shadowColor = '#00e5c0';
         ctx.beginPath(); ctx.arc(state.decoyBall.x, state.decoyBall.y, BALL_RADIUS, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
     }
@@ -2577,11 +3501,9 @@ function drawArena() {
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.beginPath(); ctx.ellipse(b.x, b.y + 7, BALL_RADIUS, BALL_RADIUS * 0.6, 0, 0, Math.PI * 2); ctx.fill();
 
-        ctx.fillStyle = b.isHyper ? '#ffe600' : '#ffffff';
-        ctx.shadowBlur = b.isHyper ? 28 : 18;
-        ctx.shadowColor = b.isHyper ? '#ffe600' : '#00f3ff';
-        ctx.beginPath(); ctx.arc(b.x, vy, vr, 0, Math.PI * 2); ctx.fill();
-        ctx.shadowBlur = 0;
+        drawSpeedStreaks(b, vy);
+        drawBall(b, vy, vr);
+        ctx.globalAlpha = 1;
     }
 
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -2611,8 +3533,10 @@ function drawArena() {
         screenFlash = Math.max(0, screenFlash - 0.04);
     }
 
+    drawAtmosphere();
     drawCenterMessages();
     ctx.restore();
+    updateAimPad();
 }
 
 // =====================================================================
@@ -2634,8 +3558,9 @@ function computeView() {
     view.portrait = portrait;
     view.dispW = portrait ? H : W; view.dispH = portrait ? W : H;
     view.scale = Math.min(cw / view.dispW, ch / view.dispH);
-    const dpr = Math.max(1, Math.min(dprCap, window.devicePixelRatio || 1));
     const cssW = Math.max(1, Math.floor(view.dispW * view.scale)), cssH = Math.max(1, Math.floor(view.dispH * view.scale));
+    // Pixel budget: big tablets / 4K screens would otherwise fill 4-8 million pixels every frame.
+    const dpr = Math.max(1, Math.min(dprCap, window.devicePixelRatio || 1, Math.sqrt(2300000 / (cssW * cssH))));
     canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
     const bw = Math.round(cssW * dpr), bh = Math.round(cssH * dpr);
     if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
@@ -2818,9 +3743,11 @@ function openHowTo() {
         ['MOVE', isTouchDevice ? touchMove : 'Move the <b>mouse</b>, or use <b>WASD</b> / <b>arrow keys</b>.'],
         ['HIT', 'The ball bounces off your bat by itself. Move <b>toward the net</b> while hitting to SMASH, <b>sideways</b> for SPIN, <b>backward</b> for a DROP SHOT.'],
         ['STRIKE', (isTouchDevice ? 'Tap <b>STRIKE</b> (or tap the court)' : '<b>Click</b> or press <b>Space</b>') + ' to lunge. Time it on a fast ball for a <b>PERFECT PARRY</b>.'],
-        ['SERVE', 'Flick toward the net, or press STRIKE.'],
+        ['SERVE', 'Aim with Q / E, the mouse wheel or the AIM buttons (the dotted line shows the bounce), then click, press STRIKE or flick.'],
         ['CHRONO', (isTouchDevice ? 'Tap <b>CHRONO</b>' : '<b>Right-click</b> or <b>Shift</b>') + ' at 50% Overdrive to slow time and dash to the ball. At 100%, your next swing fires your racket\'s <b>ULTIMATE</b>.'],
+        ['POWERS', 'Buy <b>superpower</b> charges in the Locker (⚡ Powers tab), equip two, and fire them mid-match with ' + (isTouchDevice ? 'the buttons at the bottom-left of the court' : '<b>Z</b> and <b>X</b>') + '. Each slot works once per match; off in ranked.'],
         ['RINGS', 'Hit the floating ring for <b>2× points</b> or a decoy <b>mirage</b> ball.'],
+        ...(isTouchDevice ? [] : [['KEYS', 'Press <b>H</b> any time to see every keyboard shortcut. <b>P</b> pauses vs the AI, <b>M</b> mutes, <b>1–8</b> send emotes.']]),
         ['VIEW', 'You\'re always on the <b>left</b>, or at the <b>bottom</b> when your screen is upright. Online, both players see it from their own side.']
     ];
     document.getElementById('howto-list').innerHTML = items.map(([k, v]) => `<li><b>${k}</b> ${v}</li>`).join('');
@@ -2830,14 +3757,15 @@ function closeHowTo() {
     sfx.play('ui'); store.set(HOWTO_KEY, '1');
     document.getElementById('howto-overlay').classList.add('hidden');
     resumeFromPause();
+    setTimeout(checkDaily, 300);
 }
 
 // Keyboard, joystick and buttons all speak "screen directions"; this turns them into court directions.
 function applyLocalInput(bat, bnd, isP1, dt) {
     const kx = ((keys.ArrowRight || keys.d || keys.D) ? 1 : 0) - ((keys.ArrowLeft || keys.a || keys.A) ? 1 : 0);
     const ky = ((keys.ArrowDown || keys.s || keys.S) ? 1 : 0) - ((keys.ArrowUp || keys.w || keys.W) ? 1 : 0);
-    const vx = kx * 11.5 + moveVel.x, vy = ky * 11.5 + moveVel.y;
-    if (vx || vy) { const d = deltaToLogical(vx, vy); bat.targetX += d.x * dt; bat.targetY += d.y * dt; }
+    const vx = kx * 11.5 + moveVel.x + gp.x * 11.5, vy = ky * 11.5 + moveVel.y + gp.y * 11.5;
+    if (vx || vy) { lastInputAt = performance.now(); const d = deltaToLogical(vx, vy); bat.targetX += d.x * dt; bat.targetY += d.y * dt; }
     applyAssist(bat, isP1, dt);
     bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, bat.targetX));
     bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, bat.targetY));
@@ -2853,7 +3781,12 @@ function applyAssist(bat, isP1, dt) {
     let pred = b.y + (b.vy + b.spin * 10) * tReach * 0.85;
     const lo = 28, hi = H - 28;
     for (let i = 0; i < 3 && (pred < lo || pred > hi); i++) pred = pred < lo ? 2 * lo - pred : 2 * hi - pred;
-    bat.targetY += (pred - bat.targetY) * (lvl === 2 ? 0.17 : 0.07) * dt;
+    // Assist must never fight you: while you are steering it backs off, and it can only nudge a few px per frame.
+    // (Before, a fast ball near the bottom wall kept dragging the bat down, so you could not move it back up.)
+    const steering = performance.now() - lastInputAt < 260;
+    const pull = (lvl === 2 ? 0.17 : 0.07) * (steering ? 0.12 : 1);
+    const nudge = Math.max(-5, Math.min(5, (pred - bat.targetY) * pull));
+    bat.targetY += nudge * dt;
 }
 
 // ---- Feel + device care: vibration, keep screen on, toasts, auto graphics quality ----
@@ -2875,10 +3808,10 @@ function toast(msg) {
     let el = document.getElementById('toast');
     if (!el) {
         el = document.createElement('div'); el.id = 'toast';
-        el.style.cssText = 'position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:rgba(10,14,26,0.97);border:1px solid var(--p1);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;font-size:0.9rem;max-width:92vw;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.6)';
+        el.style.cssText = 'position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:rgba(10,14,26,0.97);border:1px solid var(--p1);border-left:4px solid var(--hyper);color:#fff;padding:10px 14px;border-radius:12px;font-weight:700;font-size:0.9rem;max-width:92vw;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.6)';
         document.body.appendChild(el);
     }
-    el.textContent = msg; el.style.display = 'block';
+    el.textContent = msg; el.style.display = 'block'; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
     clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, 4500);
 }
 function setLowFx(on) {
@@ -2895,9 +3828,9 @@ const perf = { n: 0, acc: 0 };
 function perfSample(ms) {
     if (ctrl.fx !== 'auto' || view.lowFx || !(ms > 0) || ms > 250) return;
     perf.n++; perf.acc += ms;
-    if (perf.n >= 150) {
+    if (perf.n >= 90) {
         const avg = perf.acc / perf.n; perf.n = 0; perf.acc = 0;
-        if (avg > 24) { autoLowFx = true; setLowFx(true); }   // under ~40 fps: drop to LITE graphics automatically
+        if (avg > 21) { autoLowFx = true; setLowFx(true); }   // under ~47 fps: drop to LITE graphics automatically
     }
 }
 
@@ -2920,18 +3853,50 @@ document.addEventListener('visibilitychange', () => {
 // iOS suspends audio after calls / app switches; any touch wakes it back up.
 document.addEventListener('pointerdown', () => { if (sfx.ctx && sfx.ctx.state !== 'running') sfx.ctx.resume().catch(() => {}); }, { capture: true, passive: true });
 
+let loopErrors = 0, loopWarned = false;
 function gameLoop(now) {
     if (!gameActive) return;
-    if (paused) { lastTime = now; animationId = requestAnimationFrame(gameLoop); return; }
-    perfSample(now - lastTime);
-    const dt = Math.max(0.25, Math.min(2.2, (now - lastTime) / 16.667));
-    lastTime = now;
-    // Frozen during the start/resume countdown and while either online player has the app in the background.
-    const frozen = now < countdownUntil || (!isAIMode && (remoteAway || localAway));
-    if (!frozen) updatePhysics(dt);
-    drawArena();
+    // Each stage is guarded on its own: one bad frame (odd network packet, driver hiccup) must never freeze the whole game.
+    try { pollGamepad(); } catch {}
+    if (paused) lastTime = now;
+    else {
+        try {
+            perfSample(now - lastTime);
+            const dt = Math.max(0.25, Math.min(2.2, (now - lastTime) / 16.667));
+            lastTime = now;
+            // Frozen during the start/resume countdown and while either online player has the app in the background.
+            const frozen = now < countdownUntil || (!isAIMode && (remoteAway || localAway));
+            if (!frozen) updatePhysics(dt);
+        } catch (err) { noteLoopError(err); lastTime = now; }
+        try { drawArena(); } catch (err) { noteLoopError(err); try { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.setLineDash([]); } catch {} }
+    }
     animationId = requestAnimationFrame(gameLoop);
 }
+function noteLoopError(err) {
+    loopErrors++;
+    if (loopErrors <= 3) console.error('[game] frame error:', err);
+    if (loopErrors === 20 && !loopWarned) { loopWarned = true; toast('⚠️ The game hit a glitch. If it looks stuck, press ✖ and start again.'); }
+}
+
+// ---- Gamepad: tablets, phones and PCs with a Bluetooth / USB controller ----
+const gp = { x: 0, y: 0, prev: {}, seen: false };
+function pollGamepad() {
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    let pad = null; for (const q of pads) if (q && q.connected) { pad = q; break; }
+    if (!pad) { gp.x = 0; gp.y = 0; return; }
+    const dz = v => Math.abs(v) < 0.2 ? 0 : (v - Math.sign(v) * 0.2) / 0.8;
+    const bt = i => !!(pad.buttons[i] && pad.buttons[i].pressed);
+    gp.x = dz(pad.axes[0] || 0); gp.y = dz(pad.axes[1] || 0);
+    if (bt(14)) gp.x = -1; else if (bt(15)) gp.x = 1;
+    if (bt(12)) gp.y = -1; else if (bt(13)) gp.y = 1;
+    const edge = (i, fn) => { const d = bt(i); if (d && !gp.prev[i]) fn(); gp.prev[i] = d; };
+    if (modalOpen()) { for (let i = 0; i < 16; i++) gp.prev[i] = bt(i); gp.x = 0; gp.y = 0; return; }
+    edge(0, onActionStrike); edge(2, onChronoAction); edge(1, onChronoAction);
+    edge(4, () => aimNudge(-1)); edge(5, () => aimNudge(1));
+    edge(6, () => usePower(0)); edge(7, () => usePower(1));
+    edge(9, togglePause);
+}
+window.addEventListener('gamepadconnected', () => { toast('🎮 Controller connected: stick moves, A strikes, X dashes, LB/RB aim, LT/RT powers, Start pauses'); });
 
 // Maps a screen point through the current view (rotated / flipped court) back to court space.
 function handlePointerMove(clientX, clientY, isDirectTouch = false) {
@@ -2942,6 +3907,7 @@ function handlePointerMove(clientX, clientY, isDirectTouch = false) {
     const Y = (clientY - r.top) / r.height * view.dispH - (isDirectTouch ? 42 : 0);   // keep the bat above the finger
     const p = toLogical(X, Y);
     const bat = isHost ? state.p1 : state.p2, bnd = isHost ? P1_BOUNDS : P2_BOUNDS;
+    lastInputAt = performance.now();
     bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, p.x));
     bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, p.y));
 }
@@ -2955,7 +3921,7 @@ function onActionStrike() {
         sendCtl({ type: 'whip' });
         // Local prediction so the guest sees their own lunge immediately (host runs the authoritative copy).
         const b2 = state.p2;
-        if (!(state.waitingForServe && state.currentServer === 2) && b2.strikeCd <= 0) { b2.strikeCd = 22; b2.lungeVel = -19; sfx.play('whip'); }
+        if (!(state.waitingForServe && state.currentServer === 2) && b2.strikeCd <= 0) { const R2 = RACKETS[b2.racket] || RACKETS.pro; b2.strikeCd = R2.cd; b2.lungeVel = -R2.lunge; b2.swing = 1; sfx.play('whip'); }
     }
 }
 
@@ -3027,6 +3993,7 @@ trackpad.addEventListener('pointermove', (e) => {
     const g = 2.3 * ctrl.sens * Math.max(0.6, Math.min(1.6, 0.7 / Math.max(0.3, view.scale)));
     const d = deltaToLogical(dx * g, dy * g);
     const myBat = isHost ? state.p1 : state.p2, b = isHost ? P1_BOUNDS : P2_BOUNDS;
+    lastInputAt = performance.now();
     myBat.targetX = Math.max(b.minX, Math.min(b.maxX, myBat.targetX + d.x));
     myBat.targetY = Math.max(b.minY, Math.min(b.maxY, myBat.targetY + d.y));
 });
@@ -3060,17 +4027,165 @@ function bindAction(id, fn) {
 bindAction('btn-mobile-strike', onActionStrike);
 bindAction('btn-mobile-chrono', onChronoAction);
 
+
+// =====================================================================
+//  ✨ UI / UX polish: racket stats, remembered settings, title-screen demo, emote popover, confetti, nudges
+// =====================================================================
+const RACKET_BARS = [['SPD', r => (r.spd - 0.85) / 0.35], ['PWR', r => (r.power - 0.85) / 0.4], ['SPIN', r => (r.spin - 0.7) / 0.9], ['AGI', r => (r.follow - 0.4) / 0.6], ['REACH', r => (r.len - 70) / 50]];
+function buildRacketCards() {
+    document.querySelectorAll('.racket-card[data-r]').forEach(card => {
+        const r = RACKETS[card.dataset.r]; if (!r) return;
+        card.style.setProperty('--rc', r.col);
+        if (card.querySelector('.r-stats')) return;
+        const st = document.createElement('div'); st.className = 'r-stats';
+        st.innerHTML = RACKET_BARS.map(([n, f]) => `<div>${n}<i><b style="width:${Math.round(Math.max(0.08, Math.min(1, f(r))) * 100)}%"></b></i></div>`).join('');
+        card.appendChild(st);
+    });
+}
+let quietUI = false;
+const PREF_KEY = 'neon_pong_prefs';
+function savePrefs() { if (quietUI) return; store.set(PREF_KEY, JSON.stringify({ r: mySelectedRacket, t: matchConfig.targetScore, w: matchConfig.winByTwo, a: aiSkill, s: anteChoice })); }
+function loadPrefs() {
+    let p = {}; try { p = JSON.parse(store.get(PREF_KEY) || '{}') || {}; } catch {}
+    quietUI = true;
+    try {
+        const card = document.querySelector(`.racket-card[data-r="${p.r}"]`); if (card && RACKETS[p.r]) selectRacket(p.r, card);
+        const byText = (sel, txt) => [...document.querySelectorAll(sel)].find(b => b.textContent.trim() === String(txt));
+        if ([5, 7, 11].includes(p.t)) { const b = byText('#score-selector .pill-btn', p.t); if (b) setTargetScore(p.t, b); }
+        if (typeof p.w === 'boolean') setWinByTwo(p.w);
+        if ([0.7, 0.95, 1.25].includes(p.a)) { const b = [...document.querySelectorAll('#ai-selector .pill-btn')].find(x => x.getAttribute('onclick').includes(`(${p.a},`)); if (b) setAIDifficulty(p.a, b); }
+        if ([0, 25, 50, 100].includes(p.s)) { const b = [...document.querySelectorAll('#ante-selector .pill-btn')].find(x => x.getAttribute('onclick').includes(`(${p.s},`)); if (b) setAnte(p.s, b); }
+    } catch {}
+    quietUI = false;
+}
+['selectRacket', 'setTargetScore', 'setWinByTwo', 'setAIDifficulty', 'setAnte'].forEach(n => { const f = window[n]; window[n] = function (...a) { const r = f.apply(this, a); savePrefs(); return r; }; });
+
+// Title-screen demo: a lazy rally plays on the court behind the menu (stops the moment a match starts).
+let attractId = 0;
+function startAttract() { if (attractId || gameActive) return; if (reduceMotion) { demoFrame(0); drawArena(); return; } attractId = requestAnimationFrame(attractLoop); }
+function demoFrame(t) {
+    const b = state.ball, k = t / 1000;
+    state.waitingForServe = false; state.feverRing.active = false; state.decoyBall.active = false; state.rally = 0; finishing = false;
+    b.x = NET_X + Math.sin(k * 1.1) * 330; b.y = H / 2 + Math.sin(k * 1.9) * 150;
+    b.vx = Math.cos(k * 1.1) * 15; b.vy = Math.cos(k * 1.9) * 6; b.speed = Math.hypot(b.vx, b.vy); b.z = 10 + Math.abs(Math.sin(k * 3.2)) * 18; b.isHyper = false; b.ultType = ''; b.shotType = '';
+    state.p1.racket = mySelectedRacket; state.p1.skin = profile.skin; state.p2.skin = 'default';
+    state.p1.x = 95; state.p2.x = W - 95; state.p1.angle = 0; state.p2.angle = 0;
+    state.p1.y += (Math.max(80, Math.min(H - 80, b.y)) - state.p1.y) * 0.08; state.p2.y += (Math.max(80, Math.min(H - 80, b.y)) - state.p2.y) * 0.08;
+    state.p1.trail.length = 0; state.p2.trail.length = 0;
+}
+function attractLoop(now) {
+    attractId = 0;
+    if (gameActive || document.hidden || !isOpen('menu-overlay')) return;
+    try { demoFrame(now); drawArena(); } catch {}
+    attractId = requestAnimationFrame(attractLoop);
+}
+
+// Emote popover (keeps the header to one tidy row; keys 1-8 still work)
+function toggleEmotes() {
+    const pop = document.getElementById('emote-pop'), btn = document.getElementById('emote-btn');
+    sfx.play('ui'); pop.classList.toggle('hidden');
+    if (!pop.classList.contains('hidden')) {
+        const r = btn.getBoundingClientRect(), w = 4 * 44 + 3 * 6 + 18;
+        pop.style.left = Math.max(6, Math.min(innerWidth - w - 6, r.left)) + 'px'; pop.style.top = (r.bottom + 6) + 'px';
+    }
+}
+function closeEmotes() { document.getElementById('emote-pop').classList.add('hidden'); }
+document.addEventListener('pointerdown', (e) => { const pop = document.getElementById('emote-pop'); if (pop && !pop.classList.contains('hidden') && !e.target.closest('.emote-wrap')) closeEmotes(); }, true);
+
+function launchConfetti() {
+    if (reduceMotion) return;
+    const box = document.getElementById('gameover-overlay'), cols = ['#00f3ff', '#ffe600', '#00ff88', '#ff4d6d', '#ff7b00'];
+    for (let i = 0; i < 44; i++) {
+        const c = document.createElement('i'); c.className = 'cf';
+        c.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % cols.length]};animation-duration:${2.2 + Math.random() * 2}s;animation-delay:${Math.random() * 0.9}s;transform:rotate(${Math.random() * 360}deg)`;
+        box.appendChild(c); setTimeout(() => c.remove(), 5500);
+    }
+}
+// Little green dots that point at things worth doing
+function updateNudges() {
+    const lk = document.getElementById('locker-btn'), pill = document.getElementById('rank-coin-pill');
+    if (lk) lk.classList.toggle('nudge', profile.coins >= 90);
+    if (pill) pill.classList.toggle('nudge', dailyStatus().claimable);
+}
+
+// ---------- Keyboard shortcuts ----------
+const MODALS = [['pack-overlay', () => closePack()], ['keys-overlay', () => closeKeys()], ['daily-overlay', () => closeDaily()], ['locker-overlay', () => closeLocker()],
+    ['leaderboard-overlay', () => closeLeaderboard()], ['controls-overlay', () => closeControls()], ['account-overlay', () => closeAccount()], ['howto-overlay', () => closeHowTo()]];
+const isOpen = id => { const e = document.getElementById(id); return !!e && !e.classList.contains('hidden'); };
+const modalOpen = () => MODALS.some(([id]) => isOpen(id));
+function toggleKeys() {
+    if (isOpen('keys-overlay')) { closeKeys(); return; }
+    if (gameActive && !isAIMode) { toast('⌨ Space strike • Shift dash • Q/E aim • 1-8 emotes • M mute • F fullscreen'); return; }   // never cover a live online match
+    sfx.play('ui'); pauseIfAI();
+    document.getElementById('keys-overlay').classList.remove('hidden');
+}
+function closeKeys() { sfx.play('ui'); document.getElementById('keys-overlay').classList.add('hidden'); resumeFromPause(); }
+function togglePause() {
+    if (!gameActive || !isAIMode || modalOpen()) return;
+    paused = !paused;
+    document.getElementById('pause-badge').classList.toggle('hidden', !paused);
+    if (!paused) { lastTime = performance.now(); startCountdown('resume'); } else drawArena();
+    sfx.play('ui');
+}
 window.addEventListener('keydown', (e) => {
-    if (e.target && e.target.matches && e.target.matches('input, textarea')) return;
-    if (Object.prototype.hasOwnProperty.call(keys, e.key)) keys[e.key] = true;
-    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) onActionStrike(); }
-    if (e.key === 'Shift') { e.preventDefault(); if (!e.repeat) onChronoAction(); }
-    if (['1', '2', '3', '4'].includes(e.key) && !e.repeat) sendEmote(parseInt(e.key) - 1);
+    if (e.target && e.target.matches && e.target.matches('input, textarea, select')) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;            // leave browser shortcuts (Cmd+R, Ctrl+F …) alone
+    const k = e.key, low = k.length === 1 ? k.toLowerCase() : k;
+    if (k === 'Escape') {
+        const m = MODALS.find(([id]) => isOpen(id));
+        if (m) m[1](); else togglePause();
+        return;
+    }
+    if (k === '?' || low === 'h') { e.preventDefault(); if (!e.repeat) toggleKeys(); return; }
+    if (modalOpen()) return;                                    // while a window is open the game keys stay quiet
+    const inMatch = gameActive, aiOrMenu = !gameActive || isAIMode;
+    if (Object.prototype.hasOwnProperty.call(keys, k)) keys[k] = true;
+    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) onActionStrike(); return; }
+    if (k === 'Shift') { e.preventDefault(); if (!e.repeat) onChronoAction(); return; }
+    if (/^[1-8]$/.test(k)) { if (!e.repeat) sendEmote(parseInt(k, 10) - 1); return; }
+    if (low === 'q' || k === '[') { aimNudge(-1); return; }
+    if (low === 'e' || k === ']') { aimNudge(1); return; }
+    if (low === 'z') { if (!e.repeat) usePower(0); return; }
+    if (low === 'x') { if (!e.repeat) usePower(1); return; }
+    if (e.repeat) return;                                       // everything below is one-shot
+    if (low === 'p') togglePause();
+    else if (low === 'm') toggleMute();
+    else if (low === 'f') toggleFullscreen();
+    else if (low === 'c') openControls();
+    else if (low === 't' && aiOrMenu) openLeaderboard();
+    else if (low === 'l' && aiOrMenu) openLocker();
+    else if ((low === 'r' || k === 'Enter') && isOpen('gameover-overlay')) { e.preventDefault(); requestRematch(); }
+    else if (k === 'Enter' && !inMatch && isOpen('menu-overlay') && (document.activeElement === document.body || !document.activeElement)) startAIGame();
 });
 window.addEventListener('keyup', (e) => { if (Object.prototype.hasOwnProperty.call(keys, e.key)) keys[e.key] = false; });
-window.addEventListener('blur', () => { Object.keys(keys).forEach(k => keys[k] = false); });
+window.addEventListener('blur', () => {
+    Object.keys(keys).forEach(k => keys[k] = false);
+    if (gameActive && isAIMode && !paused && !modalOpen()) togglePause();   // alt-tab / notification: never lose a point vs the bot
+});
+window.addEventListener('beforeunload', (e) => { if (gameActive && !isAIMode && conn && conn.open) { e.preventDefault(); e.returnValue = ''; } });   // accidental back-swipe / refresh in a live online match
+window.addEventListener('storage', (e) => {   // the same profile open in two tabs: pick up the other tab's coins / unlocks
+    if (e.key === profileKey() && e.newValue && !gameActive) { try { profile = sanitizeProfile(JSON.parse(e.newValue)); updateProfileBadge(); updateBountyUI(); } catch {} }
+});
+window.addEventListener('offline', () => toast('📴 You are offline. Vs-AI still works; online play needs internet.'));
+window.addEventListener('online', () => toast('✅ Back online'));
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+
+canvas.addEventListener('wheel', (e) => { if (state.waitingForServe) { e.preventDefault(); aimNudge(e.deltaY > 0 ? 1 : -1); } }, { passive: false });
+bindAction('btn-aim-a', () => aimNudge(-1));
+bindAction('btn-aim-b', () => aimNudge(1));
+let aimPadOn = null, aimPadPortrait = null;
+function updateAimPad() {
+    const on = !!(gameActive && state.waitingForServe && state.currentServer === (isHost ? 1 : 2) && Date.now() >= countdownUntil);
+    const pad = document.getElementById('aim-pad');
+    if (on !== aimPadOn) { aimPadOn = on; pad.classList.toggle('hidden', !on); }
+    if (on && aimPadPortrait !== view.portrait) {
+        aimPadPortrait = view.portrait; const [x, y] = view.portrait ? ['◀', '▶'] : ['▲', '▼'];
+        document.getElementById('btn-aim-a').firstChild.textContent = x; document.getElementById('btn-aim-b').firstChild.textContent = y;
+    }
+}
 
 function showOverlay(id) {
+    if (id === 'menu-overlay') setTimeout(startAttract, 30);
     ['menu-overlay', 'join-overlay', 'invite-overlay', 'connecting-overlay', 'gameover-overlay', 'net-overlay'].forEach(o => document.getElementById(o).classList.add('hidden'));
     const c = document.getElementById('game-container');
     if (id !== 'none') { document.getElementById(id).classList.remove('hidden'); c.classList.add('menu-open'); }

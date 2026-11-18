@@ -66,7 +66,7 @@ If something fails, open the browser console (F12 → Console) and look for line
 
 ## How it works
 
-- **Cloud save** (`users/{uid}`, private): RP, coins, unlocks, equipped trail and theme, and bounty progress. It's written at most once every 20 seconds, and also right at match end. A typical match costs about 2 writes per player.
+- **Cloud save** (`users/{uid}`, private): RP, coins, unlocks, equipped trail, theme, ball, net and racket skin, daily-streak day, power charges and loadout, and bounty progress. It's written at most once every 20 seconds, and also right at match end. A typical match costs about 2 writes per player.
 - **Ranked stats** (`leaderboard/{uid}`, readable by signed-in players): ranked RP (Elo-style, 5 to 40 per match), wins, losses, top speed and best rally. Only **online matches against a real player while signed in** count. AI matches never do.
 - **New accounts** take the current guest progress with them, once. The guest slot on that device then resets.
 - **Global board**: shows the top 25 by ranked RP, cached for 60 seconds per player to save reads.
@@ -78,3 +78,62 @@ If something fails, open the browser console (F12 → Console) and look for line
 - **Leaderboard privacy:** only signed-in players can read the board, so nobody can scrape it anonymously and burn your read quota. To make it public, change the `allow get` and `allow list` lines in `firestore.rules` to `if true` and publish again.
 - **Free quota:** Spark gives 50k reads and 20k writes per day. If you run out, Firebase pauses until the next day instead of charging you. Don't add a billing account unless you want that behaviour to change.
 - **Deleting an account:** delete the user under Authentication → Users, and their two documents under Firestore (`users/<uid>` and `leaderboard/<uid>`).
+
+---
+
+# Production release (v9.0.0)
+
+Do these in order. Everything stays on the free **Spark** plan. Project id: `neon-ping-pong`.
+
+## A. Publish the new rules **first**
+
+The v9 game saves extra fields (`ball`, `netFx`, `skin`, `lastDay`, `streak`, `powers`, `loadout`). They are optional in the new rules, so older cached copies of the game keep saving while players update.
+
+Either paste the whole `firestore.rules` into **Firestore Database → Rules → Publish**, or from the project folder:
+
+```bash
+npx firebase-tools login          # once
+npx firebase-tools deploy --only firestore:rules --project neon-ping-pong
+```
+
+(If you deploy the game before the rules, nothing breaks: the game detects `permission-denied` and saves in the old format until the rules are live. Cloud saves just won't include the new fields until then.)
+
+## B. Deploy the game
+
+```bash
+npx firebase-tools deploy --only hosting --project neon-ping-pong
+```
+
+This uploads `index.html`, `sw.js`, `manifest.webmanifest` and `icon.svg`. Docs and hidden folders are ignored by `firebase.json`. `index.html` and `sw.js` are served with `Cache-Control: no-cache`, so players get the new version on their next visit.
+
+Or both at once: `npx firebase-tools deploy --only hosting,firestore:rules`.
+
+If you also host on GitHub Pages, `git push` updates it after about a minute.
+
+## C. Console checks (one time)
+
+1. **Authentication → Settings → Authorized domains:** make sure every domain the game runs on is listed: `neon-ping-pong.web.app`, `neon-ping-pong.firebaseapp.com` (both are added automatically), `theanamolycoder.github.io` if you use GitHub Pages, and any custom domain. Otherwise Google sign-in fails.
+2. **Authentication → Sign-in method:** Google and Email/Password still enabled.
+3. **Firestore → Rules:** the *Published* time should be today, and the text should contain `Fields added in v9 are optional`.
+4. **Usage and billing → Spark plan:** leave it without a billing account (quota exhaustion pauses instead of charging). Optionally set an alert.
+
+## D. Smoke test on the live URL (5 minutes)
+
+1. Open the site in a private window. You should see the **V9** badge and a daily reward popup.
+2. Sign in with Google. Open the browser console (F12): there must be **no** `permission-denied` lines starting with `[cloud]`.
+3. Buy a power in **Locker → ⚡ POWERS**, reload, sign in again: the charge is still there (this proves the new fields were saved to the cloud).
+4. Play an Invite Friend match from a second device. Both players should see "Powers/skins", pings and the same court. A ranked match must show powers as unavailable.
+5. **Ranks → 🌍 GLOBAL** still lists you after the ranked match.
+6. Turn on airplane mode after loading once and reload: the menu and vs-AI play still work (service worker).
+
+## E. Things players will notice
+
+- Anyone with an old copy open will see the "refresh to update" message when joining a v9 player: that is the network version check (v14) doing its job.
+- Existing players get a free 🛡️ Goal Guard and ⚡ Overload once, and their daily streak starts at day 1.
+- The service worker keeps one copy of the game for offline play. It is network-first, so it never serves an old version while online.
+
+## F. Roll back
+
+- **Hosting:** Firebase console → Hosting → Release history → ⋮ → **Rollback** on the previous release.
+- **Rules:** Firestore → Rules → history, or restore the v8 file from git: `git show 3556353:firestore.rules > firestore.rules` and deploy it.
+- Data written by v9 stays valid: older versions ignore the extra fields.
