@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NEON PONG V9 // Cross-Play Apex Arena</title>
+    <title>NEON PONG V10 // Cross-Play Apex Arena</title>
     <meta name="theme-color" content="#030408">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -461,6 +461,60 @@
         @keyframes pcardGlow { from { filter: brightness(1); } to { filter: brightness(1.35) drop-shadow(0 0 10px var(--rc)); } }
         @media (prefers-reduced-motion: reduce) { .pcard-inner { animation-duration: 0.01s; animation-delay: 0s; } }
         @media (max-width: 560px) { .pack-grid { grid-template-columns: 1fr; } .pack-card { flex-direction: row; justify-content: space-between; padding: 6px 10px; } .pack-blurb { min-height: 0; } .pcard { width: 118px; height: 170px; } }
+
+        /* ===================== V10: stakes pot, couch mode, 2.5D court, design polish ===================== */
+        /* Coin pot */
+        .pot-hud { color: var(--hyper); font-family: 'Orbitron', sans-serif; font-weight: 900; padding: 0 6px; border-radius: 6px; background: rgba(255,230,0,0.12); border: 1px solid rgba(255,230,0,0.45); display: inline-flex; align-items: center; gap: 3px; transition: transform 0.15s; }
+        .pot-hud.bump, .go-pot.bump { animation: potBump 0.22s ease-out; }
+        @keyframes potBump { 50% { transform: scale(1.18); } }
+        @media (max-width: 520px) { .sub-meta:has(.pot-hud:not(.hidden)) > span:not(.pot-hud):not(:first-child) { display: none; } }   /* phones: rally + pot only */
+        .fly-coin { position: fixed; z-index: 120; font-size: 18px; pointer-events: none; filter: drop-shadow(0 0 6px rgba(255,200,0,0.8)); will-change: transform; }
+        .go-pot { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 8px; padding: 6px 16px; border-radius: 999px; font-family: 'Orbitron', sans-serif; font-size: 0.95rem; color: var(--hyper); background: linear-gradient(90deg, rgba(255,176,0,0.18), rgba(255,230,0,0.08)); border: 1px solid rgba(255,230,0,0.55); box-shadow: 0 0 22px rgba(255,190,0,0.25); }
+        .go-pot .go-pot-ico { font-size: 1.2rem; }
+        .go-pot #go-pot-to { font-size: 0.7rem; color: #fff; letter-spacing: 1px; }
+        .go-pot.won { border-color: var(--success); color: var(--success); box-shadow: 0 0 24px rgba(0,255,136,0.35); }
+        .go-pot.lost { border-color: var(--p2); color: #ff8aa8; box-shadow: none; }
+        .btn-hot { border-color: #ffb000; background: linear-gradient(135deg, rgba(255,176,0,0.30), rgba(255,77,0,0.12)); box-shadow: 0 0 18px rgba(255,150,0,0.35); }
+        .btn-hot:hover { background: #ffb000; color: #000; }
+        .btn-couch { border-color: var(--success); background: linear-gradient(135deg, rgba(0,255,136,0.20), rgba(0,255,136,0.04)); box-shadow: 0 0 14px rgba(0,255,136,0.22); }
+        .btn-couch:hover { background: var(--success); color: #000; }
+        body.local-vs #aim-pad, body.local-vs #power-bar { display: none !important; }
+        body:not(.in-match) #mobile-deck.active { visibility: hidden; }   /* menus are see-through: don't show idle controls behind them */
+
+        /* 2.5D court: the canvas is tilted by the GPU; a floor glow sits under it */
+        #game-container { perspective-origin: 50% 100%; background:
+            radial-gradient(ellipse 70% 55% at 50% 78%, rgba(0,243,255,0.07), transparent 70%),
+            radial-gradient(ellipse 60% 40% at 50% 18%, rgba(255,0,85,0.05), transparent 70%), #050811; }
+        canvas#pongCanvas { box-shadow: 0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06); }
+
+        /* Design polish: one consistent glass + neon language across HUD, menus and results */
+        :root { --glass: linear-gradient(180deg, rgba(18,24,42,0.92), rgba(8,11,22,0.94)); --edge: rgba(255,255,255,0.10); }
+        #top-bar { background: var(--glass); border-color: var(--edge); box-shadow: 0 8px 28px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05); }
+        .player-card.p1 .score-box { box-shadow: 0 0 18px rgba(0,243,255,0.18), inset 0 0 12px rgba(0,243,255,0.10); }
+        .player-card.p2 .score-box { box-shadow: 0 0 18px rgba(255,0,85,0.18), inset 0 0 12px rgba(255,0,85,0.10); }
+        .icon-btn { background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)); border-color: var(--edge); }
+        .panel-card { background: var(--glass); border-color: var(--edge); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+        .btn { letter-spacing: 1.2px; }
+        .btn-row .btn { min-height: 42px; }
+        /* Results screen */
+        #gameover-overlay { --win: var(--p1); }
+        .go-kicker { font-family: 'Orbitron', sans-serif; font-size: 0.72rem; letter-spacing: 3px; color: var(--win); text-shadow: 0 0 12px var(--win); margin-bottom: 2px; }
+        #gameover-overlay #winner-text { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--win) 55%, transparent)); }
+        #gameover-overlay .stats-grid { max-width: 540px; }
+        #gameover-overlay .stat-box { background: var(--glass); border-color: var(--edge); border-top: 2px solid var(--win); border-radius: 12px; padding: 9px 6px; }
+        #gameover-overlay .stat-box .val { font-size: 1.15rem; }
+        #gameover-overlay .btn-row { max-width: 560px; }
+        #gameover-overlay .stat-box .lbl { display: block !important; margin-top: 2px; }   /* phones hide .lbl elsewhere; results need their labels */
+        #gameover-overlay, #menu-overlay { background: rgba(4,6,14,0.97); }
+        #gameover-overlay .btn-row .icon-btn { justify-content: center; }
+        /* Menu: the three ways to play read as one clear choice */
+        #menu-overlay .btn-row:has(#create-btn) { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 760px; }
+        #menu-overlay .btn-row:has(#create-btn) .btn { padding: 12px 10px; font-size: 0.78rem; border-radius: 14px; white-space: normal; line-height: 1.25; }
+        @media (max-width: 640px) {
+            #menu-overlay .btn-row:has(#create-btn) { grid-template-columns: 1fr; }
+            #gameover-overlay .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            #gameover-overlay .btn-row { display: grid; grid-template-columns: 1fr; width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -512,6 +566,7 @@
                 <span id="rule-badge">FIRST TO 5</span>
                 <span>•</span>
                 <span id="ping-display">LOCAL</span>
+                <span id="pot-hud" class="pot-hud hidden">🪙 <b id="pot-val">0</b></span>
             </div>
         </div>
 
@@ -536,8 +591,8 @@
 
         <!-- 1. MAIN MENU OVERLAY -->
         <div id="menu-overlay" class="overlay">
-            <h1 class="game-title">NEON PONG <span class="v-tag">V9</span></h1>
-            <p class="subtitle">Cross-play • 6 rackets • Superpowers • Daily rewards</p>
+            <h1 class="game-title">NEON PONG <span class="v-tag">V10</span></h1>
+            <p class="subtitle">Cross-play • Couch 2P • 2.5D court • Stakes pot</p>
 
             <div class="racket-grid">
                 <div class="racket-card selected" data-r="pro" onclick="selectRacket('pro', this)">
@@ -614,6 +669,7 @@
             <div class="btn-row">
                 <button class="btn btn-secondary" onclick="startAIGame()">⚡ Play Instant vs Pro AI</button>
                 <button id="create-btn" class="btn" onclick="createOnlineGame()">🔗 Invite Friend (Phone / PC)</button>
+                <button class="btn btn-couch" onclick="startLocalGame()">👥 2 Players • Same Device</button>
             </div>
             <div class="btn-row" style="margin-top:6px;">
                 <button class="icon-btn" onclick="openHowTo()">❔ How to Play</button>
@@ -672,8 +728,10 @@
 
         <!-- 5. GAME OVER OVERLAY -->
         <div id="gameover-overlay" class="overlay hidden">
+            <div class="go-kicker" id="go-kicker">MATCH COMPLETE</div>
             <h1 id="winner-text" class="game-title">PLAYER 1 WINS!</h1>
             <p id="match-subtitle" class="subtitle">+30 RP • +60 NEON COINS EARNED</p>
+            <div id="go-pot" class="go-pot hidden"><span class="go-pot-ico">🪙</span><b id="go-pot-val">0</b><span id="go-pot-to">POT</span></div>
             <div class="stats-grid">
                 <div class="stat-box"><div class="val" id="end-score-val">5 - 3</div><div class="lbl">Final Score</div></div>
                 <div class="stat-box"><div class="val" id="end-speed-val">235 KM/H</div><div class="lbl">Top Smash</div></div>
@@ -681,7 +739,8 @@
                 <div class="stat-box"><div class="val" id="end-series-val">1 - 0</div><div class="lbl">Series</div></div>
             </div>
             <div class="btn-row">
-                <button class="btn" onclick="requestRematch()">⚡ Instant Rematch</button>
+                <button class="btn" id="rematch-btn" onclick="requestRematch()">⚡ Instant Rematch</button>
+                <button class="btn btn-hot hidden" id="don-btn" onclick="requestRematch(true)">🔥 Double or Nothing</button>
                 <button class="btn btn-secondary" onclick="openLocker()">🎨 Locker & Shop</button>
                 <button class="icon-btn" onclick="returnToMenu()">Main Menu</button>
             </div>
@@ -823,6 +882,13 @@
                         <button class="pill-btn" data-v="auto">AUTO</button>
                         <button class="pill-btn" data-v="full">FULL</button>
                         <button class="pill-btn" data-v="lite">LITE</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <label>Court View</label>
+                    <div class="pill-selector" id="ctrl-tilt">
+                        <button class="pill-btn" data-v="on">2.5D TILT</button>
+                        <button class="pill-btn" data-v="off">FLAT</button>
                     </div>
                 </div>
             </div>
@@ -1011,7 +1077,9 @@ const PICKUPS = {
     fever:  { col: '#ffe600', icon: '🎰', label: '2X FEVER' },
     mirage: { col: '#ff4d6d', icon: '🪞', label: 'MIRAGE' },
     coin:   { col: '#00ff88', icon: '💰', label: 'COIN BURST' },
-    warp:   { col: '#00f3ff', icon: '⏱️', label: 'TIME WARP' }
+    warp:   { col: '#00f3ff', icon: '⏱️', label: 'TIME WARP' },
+    grow:   { col: '#00ff88', icon: '🔋', label: 'MEGA BAT' },
+    shrink: { col: '#ff7b00', icon: '📉', label: 'SHRINK RAY' }
 };
 // Superpowers: bought with coins (consumable charges), 2 loadout slots (keys Z / X), each slot usable once per match.
 // The host applies them, so they behave identically for both players. Disabled in ranked matches to keep the ladder fair.
@@ -1025,7 +1093,9 @@ const POWERS = {
 };
 const POWER_IDS = Object.keys(POWERS), POWER_MAX = 9;
 const cleanPows = a => (Array.isArray(a) ? a : []).filter((x, i, arr) => POWERS[x] && arr.indexOf(x) === i).slice(0, 2);
-function rollPickup() { const r = Math.random() * 100; return r < 32 ? 'fever' : r < 56 ? 'mirage' : r < 80 ? 'coin' : 'warp'; }
+function rollPickup() { const r = Math.random() * 100; return r < 24 ? 'fever' : r < 42 ? 'mirage' : r < 60 ? 'coin' : r < 74 ? 'warp' : r < 87 ? 'grow' : 'shrink'; }
+// Effective bat length: racket length times any Mega Bat / Shrink Ray effect.
+const batLen = (bat) => (RACKETS[bat.racket] || RACKETS.pro).len * (bat.sizeMul || 1);
 
 const EMOTES = [
     { txt: '🔥 TOO EASY!',    col: '#ff7b00', f1: 520, f2: 880 },
@@ -1192,6 +1262,7 @@ function advanceBounty(type, amount = 1, isSet = false) {
 }
 // Credits a bounty to the right human: locally if it's me, over the network if it's the remote player.
 function awardBounty(playerNum, type, amount = 1, isSet = false) {
+    if (localVs) return;
     const mine = isHost ? 1 : 2;
     if (playerNum === mine) advanceBounty(type, amount, isSet);
     else if (!isAIMode) sendCtl({ type: 'bounty', kind: type, n: amount, set: isSet });
@@ -1345,7 +1416,15 @@ function equipItem(item) {
     if (item.type === 'theme') { profile.themeBg = item.bg; profile.themeNet = item.net; }
     if (item.type === 'ball') profile.ball = item.val;
     if (item.type === 'net') profile.netFx = item.val;
-    if (item.type === 'skin') profile.skin = item.val;
+    if (item.type === 'skin') { profile.skin = item.val; onSkinEquipped(); }
+}
+// Put a freshly equipped skin on your bat straight away, and tell an online opponent so they see it too.
+function onSkinEquipped() {
+    const mine = (isHost || isAIMode) ? 1 : 2;
+    if (mine === 1) matchConfig.p1Skin = profile.skin; else matchConfig.p2Skin = profile.skin;
+    const bat = mine === 1 ? state.p1 : state.p2;
+    if (bat) bat.skin = profile.skin;
+    if (!isAIMode) sendCtl({ type: 'skin', v: profile.skin });
 }
 function rollRarity(odds, atLeast) {
     let r = Math.random(), pick = null;
@@ -1848,6 +1927,7 @@ const P2_BOUNDS = { minX: NET_X + 38, maxX: W - 36, minY: 42, maxY: H - 42 };
 // conn = reliable/ordered control channel, connF = unreliable/fast channel (sync + movement)
 let peer = null, conn = null, connF = null, pingTimer = null, leaving = false;
 let isHost = true, isAIMode = false, aiSkill = 0.95;
+let localVs = false, deckBeforeLocal = null;   // same-device 2 players: the host runs both bats, no AI
 let gameActive = false, animationId = null, lastTime = performance.now(), pendingRoomId = null, pointTimer = null;
 let mySelectedRacket = 'pro';
 let finishing = false, aiPow = null, powersOn = true, lastPowerAt = 0;
@@ -1858,7 +1938,7 @@ let hitStopTimer = 0, slowMoTimer = 0, cameraZoom = 1.0, screenShake = 0, screen
 
 function sendCtl(m) { if (conn && conn.open) { try { conn.send(m); } catch {} } }
 function sendFast(m) { if (connF && connF.open) { try { connF.send(m); } catch {} } }
-const NET_VERSION = 14;   // bump whenever the network messages change; mismatched players get a "refresh" message
+const NET_VERSION = 15;   // bump whenever the network messages change; mismatched players get a "refresh" message
 let lastRecvAt = 0, lastSyncSent = 0, lastMoveSent = 0, lastMoveX = -1, lastMoveY = -1;
 let remoteAway = false, localAway = false, countdownUntil = 0, countdownKind = 'start', guestFlickSent = false;
 let watchdogTimer = null, joinTimer = null;
@@ -1880,7 +1960,7 @@ function createBat(x, y, rKey = 'pro') {
         vx: 0, vy: 0, velHistory: [],
         angle: 0, hitCooldown: 0, hitFlash: 0, strikeCd: 0,
         lungeOffset: 0, lungeVel: 0,
-        overdrive: 0, racket: rKey, streak: 0,
+        overdrive: 0, racket: rKey, streak: 0, sizeMul: 1, sizeT: 0,
         emoteTxt: '', emoteCol: '#fff', emoteTimer: 0,
         trail: []
     };
@@ -2034,8 +2114,38 @@ function updateHUD() {
     hudSet('serve-pill-p1', 'show', state.currentServer === 1); hudSet('serve-pill-p2', 'show', state.currentServer !== 1);
 }
 
+// Two people, one device: P1 = W A S D + Space (Left Shift dash), P2 = arrow keys + Enter (Right Shift dash).
+// On a touchscreen each player drags and taps on their own half of the court (double-tap = Chrono Dash).
+const KEY_HINT_SOLO = document.getElementById('key-hint') ? document.getElementById('key-hint').innerHTML : '';
+function startLocalGame() {
+    sfx.init(); sfx.play('ui');
+    isHost = true; isAIMode = true; localVs = true;
+    matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
+    matchConfig.p2Name = matchConfig.p1Name === 'Player 2' ? 'Player 1' : 'Player 2';
+    matchConfig.p1Dev = '🎮'; matchConfig.p2Dev = '🎮';
+    matchConfig.p1Skin = profile.skin; matchConfig.p2Skin = 'default'; matchConfig.ante = 0;
+    matchConfig.p1Racket = mySelectedRacket; matchConfig.p2Racket = mySelectedRacket;   // mirror match: fair for both
+    aiPow = null;
+    seriesWins = { p1: 0, p2: 0 };
+    document.getElementById('ping-display').innerText = '2P LOCAL';
+    document.getElementById('leave-match-btn').style.display = 'flex';
+    document.getElementById('key-hint').innerHTML = '<b style="color:var(--p1)">P1</b> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move <kbd>Space</kbd> strike <kbd>L-Shift</kbd> dash <kbd>Q</kbd><kbd>E</kbd> aim &nbsp; <b style="color:var(--p2)">P2</b> <kbd>Arrows</kbd> move <kbd>Enter</kbd> strike <kbd>R-Shift</kbd> dash <kbd>,</kbd><kbd>.</kbd> aim';
+    deckBeforeLocal = document.getElementById('mobile-deck').classList.contains('active');
+    if (deckBeforeLocal) setDeck(false);   // both players use the court itself
+    document.body.classList.add('local-vs');
+    applyNamesUI(); startMatch();
+}
+function endLocalMode() {
+    if (!localVs) return;
+    localVs = false;
+    document.body.classList.remove('local-vs');
+    document.getElementById('key-hint').innerHTML = KEY_HINT_SOLO;
+    if (deckBeforeLocal) setDeck(true);
+    deckBeforeLocal = null;
+}
 function startAIGame() {
     sfx.init(); sfx.play('ui');
+    endLocalMode();
     isHost = true; isAIMode = true;
     matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p2Name = 'PRO AI BOT';
@@ -2054,6 +2164,7 @@ function startAIGame() {
 
 function createOnlineGame() {
     sfx.init(); sfx.play('ui');
+    endLocalMode();
     isHost = true; isAIMode = false; leaving = false;
     matchConfig.p1Name = cleanName(document.getElementById('host-name-input').value, 'Player 1');
     matchConfig.p1Dev = myDeviceIcon;
@@ -2165,7 +2276,7 @@ function handleNetData(d) {
             p1Name: cleanName(c.p1Name, 'Player 1'), p2Name: cleanName(c.p2Name, 'Player 2'),
             p1Dev: cleanDev(c.p1Dev), p2Dev: cleanDev(c.p2Dev),
             p1Racket: rk(c.p1Racket), p2Racket: rk(c.p2Racket), p1Skin: cleanSkin(c.p1Skin), p2Skin: cleanSkin(c.p2Skin), p1Pow: cleanPows(c.p1Pow), p2Pow: cleanPows(c.p2Pow),
-            ante: Math.min(clampInt(c.ante, 0, 100, 0), profile.coins),
+            ante: Math.min(clampInt(c.ante, 0, 200, 0), profile.coins),
             initialServer: c.initialServer === 2 ? 2 : 1
         };
         seriesWins = { p1: num(d.series && d.series.p1), p2: num(d.series && d.series.p2) };
@@ -2181,6 +2292,7 @@ function handleNetData(d) {
         state.p2.overdrive = num(s.p2Od); state.p2.streak = num(s.p2St);
         state.p2.hitFlash = Math.max(state.p2.hitFlash, num(s.p2Flash));
         state.feverRing = s.ring; state.decoyBall = s.decoy;
+        if (Array.isArray(s.sz)) { state.p1.sizeMul = clampInt(s.sz[0], 50, 160, 100) / 100; state.p2.sizeMul = clampInt(s.sz[1], 50, 160, 100) / 100; state.p2.sizeT = state.p2.sizeMul === 1 ? 0 : 1; }
         guestSlow = !!s.slow;
         const dist = Math.hypot(s.ball.x - state.ball.x, s.ball.y - state.ball.y);
         if (dist > 45 || s.wfs) state.ball = s.ball;
@@ -2223,13 +2335,17 @@ function handleNetData(d) {
         finishMatchSoon(d.winner === 2 ? 2 : 1);
     } else if (d.type === 'rematch' && !isHost) {
         matchConfig.initialServer = d.initialServer === 2 ? 2 : 1;
-        matchConfig.ante = Math.min(clampInt(d.ante, 0, 100, 0), profile.coins);   // coins changed since the last match
+        matchConfig.ante = Math.min(clampInt(d.ante, 0, 200, 0), profile.coins);   // coins changed since the last match
         matchConfig.p1Pow = cleanPows(d.p1Pow); matchConfig.p2Pow = ownedLoadout();
         resetMatch();
     } else if (d.type === 'prof' && isHost) {
         oppCoins = clampInt(d.coins, 0, 10000000, 0); matchConfig.p2Pow = isRankedMatch() ? [] : cleanPows(d.pow);
+        if (!gameActive && matchCounted) styleGameOver(state.score1 > state.score2 ? 1 : 2, state.score1 > state.score2);   // their balance arrived: re-check Double or Nothing
+    } else if (d.type === 'skin') {
+        const v = cleanSkin(d.v);
+        if (isHost) { matchConfig.p2Skin = v; state.p2.skin = v; } else { matchConfig.p1Skin = v; state.p1.skin = v; }
     } else if (d.type === 'rematch_req' && isHost) {
-        if (!gameActive) requestRematch();
+        if (!gameActive) requestRematch(!!d.double);
     } else if (d.type === 'away') {
         remoteAway = !!d.on;
         if (!remoteAway) startCountdown('resume');
@@ -2306,6 +2422,7 @@ function startWatchdog() {
 }
 
 function returnToMenu() {
+    endLocalMode();
     if (gameActive && !isAIMode && !matchCounted && matchConfig.ante > 0 && conn && conn.open) { profile.coins = Math.max(0, profile.coins - matchConfig.ante); saveProfile(); toast(`You left mid-match: 🪙${matchConfig.ante} stake forfeited`); }
     sfx.play('ui'); gameActive = false; finishing = false; paused = false; leaving = true; clearTimeout(pointTimer);
     document.getElementById('pause-badge').classList.add('hidden'); document.getElementById('power-bar').classList.add('hidden'); updateAimPad();
@@ -2334,10 +2451,13 @@ function startMatch() {
     matchCounted = false;
     state.p1 = createBat(95, H / 2, matchConfig.p1Racket);
     state.p2 = createBat(W - 95, H / 2, matchConfig.p2Racket);
+    // Always use the skin equipped right now (it may have changed in the Locker since the last match).
+    if (localVs) matchConfig.p1Skin = profile.skin;
+    else if (isHost) matchConfig.p1Skin = profile.skin; else matchConfig.p2Skin = profile.skin;
     state.p1.skin = matchConfig.p1Skin; state.p2.skin = matchConfig.p2Skin;
     setupPowers();
     state.lastPointSlow = false; finishing = false; for (const k in hudCache) delete hudCache[k];
-    if (!isAIMode && matchConfig.ante > 0) showBanner(`💰 STAKES: 🪙${matchConfig.ante} EACH`, '#ffe600');
+    if (!isAIMode && matchConfig.ante > 0) runPotIn(matchConfig.ante); else hidePot();
     updateScoreBox(0); applyNamesUI();
     gameActive = true; lastTime = performance.now();
     updatePowerBar();
@@ -2347,10 +2467,10 @@ function startMatch() {
 }
 
 function resetMatch() { sfx.play('ui'); startMatch(); }
-function requestRematch() {
+function requestRematch(double = false) {
     // Only the host owns the match; a guest asks the host (before, both sides reset separately and desynced).
     if (!isAIMode && !isHost) {
-        if (conn && conn.open) { sendCtl({ type: 'rematch_req' }); document.getElementById('match-subtitle').innerText = '⏳ Waiting for the host to start the rematch…'; }
+        if (conn && conn.open) { sendCtl({ type: 'rematch_req', double: !!double }); document.getElementById('match-subtitle').innerText = double ? '🔥 Asked for Double or Nothing. Waiting for the host…' : '⏳ Waiting for the host to start the rematch…'; }
         return;
     }
     matchConfig.initialServer = matchConfig.initialServer === 1 ? 2 : 1;
@@ -2358,8 +2478,10 @@ function requestRematch() {
     else if (conn && conn.open) {
         const off = isRankedMatch();
         matchConfig.p1Pow = off ? [] : ownedLoadout();
-        matchConfig.ante = Math.min(anteChoice, profile.coins, oppCoins);
-        sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer, ante: matchConfig.ante, p1Pow: matchConfig.p1Pow }); resetMatch();
+        // Same bet as the match just played; Double or Nothing doubles it (max 🪙200), if both players can pay.
+        const want = double ? Math.min(200, Math.max(25, matchConfig.ante * 2)) : (matchConfig.ante || anteChoice);
+        matchConfig.ante = Math.min(want, profile.coins, oppCoins);
+        sendCtl({ type: 'rematch', initialServer: matchConfig.initialServer, ante: matchConfig.ante, p1Pow: matchConfig.p1Pow, double: !!double }); resetMatch();
     }
 }
 
@@ -2420,7 +2542,7 @@ function triggerWhipStrike(playerNum) {
 
     const b = state.ball;
     const approaching = (playerNum === 1 && b.vx < 0 && b.x < NET_X) || (playerNum === 2 && b.vx > 0 && b.x > NET_X);
-    if (approaching && Math.abs(b.x - bat.x) < 135 && Math.abs(b.y - bat.y) < rStats.len * 1.05) {
+    if (approaching && Math.abs(b.x - bat.x) < 135 && Math.abs(b.y - bat.y) < batLen(bat) * 1.05) {
         bat.targetY += (b.y - bat.targetY) * 0.7;
         bat.y += (b.y - bat.y) * 0.6; bat.sy = bat.y;
     }
@@ -2501,14 +2623,16 @@ function stepBatKinematics(bat, bounds, isP1, dt) {
     const fol = 1 - Math.pow(1 - rStats.follow * (bat.freeze > 0 ? 0.22 : 1), dt);   // Ice Lock = molasses
     bat.sx += (bat.targetX - bat.sx) * fol; bat.sy += (bat.targetY - bat.sy) * fol;
     const desiredX = Math.max(bounds.minX, Math.min(bounds.maxX, bat.sx + bat.lungeOffset));
-    const yMin = Math.max(bounds.minY, rStats.len / 2 + 24), yMax = Math.min(bounds.maxY, H - rStats.len / 2 - 24);
+    if (bat.sizeT > 0) { bat.sizeT -= dt; if (bat.sizeT <= 0) { bat.sizeT = 0; bat.sizeMul = 1; } }
+    const bl = batLen(bat);
+    const yMin = Math.max(bounds.minY, bl / 2 + 24), yMax = Math.min(bounds.maxY, H - bl / 2 - 24);
     const desiredY = Math.max(yMin, Math.min(yMax, bat.sy));
     const b = state.ball;
     const incoming = (isP1 && b.vx < 0 && b.x < NET_X) || (!isP1 && b.vx > 0 && b.x > NET_X);
     let magnetY = desiredY;
     const steeringNow = performance.now() - lastInputAt < 200;
     const mag = bat.magnetT > 0;   // Magnet Hand: much wider reach and a firm pull
-    if (!state.waitingForServe && incoming && Math.abs(b.x - desiredX) < (mag ? 130 : 70) && Math.abs(b.y - desiredY) < rStats.len * (mag ? 1.5 : 0.78)) {
+    if (!state.waitingForServe && incoming && Math.abs(b.x - desiredX) < (mag ? 130 : 70) && Math.abs(b.y - desiredY) < bl * (mag ? 1.5 : 0.78)) {
         magnetY += (b.y - desiredY) * (mag ? 0.7 : (steeringNow ? 0.12 : 0.32) * ((isAIMode && !isP1) ? 0.3 : 1));   // normal magnet yields while you steer; the bot gets only a sliver
     }
 
@@ -2542,7 +2666,7 @@ function checkBatCapsuleCollision(bat, isP1) {
 
     const b = state.ball;
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
-    const halfL = rStats.len / 2;
+    const halfL = batLen(bat) / 2;
     const sinA = Math.sin(bat.angle), cosA = Math.cos(bat.angle);
 
     const ax = bat.x - sinA * halfL, ay = bat.y - cosA * halfL;
@@ -2712,7 +2836,7 @@ function aiParams() {
 function aiReset() { aiMem.buf.length = 0; aiMem.seen = null; aiMem.err = 0; aiMem.dirIn = false; }
 const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.75;   // roughly -2..2, bell-shaped
 function updateAIBat(dt) {
-    if (!isAIMode) return;
+    if (!isAIMode || localVs) return;
     const ai = state.p2, b = state.ball, P = aiParams();
     const stepTo = (cur, want, k, max) => cur + Math.max(-max, Math.min(max, (want - cur) * k)) * dt;
     if (state.waitingForServe) {
@@ -2770,7 +2894,7 @@ function updateAIBat(dt) {
 function setupPowers() {
     usedPow[1].clear(); usedPow[2].clear(); lastPowerAt = 0;
     state.fogTo = 0; state.fogT = 0;
-    powersOn = !(typeof isRankedMatch === 'function' && isRankedMatch());
+    powersOn = !(typeof isRankedMatch === 'function' && isRankedMatch()) && !localVs;
     if (isHost) {
         matchConfig.p1Pow = powersOn ? ownedLoadout() : [];
         if (isAIMode) matchConfig.p2Pow = powersOn && aiPow ? [aiPow.id] : [];
@@ -2860,6 +2984,7 @@ function updatePhysics(rawDt) {
     }
 
     if (isAIMode) updateAIBat(rawDt);
+    if (localVs) applyP2Keys(rawDt);
     if (state.fogT > 0) state.fogT -= rawDt;
     const b = state.ball;
 
@@ -2950,6 +3075,14 @@ function updatePhysics(rawDt) {
                 hitter.overdrive = Math.min(100, hitter.overdrive + 35);
                 awardCoins(hitterNum, 30);
                 fx('💰 COIN BURST! +30 🪙 +35 OD');
+            } else if (mode === 'grow') {
+                hitter.sizeMul = 1.35; hitter.sizeT = 360;
+                hitter.overdrive = Math.min(100, hitter.overdrive + 20);
+                fx('🔋 MEGA BAT! +35% SIZE FOR 6s');
+            } else if (mode === 'shrink') {
+                const rival = hitter === state.p1 ? state.p2 : state.p1;
+                rival.sizeMul = 0.7; rival.sizeT = 300;
+                fx('📉 SHRINK RAY! RIVAL BAT -30%');
             } else if (mode === 'warp') {
                 hitter.overdrive = Math.min(100, hitter.overdrive + 60);
                 slowMoTimer = 55;
@@ -3039,15 +3172,27 @@ function finishMatchSoon(w) {   // kept by name; the result screen now appears i
     triggerLocalFX({ sfx: 'fever', flash: 0.4, shake: 14 });
     handleGameOver(w);
 }
+function finishLocalGame(winner) {
+    const wName = winner === 1 ? matchConfig.p1Name : matchConfig.p2Name;
+    document.getElementById('winner-text').innerText = `${wName.toUpperCase()} WINS!`;
+    document.getElementById('match-subtitle').innerText = 'Same-device match • just for fun: no coins or RP';
+    document.getElementById('end-score-val').innerText = `${state.score1} - ${state.score2}`;
+    document.getElementById('end-speed-val').innerText = `${state.topKmh} KM/H`;
+    document.getElementById('end-rally-val').innerText = state.maxRally;
+    document.getElementById('end-series-val').innerText = `${seriesWins.p1} - ${seriesWins.p2}`;
+    styleGameOver(winner, true);
+    showOverlay('gameover-overlay');
+}
 function handleGameOver(winner) {
     gameActive = false; applyNamesUI(); updatePowerBar();
     if (matchCounted) return;   // a duplicate 'gameover' message must not pay out twice
     matchCounted = true;
     recordMatchStats(matchConfig.p1Name, matchConfig.p2Name, state.score1, state.score2, state.maxRally, state.topKmh);
     const iWon = (isHost && winner === 1) || (!isHost && winner === 2);
-    sfx.play(iWon ? 'win' : 'lose');
-    if (iWon) setTimeout(launchConfetti, 150);
+    sfx.play(iWon || localVs ? 'win' : 'lose');
+    if (iWon || localVs) setTimeout(launchConfetti, 150);
     updateAimPad();
+    if (localVs) { finishLocalGame(winner); return; }
 
     const rpDelta = iWon ? 30 : -12;
     const coinsEarned = (iWon ? 55 : 25) + Math.floor(state.maxRally * 1.5);
@@ -3060,7 +3205,7 @@ function handleGameOver(winner) {
     }
     let stakeTxt = '', rivalTxt = '';
     if (!isAIMode) {
-        const ante = clampInt(matchConfig.ante, 0, 100, 0);
+        const ante = clampInt(matchConfig.ante, 0, 200, 0);
         if (ante > 0) { profile.coins = iWon ? profile.coins + ante : Math.max(0, profile.coins - ante); stakeTxt = ` • 🪙${iWon ? '+' : '-'}${ante} STAKES`; }
         const opp = cleanName(isHost ? matchConfig.p2Name : matchConfig.p1Name, 'Friend');
         const h2h = readH2H(); const rec = h2h[opp] || { w: 0, l: 0 };
@@ -3081,7 +3226,74 @@ function handleGameOver(winner) {
     document.getElementById('end-speed-val').innerText = `${state.topKmh} KM/H`;
     document.getElementById('end-rally-val').innerText = state.maxRally;
     document.getElementById('end-series-val').innerText = `${seriesWins.p1} - ${seriesWins.p2}`;
+    styleGameOver(winner, iWon);
     showOverlay('gameover-overlay');
+    if (!isAIMode && matchConfig.ante > 0) runPotOut(matchConfig.ante, wName, iWon);
+}
+// Winner colour, kicker line and which rematch buttons make sense for this match.
+function styleGameOver(winner, iWon) {
+    const col = winner === 1 ? 'var(--p1)' : 'var(--p2)';
+    const ov = document.getElementById('gameover-overlay');
+    ov.style.setProperty('--win', col);
+    document.getElementById('go-kicker').innerText = localVs ? '👥 SAME-DEVICE MATCH' : isAIMode ? (iWon ? '🏆 VICTORY vs AI' : '💀 DEFEAT vs AI') : (iWon ? '🏆 VICTORY' : '💀 DEFEAT');
+    const ante = (!isAIMode && matchConfig.ante > 0) ? matchConfig.ante : 0;
+    const don = document.getElementById('don-btn'), next = Math.min(200, ante * 2);
+    const canDon = ante > 0 && profile.coins >= next && (!isHost || oppCoins >= next);
+    don.classList.toggle('hidden', !canDon);
+    don.innerText = `🔥 Double or Nothing • 🪙${next} each`;
+    document.getElementById('rematch-btn').innerText = ante > 0 ? `⚡ Rematch • 🪙${ante} each` : '⚡ Instant Rematch';
+    if (!ante) document.getElementById('go-pot').classList.add('hidden');
+}
+
+// ---- Coin pot: coins fly from both scoreboards into the pot at kick-off, and to the winner at the end ----
+function flyCoins(fromEl, toEl, n, opts = {}) {
+    if (!fromEl || !toEl || reduceMotion) { for (let i = 0; i < n; i++) opts.onEach && opts.onEach(i); opts.onDone && opts.onDone(); return; }
+    const a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect();
+    const ax = a.left + a.width / 2, ay = a.top + a.height / 2, bx = b.left + b.width / 2, by = b.top + b.height / 2;
+    let landed = 0;
+    for (let i = 0; i < n; i++) {
+        const c = document.createElement('span');
+        c.className = 'fly-coin'; c.textContent = '🪙';
+        c.style.left = ax + 'px'; c.style.top = ay + 'px';
+        document.body.appendChild(c);
+        const dx = bx - ax, dy = by - ay, lift = -40 - Math.random() * 40, jit = (Math.random() - 0.5) * 30;
+        const anim = c.animate([
+            { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 0 },
+            { transform: `translate(calc(-50% + ${dx * 0.5 + jit}px), calc(-50% + ${dy * 0.5 + lift}px)) scale(1.15)`, opacity: 1, offset: 0.45 },
+            { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.7)`, opacity: 0.9 }
+        ], { duration: opts.dur || 650, delay: i * (opts.gap || 55), easing: 'cubic-bezier(.3,.6,.4,1)', fill: 'forwards' });
+        anim.onfinish = () => { c.remove(); opts.onEach && opts.onEach(i); if (++landed === n) opts.onDone && opts.onDone(); };
+    }
+}
+function bump(el) { if (!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+function hidePot() { document.getElementById('pot-hud').classList.add('hidden'); }
+function runPotIn(ante) {
+    const hud = document.getElementById('pot-hud'), val = document.getElementById('pot-val');
+    const total = ante * 2, per = 8;
+    let pot = 0;
+    hud.classList.remove('hidden'); val.innerText = '0';
+    // keep the ball and bats still until the pot is locked
+    countdownUntil = Math.max(countdownUntil, performance.now() + 2300);
+    const each = () => { pot = Math.min(total, pot + total / (per * 2)); val.innerText = Math.round(pot); bump(hud); sfx.play('ui'); };
+    let done = 0;
+    const fin = () => { if (++done < 2) return; val.innerText = total; showBanner(`🔒 POT LOCKED: 🪙${total}`, '#ffe600'); buzz(25); };
+    flyCoins(document.getElementById('score-p1'), hud, per, { onEach: each, onDone: fin });
+    flyCoins(document.getElementById('score-p2'), hud, per, { onEach: each, onDone: fin });
+}
+function runPotOut(ante, winnerName, iWon) {
+    hidePot();
+    const box = document.getElementById('go-pot'), val = document.getElementById('go-pot-val');
+    const total = ante * 2, per = 12;
+    box.classList.remove('hidden');
+    document.getElementById('go-pot-to').innerText = `→ ${winnerName.toUpperCase()}`;
+    val.innerText = total;
+    let left = total;
+    setTimeout(() => flyCoins(box, document.getElementById('winner-text'), per, {
+        dur: 600, gap: 60,
+        onEach: () => { left = Math.max(0, left - total / per); val.innerText = Math.round(left); bump(box); if (iWon) sfx.play('ui'); },
+        onDone: () => { val.innerText = iWon ? `+${ante}` : `-${ante}`; box.classList.add(iWon ? 'won' : 'lost'); }
+    }), 350);
+    box.classList.remove('won', 'lost');
 }
 
 function triggerLocalFX(d) {
@@ -3134,6 +3346,7 @@ function syncToClient() {
                 p2Pw: { sh: state.p2.shield ? 1 : 0, fz: Math.round(state.p2.freeze), mg: Math.round(state.p2.magnetT) }, fog: state.fogT > 0 ? state.fogTo : 0,
                 p2Od: state.p2.overdrive, p2St: state.p2.streak, p2Flash: state.p2.hitFlash,
                 ring: state.feverRing, decoy: state.decoyBall, slow: slowMoTimer > 0,
+                sz: [Math.round((state.p1.sizeMul || 1) * 100), Math.round((state.p2.sizeMul || 1) * 100)],
                 ball: state.ball, rally: state.rally, maxRally: state.maxRally, topKmh: state.topKmh,
                 wfs: state.waitingForServe, srv: state.currentServer, sLeft: state.servesLeft
             }
@@ -3144,7 +3357,7 @@ function syncToClient() {
 function drawBatRacket(bat, color) {
     ctx.save();
     const rStats = RACKETS[bat.racket] || RACKETS.pro;
-    const len = rStats.len;
+    const len = batLen(bat);
     const isOverdrive = bat.overdrive >= 100;
     const skin = bat.skin || 'default', tt = Date.now();
     let skinCol = null;
@@ -3481,7 +3694,9 @@ function drawArena() {
         ctx.font = `900 ${isTouchDevice ? 15 : 18}px "Orbitron", sans-serif`; ctx.textAlign = 'center'; ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#000'; ctx.shadowBlur = 8;
         const myTurn = (isHost && isP1S) || (!isHost && !isP1S);
-        const hint = !myTurn ? '⏳ WAITING FOR SERVE...'
+        const srvName = (isP1S ? matchConfig.p1Name : matchConfig.p2Name).toUpperCase();
+        const hint = localVs ? (isTouchDevice ? `🏓 ${srvName} SERVES • TAP YOUR SIDE` : `🏓 ${srvName} SERVES • ${isP1S ? 'SPACE' : 'ENTER'} (AIM ${isP1S ? 'Q/E' : ', .'})`)
+            : !myTurn ? '⏳ WAITING FOR SERVE...'
             : isTouchDevice ? `🏓 YOUR SERVE (${state.servesLeft}) — SET AIM, THEN STRIKE`
             : view.portrait ? `🏓 YOUR SERVE (${state.servesLeft}) — Q/E AIM, CLICK TO SERVE`
             : `🏓 YOUR SERVE (${state.servesLeft} LEFT) — Q/E OR WHEEL TO AIM, CLICK TO SERVE`;
@@ -3607,6 +3822,7 @@ function computeView() {
     // Pixel budget: big tablets / 4K screens would otherwise fill 4-8 million pixels every frame.
     const dpr = Math.max(1, Math.min(dprCap, window.devicePixelRatio || 1, Math.sqrt(2300000 / (cssW * cssH))));
     canvas.style.width = cssW + 'px'; canvas.style.height = cssH + 'px';
+    tiltKey = ''; try { applyTilt(Math.round(tiltLean * 40) / 40); } catch {}
     const bw = Math.round(cssW * dpr), bh = Math.round(cssH * dpr);
     if (canvas.width !== bw || canvas.height !== bh) { canvas.width = bw; canvas.height = bh; }
     view.k = bw / view.dispW;
@@ -3711,7 +3927,7 @@ function announcePressure() {
 // =====================================================================
 const CTRL_KEY = 'neon_pong_controls';
 const HOWTO_KEY = 'neon_pong_howto_seen';
-const ctrl = { mode: 'pad', sens: 1, assist: isTouchDevice ? 1 : 0, haptics: true, lefty: false, fx: 'auto' };
+const ctrl = { mode: 'pad', sens: 1, assist: isTouchDevice ? 1 : 0, haptics: true, lefty: false, fx: 'auto', tilt: 'on' };
 const CTRL_DESC = {
     pad: 'Drag anywhere in the pad box. The bat moves with your thumb, like a laptop trackpad. Best on good screens.',
     stick: 'A joystick appears wherever you touch. Push it and hold. Great on weak or laggy screens: no precise dragging.',
@@ -3720,7 +3936,7 @@ const CTRL_DESC = {
 };
 const CTRL_GROUPS = {
     'ctrl-mode': ['mode', v => v], 'ctrl-sens': ['sens', v => parseFloat(v)], 'ctrl-assist': ['assist', v => parseInt(v, 10)],
-    'ctrl-haptics': ['haptics', v => v === '1'], 'ctrl-lefty': ['lefty', v => v === '1'], 'ctrl-fx': ['fx', v => v]
+    'ctrl-haptics': ['haptics', v => v === '1'], 'ctrl-lefty': ['lefty', v => v === '1'], 'ctrl-fx': ['fx', v => v], 'ctrl-tilt': ['tilt', v => v]
 };
 function loadControls() {
     try {
@@ -3732,6 +3948,7 @@ function loadControls() {
             ctrl.haptics = s.haptics !== false;
             ctrl.lefty = !!s.lefty;
             if (['auto', 'full', 'lite'].includes(s.fx)) ctrl.fx = s.fx;
+            if (['on', 'off'].includes(s.tilt)) ctrl.tilt = s.tilt;
         }
     } catch {}
     applyControls();
@@ -3807,16 +4024,25 @@ function closeHowTo() {
 
 // Keyboard, joystick and buttons all speak "screen directions"; this turns them into court directions.
 function applyLocalInput(bat, bnd, isP1, dt) {
-    const kx = ((keys.ArrowRight || keys.d || keys.D) ? 1 : 0) - ((keys.ArrowLeft || keys.a || keys.A) ? 1 : 0);
-    const ky = ((keys.ArrowDown || keys.s || keys.S) ? 1 : 0) - ((keys.ArrowUp || keys.w || keys.W) ? 1 : 0);
+    const arrows = !localVs;   // in a same-device match the arrow keys belong to Player 2
+    const kx = (((arrows && keys.ArrowRight) || keys.d || keys.D) ? 1 : 0) - (((arrows && keys.ArrowLeft) || keys.a || keys.A) ? 1 : 0);
+    const ky = (((arrows && keys.ArrowDown) || keys.s || keys.S) ? 1 : 0) - (((arrows && keys.ArrowUp) || keys.w || keys.W) ? 1 : 0);
     const vx = kx * 11.5 + moveVel.x + gp.x * 11.5, vy = ky * 11.5 + moveVel.y + gp.y * 11.5;
     if (vx || vy) { lastInputAt = performance.now(); const d = deltaToLogical(vx, vy); bat.targetX += d.x * dt; bat.targetY += d.y * dt; }
     applyAssist(bat, isP1, dt);
     bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, bat.targetX));
     bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, bat.targetY));
 }
+function applyP2Keys(dt) {
+    const bat = state.p2;
+    const kx = (keys.ArrowRight ? 1 : 0) - (keys.ArrowLeft ? 1 : 0), ky = (keys.ArrowDown ? 1 : 0) - (keys.ArrowUp ? 1 : 0);
+    if (kx || ky) { const d = deltaToLogical(kx * 11.5, ky * 11.5); bat.targetX += d.x * dt; bat.targetY += d.y * dt; }
+    bat.targetX = Math.max(P2_BOUNDS.minX, Math.min(P2_BOUNDS.maxX, bat.targetX));
+    bat.targetY = Math.max(P2_BOUNDS.minY, Math.min(P2_BOUNDS.maxY, bat.targetY));
+}
 // Aim assist gently slides your bat toward where the ball will arrive. Capped at Light in ranked games.
 function applyAssist(bat, isP1, dt) {
+    if (localVs) return;   // couch matches stay fair: no assist for either side
     const lvl = isRankedMatch() ? Math.min(ctrl.assist, 1) : ctrl.assist;
     if (!lvl || state.waitingForServe) return;
     const b = state.ball;
@@ -3899,6 +4125,57 @@ document.addEventListener('visibilitychange', () => {
 document.addEventListener('pointerdown', () => { if (sfx.ctx && sfx.ctx.state !== 'running') sfx.ctx.resume().catch(() => {}); }, { capture: true, passive: true });
 
 let loopErrors = 0, loopWarned = false;
+// ---- 2.5D tilt ----
+// The court quad: bottom edge full width (your side), far edge narrower; a small lean follows the ball.
+let tiltM = null, tiltLean = 0, tiltKey = '';
+function solveSquareToQuad(q) {   // q = [[x0,y0],[x1,y1],[x2,y2],[x3,y3]] for (0,0),(1,0),(1,1),(0,1)
+    const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = q;
+    const dx1 = x1 - x2, dx2 = x3 - x2, dx3 = x0 - x1 + x2 - x3, dy1 = y1 - y2, dy2 = y3 - y2, dy3 = y0 - y1 + y2 - y3;
+    const den = dx1 * dy2 - dx2 * dy1;
+    const g = (dx3 * dy2 - dx2 * dy3) / den, h = (dx1 * dy3 - dx3 * dy1) / den;
+    return [x1 - x0 + g * x1, x3 - x0 + h * x3, x0, y1 - y0 + g * y1, y3 - y0 + h * y3, y0, g, h, 1];
+}
+function inv3(m) {
+    const [a, b, c, d, e, f, g, h, i] = m;
+    const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g, det = a * A + b * B + c * C;
+    if (!det) return null;
+    return [A / det, -(b * i - c * h) / det, (b * f - c * e) / det, B / det, (a * i - c * g) / det, -(a * f - c * d) / det, C / det, -(a * h - b * g) / det, (a * e - b * d) / det];
+}
+function applyTilt(lean = 0) {
+    const on = ctrl.tilt !== 'off';
+    const w = parseFloat(canvas.style.width) || canvas.clientWidth, h = parseFloat(canvas.style.height) || canvas.clientHeight;
+    if (!on || !w || !h) { if (tiltM) { canvas.style.transform = ''; tiltM = null; tiltKey = ''; } return; }
+    const key = `${w}|${h}|${lean.toFixed(3)}|${view.portrait}`;
+    if (key === tiltKey) return;
+    tiltKey = key;
+    const inset = w * (view.portrait ? 0.11 : 0.075), lx = lean * w * 0.035;
+    const m = solveSquareToQuad([[inset + lx, 0], [w - inset + lx, 0], [w, h], [0, h]]);   // square -> quad
+    // canvas px -> quad px: scale (x / w, y / h) first
+    tiltM = [m[0] / w, m[1] / h, m[2], m[3] / w, m[4] / h, m[5], m[6] / w, m[7] / h, m[8]];
+    const t = tiltM;
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = `matrix3d(${t[0]},${t[3]},0,${t[6]},${t[1]},${t[4]},0,${t[7]},0,0,1,0,${t[2]},${t[5]},0,${t[8]})`;
+}
+function tiltFollow() {
+    if (ctrl.tilt === 'off') return;
+    const b = state.ball;
+    let target = 0;
+    if (gameActive && b.x > 0) { const p = toDisplay(b.x, b.y); target = Math.max(-1, Math.min(1, (p.x / view.dispW - 0.5) * 2)); }
+    tiltLean += (target - tiltLean) * 0.06;
+    applyTilt(Math.round(tiltLean * 40) / 40);   // quantised so the style is only touched when it visibly changes
+}
+// Screen point -> court display space, undoing the tilt exactly.
+function clientToDisplay(clientX, clientY) {
+    const r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return null;
+    const w = parseFloat(canvas.style.width) || r.width, h = parseFloat(canvas.style.height) || r.height;
+    let x = clientX - r.left, y = clientY - r.top;
+    if (tiltM) {
+        const iv = inv3(tiltM);
+        if (iv) { const X = x, Y = y, wq = iv[6] * X + iv[7] * Y + iv[8]; x = (iv[0] * X + iv[1] * Y + iv[2]) / wq; y = (iv[3] * X + iv[4] * Y + iv[5]) / wq; }
+    }
+    return { x: x / w * view.dispW, y: y / h * view.dispH };
+}
 function gameLoop(now) {
     if (!gameActive) return;
     // Each stage is guarded on its own: one bad frame (odd network packet, driver hiccup) must never freeze the whole game.
@@ -3913,6 +4190,7 @@ function gameLoop(now) {
             const frozen = now < countdownUntil || (!isAIMode && (remoteAway || localAway));
             if (!frozen) updatePhysics(dt);
         } catch (err) { noteLoopError(err); lastTime = now; }
+        try { tiltFollow(); } catch {}
         try { drawArena(); } catch (err) { noteLoopError(err); try { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.setLineDash([]); } catch {} }
     }
     animationId = requestAnimationFrame(gameLoop);
@@ -3946,11 +4224,9 @@ window.addEventListener('gamepadconnected', () => { toast('🎮 Controller conne
 // Maps a screen point through the current view (rotated / flipped court) back to court space.
 function handlePointerMove(clientX, clientY, isDirectTouch = false) {
     if (!gameActive || paused) return;
-    const r = canvas.getBoundingClientRect();
-    if (!r.width || !r.height) return;
-    const X = (clientX - r.left) / r.width * view.dispW;
-    const Y = (clientY - r.top) / r.height * view.dispH - (isDirectTouch ? 42 : 0);   // keep the bat above the finger
-    const p = toLogical(X, Y);
+    const d = clientToDisplay(clientX, clientY);
+    if (!d) return;
+    const p = toLogical(d.x, d.y - (isDirectTouch ? 42 : 0));   // keep the bat above the finger
     const bat = isHost ? state.p1 : state.p2, bnd = isHost ? P1_BOUNDS : P2_BOUNDS;
     lastInputAt = performance.now();
     bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, p.x));
@@ -3977,7 +4253,31 @@ function onChronoAction() {
 }
 
 let courtPtr = null;
+const localPtrs = new Map(), lastSideTap = [0, 0, 0];
+function moveSideTo(side, clientX, clientY) {
+    const d = clientToDisplay(clientX, clientY);
+    if (!d) return;
+    const off = (view.portrait && side === 2) ? 42 : -42;   // keep the bat just past each player's finger
+    const p = toLogical(d.x, d.y + off);
+    const bat = side === 1 ? state.p1 : state.p2, bnd = side === 1 ? P1_BOUNDS : P2_BOUNDS;
+    bat.targetX = Math.max(bnd.minX, Math.min(bnd.maxX, p.x));
+    bat.targetY = Math.max(bnd.minY, Math.min(bnd.maxY, p.y));
+}
 canvas.addEventListener('pointerdown', (e) => {
+    if (localVs && e.pointerType !== 'mouse') {
+        e.preventDefault(); sfx.init();
+        if (!gameActive || paused) return;
+        const d = clientToDisplay(e.clientX, e.clientY);
+        if (!d) return;
+        const side = toLogical(d.x, d.y).x < NET_X ? 1 : 2;
+        localPtrs.set(e.pointerId, side);
+        try { canvas.setPointerCapture(e.pointerId); } catch {}
+        moveSideTo(side, e.clientX, e.clientY);
+        const now = performance.now();
+        if (now - lastSideTap[side] < 280) triggerChronoDash(side); else triggerWhipStrike(side);
+        lastSideTap[side] = now;
+        return;
+    }
     if (e.pointerType === 'mouse') {
         if (e.button === 0) onActionStrike();
         else if (e.button === 2) onChronoAction();
@@ -3989,9 +4289,10 @@ canvas.addEventListener('pointerdown', (e) => {
     onActionStrike();   // any touch on the court = swing; extra fingers can tap to swing again
 });
 canvas.addEventListener('pointermove', (e) => {
+    if (localPtrs.has(e.pointerId)) { e.preventDefault(); if (gameActive && !paused) moveSideTo(localPtrs.get(e.pointerId), e.clientX, e.clientY); return; }
     if (e.pointerType !== 'mouse' && e.pointerId === courtPtr) { e.preventDefault(); handlePointerMove(e.clientX, e.clientY, true); }
 });
-['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => canvas.addEventListener(ev, (e) => { if (e.pointerId === courtPtr) courtPtr = null; }));
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => canvas.addEventListener(ev, (e) => { localPtrs.delete(e.pointerId); if (e.pointerId === courtPtr) courtPtr = null; }));
 canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });   // stop double-tap zoom / scroll
 
 // Move zone: one finger, tracked by pointerId so a second finger on STRIKE can't hijack it.
@@ -4186,6 +4487,13 @@ window.addEventListener('keydown', (e) => {
     if (modalOpen()) return;                                    // while a window is open the game keys stay quiet
     const inMatch = gameActive, aiOrMenu = !gameActive || isAIMode;
     if (Object.prototype.hasOwnProperty.call(keys, k)) keys[k] = true;
+    if (localVs && gameActive) {
+        if (k === 'Enter') { e.preventDefault(); if (!e.repeat && !paused) triggerWhipStrike(2); return; }
+        if (e.code === 'ShiftRight') { e.preventDefault(); if (!e.repeat && !paused) triggerChronoDash(2); return; }
+        if (e.code === 'ShiftLeft') { e.preventDefault(); if (!e.repeat && !paused) triggerChronoDash(1); return; }
+        if (k === ',' || k === '.') { if (state.waitingForServe && state.currentServer === 2) { aimP2 = Math.max(-SERVE_MAX, Math.min(SERVE_MAX, aimP2 + (k === ',' ? -0.045 : 0.045))); sfx.play('ui'); } return; }
+        if (k.startsWith('Arrow')) e.preventDefault();
+    }
     if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) onActionStrike(); return; }
     if (k === 'Shift') { e.preventDefault(); if (!e.repeat) onChronoAction(); return; }
     if (/^[1-8]$/.test(k)) { if (!e.repeat) sendEmote(parseInt(k, 10) - 1); return; }
